@@ -1,0 +1,3987 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Sampah Nusantara</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-deep: #f0f7f2;
+            --bg-card: #ffffff;
+            --bg-dark: #f4f9f5;
+            --cyan: #2e7d32;
+            --cyan-10: rgba(46, 125, 50, .10);
+            --cyan-12: rgba(46, 125, 50, .12);
+            --cyan-bd: rgba(46, 125, 50, .35);
+            --blue: #1b5e20;
+            --orange: #e65100;
+            --purple: #5c35a8;
+            --red: #d32f2f;
+            --yellow: #f57f17;
+            --green: #2e7d32;
+            --green-10: rgba(46, 125, 50, .10);
+            --teal: #00796b;
+            --border: rgba(46, 125, 50, .18);
+            --border-light: rgba(46, 125, 50, .10);
+            --muted: rgba(20, 60, 30, .45);
+            --dim: rgba(10, 50, 20, .70);
+            --text-main: #0d2113;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-main);
+            height: 100%;
+        }
+
+        .font-display {
+            font-family: 'Syne', sans-serif;
+        }
+
+        .avatar {
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--cyan), #1b5e20);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .avatar-md {
+            width: 42px;
+            height: 42px;
+            font-size: 14px;
+            border: 2px solid var(--cyan-bd);
+        }
+
+        .avatar-sm {
+            width: 34px;
+            height: 34px;
+            font-size: 12px;
+        }
+
+        .bs {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .bs-ok {
+            background: rgba(46, 125, 50, .12);
+            color: #1b5e20;
+        }
+
+        .bs-warn {
+            background: rgba(245, 127, 23, .12);
+            color: var(--yellow);
+        }
+
+        .bs-err {
+            background: rgba(211, 47, 47, .10);
+            color: var(--red);
+        }
+
+        .bs-new {
+            background: rgba(0, 121, 107, .10);
+            color: var(--teal);
+        }
+
+        .bs-green {
+            background: rgba(46, 125, 50, .10);
+            color: var(--green);
+        }
+
+        .bs-purple {
+            background: rgba(92, 53, 168, .10);
+            color: var(--purple);
+        }
+
+        .bs-orange {
+            background: rgba(230, 81, 0, .10);
+            color: var(--orange);
+        }
+
+        .ic1 {
+            background: rgba(46, 125, 50, .12);
+            color: var(--cyan);
+        }
+
+        .ic2 {
+            background: rgba(27, 94, 32, .12);
+            color: var(--blue);
+        }
+
+        .ic3 {
+            background: rgba(230, 81, 0, .10);
+            color: var(--orange);
+        }
+
+        .ic4 {
+            background: rgba(92, 53, 168, .10);
+            color: var(--purple);
+        }
+
+        .ic5 {
+            background: rgba(0, 121, 107, .10);
+            color: var(--teal);
+        }
+
+        .ic6 {
+            background: rgba(211, 47, 47, .10);
+            color: var(--red);
+        }
+
+        .sec-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            margin: 24px 0 10px;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp .4s ease both;
+        }
+
+        .fade-up:nth-child(1) {
+            animation-delay: .05s
+        }
+
+        .fade-up:nth-child(2) {
+            animation-delay: .10s
+        }
+
+        .fade-up:nth-child(3) {
+            animation-delay: .15s
+        }
+
+        .fade-up:nth-child(4) {
+            animation-delay: .20s
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.is-mobile-layout {
+            display: flex;
+            flex-direction: column;
+            min-height: 100svh;
+        }
+
+        body.is-mobile-layout .page.active {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ── MOBILE HEADER ── */
+        .m-header {
+            background: linear-gradient(160deg, #1b5e20 0%, #2e7d32 55%, #388e3c 100%);
+            padding: 28px 20px 40px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .m-header::before {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .10);
+            top: -70px;
+            right: -50px;
+        }
+
+        .m-header::after {
+            content: '';
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .07);
+            bottom: -25px;
+            left: 28px;
+        }
+
+        .m-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .m-gear {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .20);
+            border: 1px solid rgba(255, 255, 255, .30);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .m-summary {
+            background: rgba(255, 255, 255, .18);
+            border: 1px solid rgba(255, 255, 255, .35);
+            border-radius: 20px;
+            padding: 18px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .m-summary-lbl {
+            font-size: 10px;
+            color: rgba(255, 255, 255, .80);
+            letter-spacing: 1.6px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .m-summary-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 38px;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -1.5px;
+            color: #fff;
+            margin-bottom: 16px;
+        }
+
+        .m-pills {
+            display: flex;
+            gap: 8px;
+        }
+
+        .m-pill {
+            flex: 1;
+            background: rgba(255, 255, 255, .15);
+            border: 1px solid rgba(255, 255, 255, .25);
+            border-radius: 12px;
+            padding: 9px 4px;
+            text-align: center;
+        }
+
+        .m-pill.c {
+            border-color: rgba(255, 255, 255, .50);
+        }
+
+        .m-pill-n {
+            display: block;
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .m-pill-l {
+            font-size: 8px;
+            color: rgba(255, 255, 255, .70);
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        .m-body {
+            flex: 1;
+            padding: 0 16px 24px;
+            margin-top: -22px;
+            position: relative;
+            z-index: 3;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .m-page-header {
+            background: #fff;
+            border-bottom: 1px solid var(--border-light);
+            padding: 16px 16px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            box-shadow: 0 1px 4px rgba(46, 125, 50, .08);
+        }
+
+        .m-page-header .ph-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .m-back {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: var(--cyan-10);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--cyan);
+        }
+
+        .svc-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 7px;
+            padding: 14px 6px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .18s, border-color .18s, transform .18s;
+            position: relative;
+        }
+
+        .svc-item:active {
+            transform: scale(.95);
+        }
+
+        .svc-item:hover {
+            background: var(--cyan-10);
+            border-color: var(--cyan-bd);
+        }
+
+        .svc-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .svc-lbl {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--dim);
+            text-align: center;
+        }
+
+        .notif-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--red);
+            border-radius: 50%;
+            width: 17px;
+            height: 17px;
+            border: 2px solid #fff;
+            font-size: 8px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* Setoran card */
+        .news-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(46, 125, 50, .06);
+            transition: border-color .18s;
+        }
+
+        .news-card:hover {
+            border-color: var(--cyan-bd);
+        }
+
+        .news-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background: var(--cyan-10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--cyan);
+        }
+
+        .news-body {
+            padding: 12px;
+        }
+
+        .news-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.4;
+            margin-bottom: 5px;
+        }
+
+        .news-meta {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .news-excerpt {
+            font-size: 11px;
+            color: var(--dim);
+            line-height: 1.5;
+            margin-top: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .tx-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 14px;
+            transition: border-color .18s;
+            box-shadow: 0 1px 4px rgba(46, 125, 50, .06);
+        }
+
+        .tx-card:hover {
+            border-color: var(--cyan-bd);
+        }
+
+        .tx-ico {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: var(--cyan-10);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--cyan);
+            letter-spacing: .3px;
+            flex-shrink: 0;
+        }
+
+        .tx-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .tx-date {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 1px;
+        }
+
+        .btn-tx {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 7px;
+            border: 1px solid var(--cyan-bd);
+            color: var(--cyan);
+            background: transparent;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .btn-tx:hover {
+            background: var(--cyan-10);
+        }
+
+        .btn-tx.red {
+            border-color: rgba(211, 47, 47, .30);
+            color: var(--red);
+        }
+
+        .btn-tx.red:hover {
+            background: rgba(211, 47, 47, .06);
+        }
+
+        .m-bottom-nav {
+            display: flex;
+            background: #fff;
+            border-top: 1px solid var(--border-light);
+            padding: 10px 0 env(safe-area-inset-bottom, 10px);
+            flex-shrink: 0;
+            position: sticky;
+            bottom: 0;
+            z-index: 100;
+            box-shadow: 0 -1px 8px rgba(46, 125, 50, .08);
+        }
+
+        .m-nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 0;
+            font-size: 18px;
+            color: var(--muted);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color .18s;
+        }
+
+        .m-nav-btn.active {
+            color: var(--cyan);
+        }
+
+        .m-nav-btn span {
+            font-size: 9px;
+            font-weight: 600;
+        }
+
+        .m-search {
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .m-search input {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px 10px 38px;
+            font-size: 13px;
+            color: var(--text-main);
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+        }
+
+        .m-search input::placeholder {
+            color: var(--muted);
+        }
+
+        .m-search input:focus {
+            border-color: var(--cyan);
+            background: var(--cyan-10);
+        }
+
+        .m-search .si {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .m-chips {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .m-chips::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: transparent;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all .15s;
+            flex-shrink: 0;
+        }
+
+        .chip.active {
+            background: var(--cyan-10);
+            border-color: var(--cyan-bd);
+            color: var(--cyan);
+        }
+
+        .list-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 13px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: border-color .18s;
+            box-shadow: 0 1px 3px rgba(46, 125, 50, .05);
+        }
+
+        .list-item:hover {
+            border-color: var(--cyan-bd);
+        }
+
+        .list-num {
+            font-size: 10px;
+            color: var(--muted);
+            min-width: 18px;
+        }
+
+        .list-ico {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .list-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .list-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .list-sub {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .stat-row {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 1px 3px rgba(46, 125, 50, .06);
+        }
+
+        .stat-val {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-main);
+        }
+
+        .stat-lbl {
+            font-size: 9px;
+            color: var(--muted);
+            margin-top: 3px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .stat-delta {
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .up {
+            color: var(--cyan);
+        }
+
+        .down {
+            color: var(--red);
+        }
+
+        .f-group {
+            margin-bottom: 14px;
+        }
+
+        .f-group label {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .f-input {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-size: 13px;
+            color: var(--text-main);
+            font-family: 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color .18s;
+        }
+
+        .f-input:focus {
+            border-color: var(--cyan);
+            background: var(--cyan-10);
+        }
+
+        .f-input::placeholder {
+            color: var(--muted);
+        }
+
+        select.f-input option {
+            background: #fff;
+            color: var(--text-main);
+        }
+
+        .f-input[disabled] {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: var(--cyan);
+            border: none;
+            border-radius: 12px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: opacity .18s;
+        }
+
+        .btn-primary:hover {
+            opacity: .88;
+        }
+
+        .btn-outline {
+            width: 100%;
+            padding: 11px;
+            background: transparent;
+            border: 1px solid var(--cyan-bd);
+            border-radius: 12px;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--cyan);
+            cursor: pointer;
+            transition: background .18s;
+        }
+
+        .btn-outline:hover {
+            background: var(--cyan-10);
+        }
+
+        .detail-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 30, 10, .40);
+            z-index: 999;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .detail-overlay.open {
+            display: flex;
+        }
+
+        .detail-sheet {
+            background: #fff;
+            border-radius: 24px 24px 0 0;
+            padding: 20px 20px 32px;
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        .sheet-handle {
+            width: 36px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+
+        .w-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 30, 10, .50);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .w-modal-overlay.open {
+            display: flex;
+        }
+
+        .w-modal {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(46, 125, 50, .15);
+        }
+
+        .w-modal-sm {
+            max-width: 420px;
+        }
+
+        .w-modal-md {
+            max-width: 640px;
+        }
+
+        .w-modal-lg {
+            max-width: 860px;
+        }
+
+        .w-modal-header {
+            padding: 20px 22px 16px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .w-modal-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .w-modal-body {
+            padding: 20px 22px;
+        }
+
+        .w-modal-footer {
+            padding: 14px 22px 20px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .w-modal-close {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: var(--cyan-10);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--cyan);
+            font-size: 14px;
+        }
+
+        .detail-field {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--border-light);
+            gap: 10px;
+        }
+
+        .detail-field:last-child {
+            border-bottom: none;
+        }
+
+        .detail-field .df-key {
+            font-size: 10px;
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+
+        .detail-field .df-val {
+            font-size: 12px;
+            color: var(--text-main);
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .confirm-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin: 0 auto 14px;
+        }
+
+        .confirm-icon.danger {
+            background: rgba(211, 47, 47, .10);
+            color: var(--red);
+        }
+
+        .confirm-icon.success {
+            background: var(--cyan-10);
+            color: var(--cyan);
+        }
+
+        .m-notif-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 13px 14px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: border-color .18s;
+        }
+
+        .m-notif-item.unread {
+            border-color: var(--cyan-bd);
+            background: var(--cyan-10);
+        }
+
+        .m-notif-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--cyan);
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+        .m-tl-item {
+            display: flex;
+            gap: 12px;
+            padding-bottom: 18px;
+            position: relative;
+        }
+
+        .m-tl-item::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 28px;
+            bottom: 0;
+            width: 1px;
+            background: var(--border);
+        }
+
+        .m-tl-item:last-child::before {
+            display: none;
+        }
+
+        .m-tl-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .m-tl-body {
+            flex: 1;
+        }
+
+        .m-tl-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .m-tl-sub {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .m-tl-time {
+            font-size: 9px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* ── DESKTOP ── */
+        @media (min-width:992px) {
+
+            html,
+            body {
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .m-bottom-nav,
+            .m-page-header,
+            .m-header,
+            .m-body,
+            .detail-overlay {
+                display: none !important;
+            }
+
+            .desktop-wrapper {
+                display: flex !important;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .w-sidebar {
+                width: 58px;
+                background: #fff;
+                border-right: 1px solid var(--border-light);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 18px 0;
+                gap: 6px;
+                flex-shrink: 0;
+                height: 100%;
+                box-shadow: 1px 0 8px rgba(46, 125, 50, .06);
+            }
+
+            .w-logo {
+                width: 32px;
+                height: 32px;
+                border-radius: 9px;
+                background: linear-gradient(135deg, var(--cyan), #1b5e20);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Syne', sans-serif;
+                font-size: 14px;
+                font-weight: 800;
+                color: #fff;
+                margin-bottom: 12px;
+            }
+
+            .w-nav {
+                width: 38px;
+                height: 38px;
+                border-radius: 11px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 17px;
+                color: var(--muted);
+                cursor: pointer;
+                transition: background .18s, color .18s;
+                position: relative;
+            }
+
+            .w-nav:hover {
+                background: var(--cyan-10);
+                color: var(--cyan);
+            }
+
+            .w-nav.active {
+                background: var(--cyan-10);
+                color: var(--cyan);
+            }
+
+            .w-notif-dot {
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--red);
+                border: 1px solid #fff;
+            }
+
+            .w-main {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .w-topbar {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 24px;
+                height: 58px;
+                background: #fff;
+                border-bottom: 1px solid var(--border-light);
+                flex-shrink: 0;
+                box-shadow: 0 1px 6px rgba(46, 125, 50, .06);
+            }
+
+            .w-title {
+                font-family: 'Syne', sans-serif;
+                font-size: 15px;
+                font-weight: 700;
+                color: var(--text-main);
+            }
+
+            .w-sub {
+                font-size: 10px;
+                color: var(--muted);
+                margin-top: 1px;
+            }
+
+            .w-uname {
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-main);
+            }
+
+            .w-urole {
+                font-size: 9px;
+                color: var(--muted);
+            }
+
+            .w-search {
+                position: relative;
+            }
+
+            .w-search input {
+                background: var(--bg-deep);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 7px 14px 7px 34px;
+                font-size: 12px;
+                color: var(--text-main);
+                font-family: 'DM Sans', sans-serif;
+                outline: none;
+                width: 220px;
+            }
+
+            .w-search input:focus {
+                border-color: var(--cyan);
+            }
+
+            .w-search .si {
+                position: absolute;
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .w-content {
+                flex: 1;
+                overflow-y: auto;
+                padding: 20px 24px;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .w-metric {
+                background: #fff;
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                padding: 16px;
+            }
+
+            .w-m-lbl {
+                font-size: 10px;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: .8px;
+                margin-bottom: 6px;
+            }
+
+            .w-m-val {
+                font-family: 'Syne', sans-serif;
+                font-size: 26px;
+                font-weight: 700;
+                line-height: 1;
+                color: var(--text-main);
+            }
+
+            .w-m-delta {
+                font-size: 10px;
+                font-weight: 600;
+                margin-top: 4px;
+            }
+
+            .w-bar {
+                height: 4px;
+                background: var(--border);
+                border-radius: 2px;
+                margin-top: 10px;
+            }
+
+            .w-bar-fill {
+                height: 100%;
+                border-radius: 2px;
+                background: var(--cyan);
+            }
+
+            .w-panel {
+                background: #fff;
+                border: 1px solid var(--border);
+                border-radius: 16px;
+                padding: 18px;
+            }
+
+            .w-panel-title {
+                font-family: 'Syne', sans-serif;
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--text-main);
+                margin-bottom: 14px;
+            }
+
+            .w-svc {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+                padding: 12px 6px;
+                background: var(--bg-deep);
+                border: 1px solid var(--border);
+                border-radius: 14px;
+                text-decoration: none;
+                cursor: pointer;
+                transition: all .15s;
+            }
+
+            .w-svc:hover {
+                background: var(--cyan-10);
+                border-color: var(--cyan-bd);
+            }
+
+            .w-svc-icon {
+                width: 38px;
+                height: 38px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 16px;
+            }
+
+            .w-svc-lbl {
+                font-size: 9px;
+                font-weight: 600;
+                color: var(--dim);
+                text-align: center;
+            }
+
+            .w-row {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px;
+                background: var(--bg-deep);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                cursor: pointer;
+                transition: border-color .15s;
+            }
+
+            .w-row:hover {
+                border-color: var(--cyan-bd);
+            }
+
+            .w-row-ico {
+                width: 34px;
+                height: 34px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .w-row-title {
+                font-size: 11px;
+                font-weight: 600;
+                color: var(--text-main);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .w-row-meta {
+                font-size: 9px;
+                color: var(--muted);
+                margin-top: 2px;
+            }
+
+            .w-tbl {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+            }
+
+            .w-tbl th {
+                font-size: 9px;
+                font-weight: 700;
+                color: var(--muted);
+                letter-spacing: .8px;
+                text-transform: uppercase;
+                padding: 0 12px 10px;
+                border-bottom: 1px solid var(--border);
+                text-align: left;
+            }
+
+            .w-tbl td {
+                padding: 10px 12px;
+                border-bottom: 1px solid var(--border-light);
+                color: var(--text-main);
+                vertical-align: middle;
+            }
+
+            .w-tbl tr:last-child td {
+                border-bottom: none;
+            }
+
+            .w-tbl tr:hover td {
+                background: var(--bg-deep);
+            }
+
+            .w-btn {
+                padding: 7px 16px;
+                border-radius: 9px;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                border: 1px solid var(--border);
+                background: #fff;
+                color: var(--dim);
+                transition: background .15s;
+                font-family: 'DM Sans', sans-serif;
+            }
+
+            .w-btn:hover {
+                background: var(--bg-deep);
+            }
+
+            .w-btn-primary {
+                background: var(--cyan);
+                border-color: var(--cyan);
+                color: #fff;
+            }
+
+            .w-btn-primary:hover {
+                opacity: .88;
+                background: var(--cyan);
+            }
+
+            .w-btn-ghost {
+                background: transparent;
+            }
+
+            .w-btn-ghost:hover {
+                background: var(--bg-deep);
+            }
+
+            .w-btn-danger {
+                background: var(--red);
+                border-color: var(--red);
+                color: #fff;
+            }
+
+            .w-form-label {
+                font-size: 10px;
+                font-weight: 700;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: .8px;
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .w-form-input {
+                width: 100%;
+                background: var(--bg-deep);
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                padding: 9px 12px;
+                font-size: 12px;
+                color: var(--text-main);
+                font-family: 'DM Sans', sans-serif;
+                outline: none;
+                transition: border-color .15s;
+            }
+
+            .w-form-input:focus {
+                border-color: var(--cyan);
+                background: #fff;
+            }
+
+            .w-cb {
+                display: flex;
+                gap: 4px;
+                align-items: flex-end;
+                height: 120px;
+            }
+
+            .w-cb-col {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .w-cb-lbl {
+                font-size: 8px;
+                color: var(--muted);
+            }
+
+            .notif-item {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 12px 14px;
+                background: var(--bg-deep);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                cursor: pointer;
+            }
+
+            .notif-item:hover {
+                border-color: var(--cyan-bd);
+            }
+
+            .notif-item.unread {
+                border-color: var(--cyan-bd);
+                background: var(--cyan-10);
+            }
+
+            .notif-dot-item {
+                width: 7px;
+                height: 7px;
+                border-radius: 50%;
+                background: var(--cyan);
+                flex-shrink: 0;
+                margin-top: 5px;
+            }
+
+            .timeline-item {
+                display: flex;
+                gap: 14px;
+                padding-bottom: 20px;
+                position: relative;
+            }
+
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: 15px;
+                top: 28px;
+                bottom: 0;
+                width: 1px;
+                background: var(--border);
+            }
+
+            .timeline-item:last-child::before {
+                display: none;
+            }
+
+            .tl-dot {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                flex-shrink: 0;
+                border: 2px solid #fff;
+            }
+
+            .tl-body {
+                flex: 1;
+            }
+
+            .tl-title {
+                font-size: 12px;
+                font-weight: 600;
+                color: var(--text-main);
+            }
+
+            .tl-sub {
+                font-size: 10px;
+                color: var(--muted);
+                margin-top: 2px;
+            }
+
+            .tl-time {
+                font-size: 9px;
+                color: var(--muted);
+                margin-top: 4px;
+            }
+
+            .prof-card {
+                background: #fff;
+                border: 1px solid var(--border);
+                border-radius: 18px;
+                padding: 18px 16px;
+            }
+
+            .prof-field {
+                padding: 10px 0;
+                border-bottom: 1px solid var(--border-light);
+            }
+
+            .prof-field:last-child {
+                border-bottom: none;
+            }
+
+            .prof-field label {
+                font-size: 9px;
+                font-weight: 700;
+                color: var(--muted);
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                display: block;
+                margin-bottom: 3px;
+            }
+
+            .prof-field span {
+                font-size: 13px;
+                color: var(--text-main);
+                font-weight: 500;
+            }
+        }
+
+        .desktop-wrapper {
+            display: none;
+        }
+
+        .bar-wrap {
+            display: flex;
+            gap: 6px;
+            align-items: flex-end;
+            height: 100px;
+        }
+
+        .bar-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bar-fill {
+            width: 100%;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .bar-lbl {
+            font-size: 8px;
+            color: var(--muted);
+        }
+
+        /* Progress bar sampah */
+        .prog-wrap {
+            background: var(--border-light);
+            border-radius: 4px;
+            height: 6px;
+            margin-top: 6px;
+        }
+
+        .prog-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body class="is-mobile-layout">
+
+    <!-- ══ PAGE: Beranda ══ -->
+    <div id="m-beranda" class="page active">
+        <div class="m-header">
+            <div class="m-topbar">
+                <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
+                    <div class="avatar avatar-md">BS</div>
+                    <div>
+                        <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat datang</div>
+                        <div style="font-size:14px;font-weight:600;color:#fff">Bank Sampah Nusantara</div>
+                    </div>
+                </div>
+                <div class="m-gear" onclick="mNav('m-notifikasi')"><i class="bi bi-bell-fill"></i><span
+                        style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid rgba(255,255,255,.4);font-size:7px;display:flex;align-items:center;justify-content:center;font-weight:700">3</span>
+                </div>
+            </div>
+            <div class="m-summary fade-up">
+                <div class="m-summary-lbl">Total Sampah Hari Ini</div>
+                <div class="m-summary-num">342 kg</div>
+                <div class="m-pills">
+                    <div class="m-pill c"><span class="m-pill-n">128</span><span class="m-pill-l">Nasabah</span></div>
+                    <div class="m-pill c"><span class="m-pill-n">47</span><span class="m-pill-l">Setoran</span></div>
+                    <div class="m-pill"><span class="m-pill-n">Rp1,8J</span><span class="m-pill-l">Nilai</span></div>
+                    <div class="m-pill"><span class="m-pill-n">5</span><span class="m-pill-l">Pending</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="m-body">
+            <div class="sec-lbl">Menu Utama</div>
+            <div class="row g-2">
+                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-setoran')">
+                        <div class="svc-icon ic1"><i class="bi bi-recycle"></i>
+                            <div class="notif-dot">5</div>
+                        </div><span class="svc-lbl">Setoran</span>
+                    </a></div>
+                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-nasabah')">
+                        <div class="svc-icon ic2"><i class="bi bi-people-fill"></i></div><span
+                            class="svc-lbl">Nasabah</span>
+                    </a></div>
+                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-grafik')">
+                        <div class="svc-icon ic3"><i class="bi bi-graph-up-arrow"></i></div><span
+                            class="svc-lbl">Laporan</span>
+                    </a></div>
+                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-profil')">
+                        <div class="svc-icon ic4"><i class="bi bi-person-fill"></i></div><span
+                            class="svc-lbl">Profil</span>
+                    </a></div>
+            </div>
+            <div class="row g-2 mt-1">
+                <div class="col-3 fade-up"><a class="svc-item" onclick="openDetail('m-tambah-setoran')">
+                        <div class="svc-icon ic5"><i class="bi bi-plus-circle-fill"></i></div><span
+                            class="svc-lbl">Catat Baru</span>
+                    </a></div>
+                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-harga')">
+                        <div class="svc-icon ic3"><i class="bi bi-tags-fill"></i></div><span
+                            class="svc-lbl">Harga</span>
+                    </a></div>
+                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-setoran')">
+                        <div class="svc-icon ic6"><i class="bi bi-clock-history"></i></div><span
+                            class="svc-lbl">Riwayat</span>
+                    </a></div>
+                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-penarikan')">
+                        <div class="svc-icon ic2"><i class="bi bi-wallet2"></i></div><span class="svc-lbl">Saldo</span>
+                    </a></div>
+            </div>
+
+            <div class="sec-lbl">Setoran Terbaru</div>
+            <div class="d-flex flex-column gap-3">
+                <!-- kartu setoran besar -->
+                <div class="news-card fade-up" onclick="openDetail('m-detail-setoran')">
+                    <div class="news-img"><i class="bi bi-recycle"></i></div>
+                    <div class="news-body">
+                        <div class="d-flex gap-2 align-items-center mb-2">
+                            <span class="bs bs-green">Diterima</span>
+                            <span class="bs bs-ok">Plastik</span>
+                        </div>
+                        <div class="news-title">Ibu Siti Rahayu — 12,5 kg Plastik HDPE</div>
+                        <div class="news-excerpt">Setoran rutin mingguan oleh nasabah aktif. Terdiri dari botol
+                            plastik, kemasan, dan kantong belanja yang telah dipilah dengan baik.</div>
+                        <div class="news-meta mt-2"><i class="bi bi-clock me-1"></i>15 menit lalu · Unit Sukajadi ·
+                            Rp62.500</div>
+                    </div>
+                </div>
+
+                <div class="tx-card d-flex align-items-start gap-2 fade-up" onclick="openDetail('m-detail-setoran')">
+                    <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)"><i
+                            class="bi bi-newspaper" style="font-size:14px"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="tx-name text-truncate">Bpk. Hendra Wijaya — 8 kg Kertas</div>
+                        <div class="tx-date"><i class="bi bi-clock me-1"></i>30 menit lalu · Unit Tampan · Rp24.000
+                        </div>
+                        <div class="d-flex gap-1 mt-2">
+                            <button class="btn-tx"
+                                onclick="event.stopPropagation();openDetail('m-detail-setoran')">Detail</button>
+                            <button class="btn-tx">Cetak</button>
+                        </div>
+                    </div>
+                    <span class="bs bs-green flex-shrink-0">Lunas</span>
+                </div>
+
+                <div class="tx-card d-flex align-items-start gap-2 fade-up" onclick="openDetail('m-detail-setoran')">
+                    <div class="tx-ico" style="background:rgba(92,53,168,.10);color:var(--purple)"><i
+                            class="bi bi-cpu-fill" style="font-size:14px"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="tx-name text-truncate">CV Maju Bersama — 45 kg Logam Campuran</div>
+                        <div class="tx-date"><i class="bi bi-clock me-1"></i>1 jam lalu · Unit Payung Sekaki ·
+                            Rp270.000</div>
+                        <div class="d-flex gap-1 mt-2">
+                            <button class="btn-tx"
+                                onclick="event.stopPropagation();openDetail('m-detail-setoran')">Detail</button>
+                            <button class="btn-tx red">Verifikasi</button>
+                        </div>
+                    </div>
+                    <span class="bs bs-warn flex-shrink-0">Pending</span>
+                </div>
+
+                <div class="tx-card d-flex align-items-start gap-2 fade-up" onclick="openDetail('m-detail-setoran')">
+                    <div class="tx-ico" style="background:rgba(0,121,107,.10);color:var(--teal)"><i
+                            class="bi bi-box-fill" style="font-size:14px"></i></div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="tx-name text-truncate">Ibu Dewi Kartika — 5,2 kg Kaca</div>
+                        <div class="tx-date"><i class="bi bi-clock me-1"></i>2 jam lalu · Unit Marpoyan · Rp15.600
+                        </div>
+                        <div class="d-flex gap-1 mt-2">
+                            <button class="btn-tx">Detail</button>
+                            <button class="btn-tx">Cetak</button>
+                        </div>
+                    </div>
+                    <span class="bs bs-new flex-shrink-0">Ditimbang</span>
+                </div>
+            </div>
+        </div>
+        <nav class="m-bottom-nav">
+            <a class="m-nav-btn active" data-page="m-beranda"><i
+                    class="bi bi-house-fill"></i><span>Beranda</span></a>
+            <a class="m-nav-btn" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
+            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
+            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
+        </nav>
+    </div>
+
+    <!-- ══ PAGE: Daftar Setoran ══ -->
+    <div id="m-setoran" class="page">
+        <div class="m-page-header">
+            <div class="m-back" onclick="mNav('m-beranda')"><i class="bi bi-chevron-left"
+                    style="font-size:12px"></i></div>
+            <div class="ph-title">Daftar Setoran</div>
+            <div class="ms-auto d-flex gap-2">
+                <div class="m-gear"
+                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)">
+                    <i class="bi bi-funnel-fill"></i>
+                </div>
+                <div class="m-gear"
+                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
+                    onclick="openDetail('m-tambah-setoran')"><i class="bi bi-plus-lg"></i></div>
+            </div>
+        </div>
+        <div class="m-body" style="padding-top:16px">
+            <div class="m-search mb-2"><i class="bi bi-search si"></i><input type="text"
+                    placeholder="Cari nasabah, jenis sampah..."></div>
+            <div class="m-chips mb-3">
+                <button class="chip active">Semua</button>
+                <button class="chip">Plastik</button>
+                <button class="chip">Kertas</button>
+                <button class="chip">Logam</button>
+                <button class="chip">Kaca</button>
+                <button class="chip">Elektronik</button>
+            </div>
+            <div class="d-flex flex-column gap-2">
+                <div class="list-item fade-up"><span class="list-num">1</span>
+                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Siti Rahayu — 12,5 kg Plastik</div>
+                        <div class="list-sub">Unit Sukajadi · 15 mnt lalu · Rp62.500</div>
+                    </div><span class="bs bs-green" style="cursor:pointer"
+                        onclick="openDetail('m-detail-setoran')">Lunas</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">2</span>
+                    <div class="list-ico ic2"><i class="bi bi-newspaper" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Hendra Wijaya — 8 kg Kertas</div>
+                        <div class="list-sub">Unit Tampan · 30 mnt lalu · Rp24.000</div>
+                    </div><span class="bs bs-green" style="cursor:pointer"
+                        onclick="openDetail('m-detail-setoran')">Lunas</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">3</span>
+                    <div class="list-ico ic4"><i class="bi bi-cpu-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">CV Maju Bersama — 45 kg Logam</div>
+                        <div class="list-sub">Unit Payung Sekaki · 1 jam lalu · Rp270.000</div>
+                    </div><span class="bs bs-warn" style="cursor:pointer"
+                        onclick="openDetail('m-detail-setoran')">Pending</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">4</span>
+                    <div class="list-ico ic5"><i class="bi bi-box-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Dewi Kartika — 5,2 kg Kaca</div>
+                        <div class="list-sub">Unit Marpoyan · 2 jam lalu · Rp15.600</div>
+                    </div><span class="bs bs-new" style="cursor:pointer"
+                        onclick="openDetail('m-detail-setoran')">Ditimbang</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">5</span>
+                    <div class="list-ico ic3"><i class="bi bi-lightning-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Agus Santoso — 3,1 kg Elektronik</div>
+                        <div class="list-sub">Unit Bukit Raya · 3 jam lalu · Rp62.000</div>
+                    </div><span class="bs bs-ok" style="cursor:pointer"
+                        onclick="openDetail('m-detail-setoran')">Lunas</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">6</span>
+                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Yuni Pratiwi — 9 kg Plastik PET</div>
+                        <div class="list-sub">Unit Sail · 4 jam lalu · Rp54.000</div>
+                    </div><span class="bs bs-green" style="cursor:pointer"
+                        onclick="openDetail('m-detail-setoran')">Lunas</span>
+                </div>
+            </div>
+        </div>
+        <nav class="m-bottom-nav">
+            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
+            <a class="m-nav-btn active" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
+            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
+            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
+        </nav>
+    </div>
+
+    <!-- ══ PAGE: Nasabah ══ -->
+    <div id="m-nasabah" class="page">
+        <div class="m-page-header">
+            <div class="m-back" onclick="mNav('m-beranda')"><i class="bi bi-chevron-left"
+                    style="font-size:12px"></i></div>
+            <div class="ph-title">Data Nasabah</div>
+            <div class="ms-auto">
+                <div class="m-gear"
+                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
+                    onclick="openDetail('m-tambah-nasabah')"><i class="bi bi-plus-lg"></i></div>
+            </div>
+        </div>
+        <div class="m-body" style="padding-top:16px">
+            <div class="m-search mb-3"><i class="bi bi-search si"></i><input type="text"
+                    placeholder="Cari nama nasabah, unit..."></div>
+            <div class="d-flex flex-column gap-2">
+                <div class="list-item fade-up"><span class="list-num">1</span>
+                    <div class="avatar" style="width:36px;height:36px;font-size:12px;flex-shrink:0">SR</div>
+                    <div class="list-main">
+                        <div class="list-name">Siti Rahayu</div>
+                        <div class="list-sub">Unit Sukajadi · 47 setoran · Saldo Rp380.000</div>
+                    </div><span class="bs bs-ok">Aktif</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">2</span>
+                    <div class="avatar"
+                        style="width:36px;height:36px;font-size:12px;flex-shrink:0;background:linear-gradient(135deg,var(--teal),#004d40)">
+                        HW</div>
+                    <div class="list-main">
+                        <div class="list-name">Hendra Wijaya</div>
+                        <div class="list-sub">Unit Tampan · 38 setoran · Saldo Rp215.000</div>
+                    </div><span class="bs bs-green">Aktif</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">3</span>
+                    <div class="avatar"
+                        style="width:36px;height:36px;font-size:12px;flex-shrink:0;background:linear-gradient(135deg,var(--purple),#4527a0)">
+                        CM</div>
+                    <div class="list-main">
+                        <div class="list-name">CV Maju Bersama</div>
+                        <div class="list-sub">Unit Payung Sekaki · 29 setoran · Saldo Rp1,2 Jt</div>
+                    </div><span class="bs bs-purple">Korporat</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">4</span>
+                    <div class="avatar"
+                        style="width:36px;height:36px;font-size:12px;flex-shrink:0;background:linear-gradient(135deg,var(--orange),#bf360c)">
+                        DK</div>
+                    <div class="list-main">
+                        <div class="list-name">Dewi Kartika</div>
+                        <div class="list-sub">Unit Marpoyan · 22 setoran · Saldo Rp95.000</div>
+                    </div><span class="bs bs-green">Aktif</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">5</span>
+                    <div class="avatar"
+                        style="width:36px;height:36px;font-size:12px;flex-shrink:0;background:linear-gradient(135deg,var(--red),#b71c1c)">
+                        AS</div>
+                    <div class="list-main">
+                        <div class="list-name">Agus Santoso</div>
+                        <div class="list-sub">Unit Bukit Raya · 11 setoran · Saldo Rp310.000</div>
+                    </div><span class="bs bs-ok">Aktif</span>
+                </div>
+                <div class="list-item fade-up"><span class="list-num">6</span>
+                    <div class="avatar"
+                        style="width:36px;height:36px;font-size:12px;flex-shrink:0;background:linear-gradient(135deg,#607d8b,#37474f)">
+                        YP</div>
+                    <div class="list-main">
+                        <div class="list-name">Yuni Pratiwi</div>
+                        <div class="list-sub">Unit Sail · 8 setoran · Saldo Rp128.000</div>
+                    </div><span class="bs bs-warn">Baru</span>
+                </div>
+            </div>
+        </div>
+        <nav class="m-bottom-nav">
+            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
+            <a class="m-nav-btn" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
+            <a class="m-nav-btn active" data-page="m-nasabah"><i
+                    class="bi bi-people-fill"></i><span>Nasabah</span></a>
+            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
+        </nav>
+    </div>
+
+    <!-- ══ PAGE: Harga Sampah ══ -->
+    <div id="m-harga" class="page">
+        <div class="m-page-header">
+            <div class="m-back" onclick="mNav('m-beranda')"><i class="bi bi-chevron-left"
+                    style="font-size:12px"></i></div>
+            <div class="ph-title">Harga Sampah</div>
+            <div class="ms-auto">
+                <div class="m-gear"
+                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
+                    onclick="openDetail('m-edit-harga')"><i class="bi bi-pencil-fill" style="font-size:12px"></i>
+                </div>
+            </div>
+        </div>
+        <div class="m-body" style="padding-top:16px">
+            <div class="stat-row fade-up mb-3 d-flex align-items-center gap-3">
+                <div class="svc-icon ic1" style="flex-shrink:0"><i class="bi bi-calendar3"></i></div>
+                <div>
+                    <div style="font-size:11px;font-weight:600;color:var(--text-main)">Harga berlaku</div>
+                    <div style="font-size:10px;color:var(--muted)">Diperbarui 20 Mei 2026 · oleh Admin</div>
+                </div>
+            </div>
+            <div class="sec-lbl">Plastik</div>
+            <div class="d-flex flex-column gap-2">
+                <div class="list-item fade-up">
+                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Plastik HDPE (botol)</div>
+                        <div class="list-sub">Kondisi bersih & kering</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--cyan)">
+                            Rp5.000</div>
+                        <div style="font-size:9px;color:var(--muted)">/kg</div>
+                    </div>
+                </div>
+                <div class="list-item fade-up">
+                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Plastik PET (botol minum)</div>
+                        <div class="list-sub">Tanpa tutup dan label</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--cyan)">
+                            Rp6.000</div>
+                        <div style="font-size:9px;color:var(--muted)">/kg</div>
+                    </div>
+                </div>
+                <div class="list-item fade-up">
+                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Kantong Plastik (kresek)</div>
+                        <div class="list-sub">Sudah dipilah</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--cyan)">
+                            Rp1.500</div>
+                        <div style="font-size:9px;color:var(--muted)">/kg</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-lbl">Kertas & Kardus</div>
+            <div class="d-flex flex-column gap-2">
+                <div class="list-item fade-up">
+                    <div class="list-ico ic2"><i class="bi bi-newspaper" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Kardus (dos)</div>
+                        <div class="list-sub">Kering, tidak basah</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--blue)">
+                            Rp2.000</div>
+                        <div style="font-size:9px;color:var(--muted)">/kg</div>
+                    </div>
+                </div>
+                <div class="list-item fade-up">
+                    <div class="list-ico ic2"><i class="bi bi-newspaper" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Kertas HVS / Koran</div>
+                        <div class="list-sub">Tanpa lakban</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--blue)">
+                            Rp3.000</div>
+                        <div style="font-size:9px;color:var(--muted)">/kg</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-lbl">Logam & Elektronik</div>
+            <div class="d-flex flex-column gap-2">
+                <div class="list-item fade-up">
+                    <div class="list-ico ic4"><i class="bi bi-cpu-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Besi / Baja</div>
+                        <div class="list-sub">Bebas karat berat</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--purple)">
+                            Rp3.500</div>
+                        <div style="font-size:9px;color:var(--muted)">/kg</div>
+                    </div>
+                </div>
+                <div class="list-item fade-up">
+                    <div class="list-ico ic4"><i class="bi bi-cpu-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Aluminium</div>
+                        <div class="list-sub">Kaleng & lembaran</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--purple)">
+                            Rp14.000</div>
+                        <div style="font-size:9px;color:var(--muted)">/kg</div>
+                    </div>
+                </div>
+                <div class="list-item fade-up">
+                    <div class="list-ico ic3"><i class="bi bi-lightning-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Elektronik bekas (e-waste)</div>
+                        <div class="list-sub">HP, kabel, PCB</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--orange)">
+                            Rp20.000</div>
+                        <div style="font-size:9px;color:var(--muted)">/kg</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav class="m-bottom-nav">
+            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
+            <a class="m-nav-btn" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
+            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
+            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
+        </nav>
+    </div>
+
+    <!-- ══ PAGE: Saldo / Penarikan ══ -->
+    <div id="m-penarikan" class="page">
+        <div class="m-page-header">
+            <div class="m-back" onclick="mNav('m-beranda')"><i class="bi bi-chevron-left"
+                    style="font-size:12px"></i></div>
+            <div class="ph-title">Saldo & Penarikan</div>
+        </div>
+        <div class="m-body" style="padding-top:16px">
+            <div class="stat-row fade-up mb-3" style="background:linear-gradient(135deg,#1b5e20,#2e7d32);border:none">
+                <div
+                    style="font-size:10px;color:rgba(255,255,255,.70);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                    Total Saldo Seluruh Nasabah</div>
+                <div
+                    style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:#fff;letter-spacing:-1px">
+                    Rp 4.280.000</div>
+                <div style="font-size:10px;color:rgba(255,255,255,.70);margin-top:4px">128 nasabah aktif · Diperbarui
+                    hari ini</div>
+            </div>
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <div class="stat-row fade-up">
+                        <div class="stat-lbl">Penarikan Bulan Ini</div>
+                        <div class="stat-val" style="color:var(--red)">Rp1,2 Jt</div>
+                        <div class="stat-delta down"><i class="bi bi-arrow-down-short"></i>32 transaksi</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="stat-row fade-up">
+                        <div class="stat-lbl">Setoran Masuk</div>
+                        <div class="stat-val" style="color:var(--cyan)">Rp2,8 Jt</div>
+                        <div class="stat-delta up"><i class="bi bi-arrow-up-short"></i>+18% bulan lalu</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-lbl">Permintaan Penarikan</div>
+            <div class="d-flex flex-column gap-2">
+                <div class="tx-card d-flex align-items-start gap-2 fade-up">
+                    <div class="tx-ico" style="background:rgba(211,47,47,.10);color:var(--red)"><i
+                            class="bi bi-wallet2" style="font-size:14px"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="tx-name">Siti Rahayu</div>
+                        <div class="tx-date">Tarik Rp150.000 · 10 menit lalu · Unit Sukajadi</div>
+                        <div class="d-flex gap-1 mt-2">
+                            <button class="btn-tx"
+                                style="background:var(--cyan-10);border-color:var(--cyan-bd)">Setujui</button>
+                            <button class="btn-tx red">Tolak</button>
+                        </div>
+                    </div>
+                    <span class="bs bs-warn flex-shrink-0">Menunggu</span>
+                </div>
+                <div class="tx-card d-flex align-items-start gap-2 fade-up">
+                    <div class="tx-ico" style="background:rgba(211,47,47,.10);color:var(--red)"><i
+                            class="bi bi-wallet2" style="font-size:14px"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="tx-name">Agus Santoso</div>
+                        <div class="tx-date">Tarik Rp200.000 · 1 jam lalu · Unit Bukit Raya</div>
+                        <div class="d-flex gap-1 mt-2">
+                            <button class="btn-tx"
+                                style="background:var(--cyan-10);border-color:var(--cyan-bd)">Setujui</button>
+                            <button class="btn-tx red">Tolak</button>
+                        </div>
+                    </div>
+                    <span class="bs bs-warn flex-shrink-0">Menunggu</span>
+                </div>
+                <div class="tx-card d-flex align-items-start gap-2 fade-up">
+                    <div class="tx-ico" style="background:rgba(46,125,50,.10);color:var(--green)"><i
+                            class="bi bi-check-circle-fill" style="font-size:14px"></i></div>
+                    <div class="flex-grow-1">
+                        <div class="tx-name">Hendra Wijaya</div>
+                        <div class="tx-date">Tarik Rp100.000 · Kemarin · Unit Tampan</div>
+                    </div>
+                    <span class="bs bs-green flex-shrink-0">Cair</span>
+                </div>
+            </div>
+        </div>
+        <nav class="m-bottom-nav">
+            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
+            <a class="m-nav-btn" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
+            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
+            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
+        </nav>
+    </div>
+
+    <!-- ══ PAGE: Grafik / Laporan ══ -->
+    <div id="m-grafik" class="page">
+        <div class="m-page-header">
+            <div class="m-back" onclick="mNav('m-beranda')"><i class="bi bi-chevron-left"
+                    style="font-size:12px"></i></div>
+            <div class="ph-title">Laporan & Statistik</div>
+        </div>
+        <div class="m-body" style="padding-top:16px">
+            <div class="m-chips mb-3">
+                <button class="chip active">Bulanan</button>
+                <button class="chip">Mingguan</button>
+                <button class="chip">Harian</button>
+                <button class="chip">Tahunan</button>
+            </div>
+            <div class="stat-row fade-up mb-3">
+                <div style="font-size:11px;font-weight:600;color:var(--text-main);margin-bottom:10px">Total Sampah per
+                    Bulan (kg)</div>
+                <div class="bar-wrap" id="m-chart-bars"></div>
+                <div class="d-flex gap-3 mt-2">
+                    <div class="d-flex align-items-center gap-1">
+                        <div style="width:10px;height:10px;border-radius:2px;background:#2e7d32"></div><span
+                            style="font-size:9px;color:var(--muted)">Sampah (kg)</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <div style="width:10px;height:10px;border-radius:2px;background:#1b5e20"></div><span
+                            style="font-size:9px;color:var(--muted)">Nilai (×100K)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-lbl">Komposisi Jenis Sampah</div>
+            <div class="d-flex flex-column gap-2">
+                <div class="stat-row fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                            style="font-size:11px;font-weight:600">Plastik</span><span
+                            style="font-size:10px;color:var(--cyan);font-weight:700">42% · 143 kg</span></div>
+                    <div class="prog-wrap">
+                        <div class="prog-fill" style="width:42%;background:var(--cyan)"></div>
+                    </div>
+                </div>
+                <div class="stat-row fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                            style="font-size:11px;font-weight:600">Kertas & Kardus</span><span
+                            style="font-size:10px;color:var(--blue);font-weight:700">28% · 96 kg</span></div>
+                    <div class="prog-wrap">
+                        <div class="prog-fill" style="width:28%;background:var(--blue)"></div>
+                    </div>
+                </div>
+                <div class="stat-row fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                            style="font-size:11px;font-weight:600">Logam</span><span
+                            style="font-size:10px;color:var(--purple);font-weight:700">18% · 62 kg</span></div>
+                    <div class="prog-wrap">
+                        <div class="prog-fill" style="width:18%;background:var(--purple)"></div>
+                    </div>
+                </div>
+                <div class="stat-row fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                            style="font-size:11px;font-weight:600">Elektronik</span><span
+                            style="font-size:10px;color:var(--orange);font-weight:700">7% · 24 kg</span></div>
+                    <div class="prog-wrap">
+                        <div class="prog-fill" style="width:7%;background:var(--orange)"></div>
+                    </div>
+                </div>
+                <div class="stat-row fade-up">
+                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                            style="font-size:11px;font-weight:600">Kaca & Lainnya</span><span
+                            style="font-size:10px;color:var(--teal);font-weight:700">5% · 17 kg</span></div>
+                    <div class="prog-wrap">
+                        <div class="prog-fill" style="width:5%;background:var(--teal)"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-lbl">Nasabah Terbaik Bulan Ini</div>
+            <div class="d-flex flex-column gap-2">
+                <div class="d-flex align-items-center gap-2 p-3"
+                    style="background:#fff;border:1px solid var(--border);border-radius:12px"><span
+                        style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--cyan);width:20px;flex-shrink:0">1</span>
+                    <div class="avatar" style="width:32px;height:32px;font-size:11px;flex-shrink:0">SR</div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:11px;font-weight:600">Siti Rahayu</div>
+                        <div style="font-size:9px;color:var(--muted)">Unit Sukajadi · 87 kg bulan ini</div>
+                    </div><span
+                        style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--cyan)">Rp520.000</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 p-3"
+                    style="background:#fff;border:1px solid var(--border);border-radius:12px"><span
+                        style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--blue);width:20px;flex-shrink:0">2</span>
+                    <div class="avatar"
+                        style="width:32px;height:32px;font-size:11px;flex-shrink:0;background:linear-gradient(135deg,var(--purple),#4527a0)">
+                        CM</div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:11px;font-weight:600">CV Maju Bersama</div>
+                        <div style="font-size:9px;color:var(--muted)">Unit Payung Sekaki · 210 kg</div>
+                    </div><span
+                        style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--blue)">Rp1,2
+                        Jt</span>
+                </div>
+                <div class="d-flex align-items-center gap-2 p-3"
+                    style="background:#fff;border:1px solid var(--border);border-radius:12px"><span
+                        style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--orange);width:20px;flex-shrink:0">3</span>
+                    <div class="avatar"
+                        style="width:32px;height:32px;font-size:11px;flex-shrink:0;background:linear-gradient(135deg,var(--teal),#004d40)">
+                        HW</div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:11px;font-weight:600">Hendra Wijaya</div>
+                        <div style="font-size:9px;color:var(--muted)">Unit Tampan · 63 kg</div>
+                    </div><span
+                        style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--orange)">Rp378.000</span>
+                </div>
+            </div>
+        </div>
+        <nav class="m-bottom-nav">
+            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
+            <a class="m-nav-btn" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
+            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
+            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
+        </nav>
+    </div>
+
+    <!-- ══ PAGE: Notifikasi ══ -->
+    <div id="m-notifikasi" class="page">
+        <div class="m-page-header">
+            <div class="m-back" onclick="mNav('m-beranda')"><i class="bi bi-chevron-left"
+                    style="font-size:12px"></i></div>
+            <div class="ph-title">Notifikasi</div>
+        </div>
+        <div class="m-body" style="padding-top:16px">
+            <div class="d-flex flex-column gap-2">
+                <div class="m-notif-item unread fade-up">
+                    <div class="m-notif-dot"></div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:12px;font-weight:600;color:var(--text-main)">Setoran baru masuk — CV Maju
+                            Bersama</div>
+                        <div style="font-size:10px;color:var(--muted);margin-top:2px">45 kg logam campuran · Rp270.000
+                            · Unit Payung Sekaki</div>
+                        <div style="font-size:9px;color:var(--muted);margin-top:4px">1 jam yang lalu</div>
+                    </div>
+                </div>
+                <div class="m-notif-item unread fade-up">
+                    <div class="m-notif-dot"></div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:12px;font-weight:600;color:var(--text-main)">Permintaan penarikan saldo
+                            baru</div>
+                        <div style="font-size:10px;color:var(--muted);margin-top:2px">Siti Rahayu minta tarik Rp150.000
+                            · Perlu disetujui</div>
+                        <div style="font-size:9px;color:var(--muted);margin-top:4px">10 menit yang lalu</div>
+                    </div>
+                </div>
+                <div class="m-notif-item unread fade-up">
+                    <div class="m-notif-dot"></div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:12px;font-weight:600;color:var(--text-main)">Harga beli plastik
+                            diperbarui</div>
+                        <div style="font-size:10px;color:var(--muted);margin-top:2px">Plastik PET naik dari Rp5.500 →
+                            Rp6.000/kg</div>
+                        <div style="font-size:9px;color:var(--muted);margin-top:4px">Hari ini, 08:00</div>
+                    </div>
+                </div>
+                <div class="m-notif-item fade-up">
+                    <div style="width:7px;height:7px;flex-shrink:0;margin-top:5px"></div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:12px;font-weight:600;color:var(--text-main)">Laporan bulanan April siap
+                        </div>
+                        <div style="font-size:10px;color:var(--muted);margin-top:2px">Total 8,2 ton sampah · Rp42,5
+                            juta nilai terkumpul</div>
+                        <div style="font-size:9px;color:var(--muted);margin-top:4px">1 Mei 2026</div>
+                    </div>
+                </div>
+                <div class="m-notif-item fade-up">
+                    <div style="width:7px;height:7px;flex-shrink:0;margin-top:5px"></div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:12px;font-weight:600;color:var(--text-main)">Nasabah baru terdaftar</div>
+                        <div style="font-size:10px;color:var(--muted);margin-top:2px">Yuni Pratiwi bergabung · Unit
+                            Sail</div>
+                        <div style="font-size:9px;color:var(--muted);margin-top:4px">28 April 2026</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sec-lbl">Aktivitas Terkini</div>
+            <div class="d-flex flex-column gap-1">
+                <div class="m-tl-item">
+                    <div class="m-tl-dot ic1"><i class="bi bi-recycle" style="font-size:10px"></i></div>
+                    <div class="m-tl-body">
+                        <div class="m-tl-title">Setoran diterima — Siti Rahayu</div>
+                        <div class="m-tl-sub">12,5 kg Plastik HDPE · Rp62.500</div>
+                        <div class="m-tl-time">15 menit lalu</div>
+                    </div>
+                </div>
+                <div class="m-tl-item">
+                    <div class="m-tl-dot ic2"><i class="bi bi-newspaper" style="font-size:10px"></i></div>
+                    <div class="m-tl-body">
+                        <div class="m-tl-title">Setoran diterima — Hendra Wijaya</div>
+                        <div class="m-tl-sub">8 kg Kertas · Rp24.000</div>
+                        <div class="m-tl-time">30 menit lalu</div>
+                    </div>
+                </div>
+                <div class="m-tl-item">
+                    <div class="m-tl-dot ic3"><i class="bi bi-wallet2" style="font-size:10px"></i></div>
+                    <div class="m-tl-body">
+                        <div class="m-tl-title">Saldo dicairkan — Hendra Wijaya</div>
+                        <div class="m-tl-sub">Rp100.000 ditransfer ke rekening</div>
+                        <div class="m-tl-time">Kemarin</div>
+                    </div>
+                </div>
+                <div class="m-tl-item">
+                    <div class="m-tl-dot" style="background:var(--cyan-10);color:var(--cyan)"><i
+                            class="bi bi-person-plus-fill" style="font-size:10px"></i></div>
+                    <div class="m-tl-body">
+                        <div class="m-tl-title">Nasabah baru — Yuni Pratiwi</div>
+                        <div class="m-tl-sub">Unit Sail · No. BS-2026-128</div>
+                        <div class="m-tl-time">28 April 2026</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav class="m-bottom-nav">
+            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
+            <a class="m-nav-btn" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
+            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
+            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
+        </nav>
+    </div>
+
+    <!-- ══ PAGE: Profil ══ -->
+    <div id="m-profil" class="page">
+        <div class="m-page-header">
+            <div class="m-back" onclick="mNav('m-beranda')"><i class="bi bi-chevron-left"
+                    style="font-size:12px"></i></div>
+            <div class="ph-title">Profil & Setelan</div>
+        </div>
+        <div class="m-body" style="padding-top:16px">
+            <div class="d-flex align-items-center gap-3 p-3 mb-4"
+                style="background:#fff;border:1px solid var(--border);border-radius:16px">
+                <div class="avatar" style="width:52px;height:52px;font-size:18px">BS</div>
+                <div class="flex-grow-1">
+                    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700">Budi Santoso</div>
+                    <div style="font-size:11px;color:var(--muted)">Pengelola Bank Sampah</div>
+                    <div style="font-size:10px;color:var(--cyan);margin-top:2px">Bank Sampah Nusantara · Pekanbaru
+                    </div>
+                </div>
+                <button class="btn-tx" onclick="openDetail('m-edit-profil')">Edit</button>
+            </div>
+            <div class="sec-lbl">Informasi Unit</div>
+            <div class="d-flex flex-column gap-2 mb-3">
+                <div class="detail-field"><span class="df-key">Nama Bank Sampah</span><span class="df-val">Bank
+                        Sampah Nusantara</span></div>
+                <div class="detail-field"><span class="df-key">Kode Unit</span><span
+                        class="df-val">BSN-PKU-001</span></div>
+                <div class="detail-field"><span class="df-key">Lokasi</span><span class="df-val">Pekanbaru,
+                        Riau</span></div>
+                <div class="detail-field"><span class="df-key">Jam Operasional</span><span class="df-val">Sen–Sab,
+                        08.00–16.00</span></div>
+                <div class="detail-field"><span class="df-key">Total Nasabah</span><span class="df-val">128 nasabah
+                        aktif</span></div>
+            </div>
+            <div class="sec-lbl">Pengaturan Aplikasi</div>
+            <div class="d-flex flex-column gap-2">
+                <div class="list-item">
+                    <div class="list-ico ic1"><i class="bi bi-bell-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Notifikasi</div>
+                        <div class="list-sub">Setoran & penarikan masuk</div>
+                    </div><i class="bi bi-chevron-right" style="font-size:12px;color:var(--muted)"></i>
+                </div>
+                <div class="list-item">
+                    <div class="list-ico ic5"><i class="bi bi-printer-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Cetak Struk</div>
+                        <div class="list-sub">Pengaturan printer thermal</div>
+                    </div><i class="bi bi-chevron-right" style="font-size:12px;color:var(--muted)"></i>
+                </div>
+                <div class="list-item">
+                    <div class="list-ico ic3"><i class="bi bi-tags-fill" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">Kelola Harga</div>
+                        <div class="list-sub">Update harga beli sampah</div>
+                    </div><i class="bi bi-chevron-right" style="font-size:12px;color:var(--muted)"></i>
+                </div>
+                <div class="list-item" onclick="openDetail('m-konfirmasi-logout')">
+                    <div class="list-ico ic6"><i class="bi bi-box-arrow-right" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name" style="color:var(--red)">Keluar</div>
+                        <div class="list-sub">Logout dari aplikasi</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav class="m-bottom-nav">
+            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
+            <a class="m-nav-btn" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
+            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
+            <a class="m-nav-btn active" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
+        </nav>
+    </div>
+
+
+    <!-- ══ BOTTOM SHEETS ══ -->
+    <div class="detail-overlay" id="m-detail-setoran" onclick="closeMSheet(event,'m-detail-setoran')">
+        <div class="detail-sheet">
+            <div class="sheet-handle"></div>
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text-main)">Detail
+                    Setoran</div>
+                <span class="bs bs-green">Lunas</span>
+            </div>
+            <div
+                style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+                <div
+                    style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                    Nilai Setoran</div>
+                <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">Rp 62.500
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:2px">12,5 kg × Rp5.000/kg</div>
+            </div>
+            <div class="detail-field"><span class="df-key">No. Transaksi</span><span
+                    class="df-val">TRX-2026-04712</span></div>
+            <div class="detail-field"><span class="df-key">Nasabah</span><span class="df-val">Siti Rahayu</span>
+            </div>
+            <div class="detail-field"><span class="df-key">Jenis Sampah</span><span class="df-val">Plastik
+                    HDPE</span></div>
+            <div class="detail-field"><span class="df-key">Berat</span><span class="df-val">12,5 kg</span></div>
+            <div class="detail-field"><span class="df-key">Harga/kg</span><span class="df-val">Rp 5.000</span></div>
+            <div class="detail-field"><span class="df-key">Unit</span><span class="df-val">Unit Sukajadi</span></div>
+            <div class="detail-field"><span class="df-key">Petugas</span><span class="df-val">Budi Santoso</span>
+            </div>
+            <div class="detail-field"><span class="df-key">Tanggal</span><span class="df-val">29 Mei 2026,
+                    09:45</span></div>
+            <div class="d-flex gap-2 mt-3">
+                <button class="btn-outline flex-grow-1" style="font-size:11px;padding:9px"><i
+                        class="bi bi-printer me-1"></i>Cetak Struk</button>
+                <button class="btn-primary flex-grow-1" style="font-size:11px;padding:9px"
+                    onclick="closeMSheet(null,'m-detail-setoran')"><i class="bi bi-check2 me-1"></i>Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="m-tambah-setoran" onclick="closeMSheet(event,'m-tambah-setoran')">
+        <div class="detail-sheet">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
+                Catat Setoran Baru</div>
+            <div class="f-group"><label>Nasabah</label><select class="f-input">
+                    <option>-- Pilih Nasabah --</option>
+                    <option>Siti Rahayu</option>
+                    <option>Hendra Wijaya</option>
+                    <option>CV Maju Bersama</option>
+                    <option>Dewi Kartika</option>
+                    <option>Agus Santoso</option>
+                </select></div>
+            <div class="f-group"><label>Jenis Sampah</label><select class="f-input">
+                    <option>Plastik HDPE</option>
+                    <option>Plastik PET</option>
+                    <option>Kantong Plastik</option>
+                    <option>Kardus</option>
+                    <option>Kertas HVS</option>
+                    <option>Besi / Baja</option>
+                    <option>Aluminium</option>
+                    <option>Elektronik (e-waste)</option>
+                    <option>Kaca</option>
+                </select></div>
+            <div class="f-group"><label>Berat (kg)</label><input class="f-input" type="number"
+                    placeholder="Contoh: 5.5" step="0.1"></div>
+            <div class="f-group"><label>Catatan</label>
+                <textarea class="f-input" rows="2" placeholder="Kondisi sampah, keterangan tambahan..."></textarea>
+            </div>
+            <div class="f-group"><label>Unit</label><select class="f-input">
+                    <option>Unit Sukajadi</option>
+                    <option>Unit Tampan</option>
+                    <option>Unit Payung Sekaki</option>
+                    <option>Unit Marpoyan</option>
+                    <option>Unit Bukit Raya</option>
+                    <option>Unit Sail</option>
+                </select></div>
+            <button class="btn-primary mb-2"><i class="bi bi-check2-circle me-1"></i>Simpan Setoran</button>
+            <button class="btn-outline" onclick="closeMSheet(null,'m-tambah-setoran')">Batal</button>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="m-tambah-nasabah" onclick="closeMSheet(event,'m-tambah-nasabah')">
+        <div class="detail-sheet">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
+                Daftarkan Nasabah Baru</div>
+            <div class="f-group"><label>Nama Lengkap / Nama Usaha</label><input class="f-input" type="text"
+                    placeholder="Nama nasabah atau badan usaha"></div>
+            <div class="f-group"><label>No. HP</label><input class="f-input" type="tel"
+                    placeholder="08xx-xxxx-xxxx"></div>
+            <div class="f-group"><label>Alamat</label>
+                <textarea class="f-input" rows="2" placeholder="Alamat lengkap nasabah..."></textarea>
+            </div>
+            <div class="f-group"><label>Jenis Nasabah</label><select class="f-input">
+                    <option>Perorangan</option>
+                    <option>Korporat / Usaha</option>
+                    <option>Sekolah / Lembaga</option>
+                </select></div>
+            <div class="f-group"><label>Unit Bank Sampah</label><select class="f-input">
+                    <option>Unit Sukajadi</option>
+                    <option>Unit Tampan</option>
+                    <option>Unit Payung Sekaki</option>
+                    <option>Unit Marpoyan</option>
+                    <option>Unit Bukit Raya</option>
+                    <option>Unit Sail</option>
+                </select></div>
+            <button class="btn-primary mb-2"><i class="bi bi-person-plus me-1"></i>Daftarkan Nasabah</button>
+            <button class="btn-outline" onclick="closeMSheet(null,'m-tambah-nasabah')">Batal</button>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="m-edit-harga" onclick="closeMSheet(event,'m-edit-harga')">
+        <div class="detail-sheet">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
+                Update Harga Beli</div>
+            <div class="f-group"><label>Plastik HDPE (Rp/kg)</label><input class="f-input" type="number"
+                    value="5000"></div>
+            <div class="f-group"><label>Plastik PET (Rp/kg)</label><input class="f-input" type="number"
+                    value="6000"></div>
+            <div class="f-group"><label>Kardus (Rp/kg)</label><input class="f-input" type="number" value="2000">
+            </div>
+            <div class="f-group"><label>Kertas HVS (Rp/kg)</label><input class="f-input" type="number"
+                    value="3000"></div>
+            <div class="f-group"><label>Aluminium (Rp/kg)</label><input class="f-input" type="number"
+                    value="14000"></div>
+            <div class="f-group"><label>Berlaku Mulai</label><input class="f-input" type="date"
+                    value="2026-05-29"></div>
+            <button class="btn-primary mb-2">Simpan Harga Baru</button>
+            <button class="btn-outline" onclick="closeMSheet(null,'m-edit-harga')">Batal</button>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="m-edit-profil" onclick="closeMSheet(event,'m-edit-profil')">
+        <div class="detail-sheet">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
+                Edit Profil</div>
+            <div class="f-group"><label>Nama Lengkap</label><input class="f-input" type="text"
+                    value="Budi Santoso"></div>
+            <div class="f-group"><label>No. HP</label><input class="f-input" type="tel" value="0812-3456-7890">
+            </div>
+            <div class="f-group"><label>Nama Bank Sampah</label><input class="f-input" type="text"
+                    value="Bank Sampah Nusantara"></div>
+            <div class="f-group"><label>Lokasi</label><input class="f-input" type="text" value="Pekanbaru, Riau">
+            </div>
+            <div class="f-group"><label>Jabatan</label><input class="f-input" type="text"
+                    value="Pengelola Bank Sampah" disabled></div>
+            <button class="btn-primary mb-2">Simpan Profil</button>
+            <button class="btn-outline" onclick="closeMSheet(null,'m-edit-profil')">Batal</button>
+        </div>
+    </div>
+
+    <div class="detail-overlay" id="m-konfirmasi-logout" onclick="closeMSheet(event,'m-konfirmasi-logout')">
+        <div class="detail-sheet" style="text-align:center">
+            <div class="sheet-handle"></div>
+            <div class="confirm-icon danger mx-auto"><i class="bi bi-box-arrow-right"></i></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text-main)">
+                Keluar dari Aplikasi?</div>
+            <div style="font-size:12px;color:var(--muted);margin-bottom:24px">Pastikan semua setoran telah tersimpan
+                sebelum keluar.</div>
+            <button class="btn-primary mb-2" style="background:var(--red)">Ya, Keluar</button>
+            <button class="btn-outline" onclick="closeMSheet(null,'m-konfirmasi-logout')">Batal</button>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════
+       DESKTOP VIEW
+  ══════════════════════════════════════ -->
+    <div class="desktop-wrapper">
+        <aside class="w-sidebar">
+            <div class="w-logo"><i class="bi bi-recycle" style="font-size:16px"></i></div>
+            <div class="w-nav active" data-wpg="w-dashboard" title="Dashboard"><i class="bi bi-house-fill"></i>
+            </div>
+            <div class="w-nav" data-wpg="w-setoran" title="Setoran" style="position:relative"><i
+                    class="bi bi-recycle"></i>
+                <div class="w-notif-dot"></div>
+            </div>
+            <div class="w-nav" data-wpg="w-nasabah" title="Nasabah"><i class="bi bi-people-fill"></i></div>
+            <div class="w-nav" data-wpg="w-harga" title="Harga Sampah"><i class="bi bi-tags-fill"></i></div>
+            <div class="w-nav" data-wpg="w-laporan" title="Laporan"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="w-nav" data-wpg="w-notifikasi" title="Notifikasi" style="position:relative"><i
+                    class="bi bi-bell-fill"></i>
+                <div class="w-notif-dot"></div>
+            </div>
+            <div class="mt-auto"></div>
+            <div class="w-nav" data-wpg="w-setelan" title="Setelan"><i class="bi bi-gear-fill"></i></div>
+        </aside>
+
+        <div class="w-main">
+            <header class="w-topbar">
+                <div id="w-topbar-info">
+                    <div class="w-title">Dashboard Pengelola</div>
+                    <div class="w-sub">Jumat, 29 Mei 2026 · Bank Sampah Nusantara, Pekanbaru</div>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="w-search"><i class="bi bi-search si"></i><input type="text"
+                            placeholder="Cari nasabah, setoran..."></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="text-end">
+                            <div class="w-uname">Budi Santoso</div>
+                            <div class="w-urole">Pengelola Bank Sampah</div>
+                        </div>
+                        <div class="avatar avatar-sm">BS</div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- W-PAGE: Dashboard -->
+            <div id="w-dashboard" class="w-content">
+                <div class="row g-3">
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Total Sampah Hari Ini</div>
+                            <div class="w-m-val" style="color:var(--cyan)">342 kg</div>
+                            <div class="w-m-delta up"><i class="bi bi-arrow-up-short"></i>+18% kemarin</div>
+                            <div class="w-bar">
+                                <div class="w-bar-fill" style="width:78%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Nilai Setoran</div>
+                            <div class="w-m-val" style="color:var(--blue)">Rp1,8 Jt</div>
+                            <div class="w-m-delta up"><i class="bi bi-arrow-up-short"></i>+12% kemarin</div>
+                            <div class="w-bar">
+                                <div class="w-bar-fill" style="width:65%;background:var(--blue)"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Nasabah Aktif</div>
+                            <div class="w-m-val">128</div>
+                            <div class="w-m-delta up"><i class="bi bi-arrow-up-short"></i>+3 nasabah baru</div>
+                            <div class="w-bar">
+                                <div class="w-bar-fill" style="width:82%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Setoran Pending</div>
+                            <div class="w-m-val">5</div>
+                            <div class="w-m-delta" style="color:var(--yellow)"><i
+                                    class="bi bi-exclamation-circle"></i>Perlu verifikasi</div>
+                            <div class="w-bar">
+                                <div class="w-bar-fill" style="width:12%;background:var(--yellow)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-5">
+                        <div class="w-panel h-100">
+                            <div class="w-panel-title">Menu Cepat</div>
+                            <div class="row g-2">
+                                <div class="col-3"><a class="w-svc" onclick="wNav('w-setoran')">
+                                        <div class="w-svc-icon ic1"><i class="bi bi-recycle"></i></div><span
+                                            class="w-svc-lbl">Setoran</span>
+                                    </a></div>
+                                <div class="col-3"><a class="w-svc" onclick="wNav('w-nasabah')">
+                                        <div class="w-svc-icon ic2"><i class="bi bi-people-fill"></i></div><span
+                                            class="w-svc-lbl">Nasabah</span>
+                                    </a></div>
+                                <div class="col-3"><a class="w-svc" onclick="wNav('w-harga')">
+                                        <div class="w-svc-icon ic3"><i class="bi bi-tags-fill"></i></div><span
+                                            class="w-svc-lbl">Harga</span>
+                                    </a></div>
+                                <div class="col-3"><a class="w-svc" onclick="wNav('w-laporan')">
+                                        <div class="w-svc-icon ic4"><i class="bi bi-graph-up-arrow"></i></div><span
+                                            class="w-svc-lbl">Laporan</span>
+                                    </a></div>
+                            </div>
+                            <div class="w-panel-title mt-3">Komposisi Sampah</div>
+                            <div class="d-flex flex-column gap-2">
+                                <div
+                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
+                                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                                            style="font-size:11px;font-weight:600">Plastik</span><span
+                                            style="font-size:10px;color:var(--cyan);font-weight:700">42% · 143
+                                            kg</span></div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:42%;background:var(--cyan)"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
+                                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                                            style="font-size:11px;font-weight:600">Kertas</span><span
+                                            style="font-size:10px;color:var(--blue);font-weight:700">28% · 96
+                                            kg</span></div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:28%;background:var(--blue)"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
+                                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                                            style="font-size:11px;font-weight:600">Logam</span><span
+                                            style="font-size:10px;color:var(--purple);font-weight:700">18% · 62
+                                            kg</span></div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:18%;background:var(--purple)"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
+                                    <div class="d-flex justify-content-between align-items-center mb-1"><span
+                                            style="font-size:11px;font-weight:600">Elektronik</span><span
+                                            style="font-size:10px;color:var(--orange);font-weight:700">7% · 24
+                                            kg</span></div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:7%;background:var(--orange)"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-7">
+                        <div class="w-panel h-100">
+                            <div class="w-panel-title">Setoran Masuk Terbaru</div>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
+                                    <div class="w-row-ico ic1"><i class="bi bi-recycle"
+                                            style="font-size:13px"></i></div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="w-row-title">Siti Rahayu — 12,5 kg Plastik HDPE</div>
+                                        <div class="w-row-meta">Unit Sukajadi · 15 mnt lalu · Rp62.500</div>
+                                    </div><span class="bs bs-green">Lunas</span>
+                                </div>
+                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
+                                    <div class="w-row-ico ic2"><i class="bi bi-newspaper"
+                                            style="font-size:13px"></i></div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="w-row-title">Hendra Wijaya — 8 kg Kertas</div>
+                                        <div class="w-row-meta">Unit Tampan · 30 mnt lalu · Rp24.000</div>
+                                    </div><span class="bs bs-green">Lunas</span>
+                                </div>
+                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
+                                    <div class="w-row-ico ic4"><i class="bi bi-cpu-fill"
+                                            style="font-size:13px"></i></div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="w-row-title">CV Maju Bersama — 45 kg Logam Campuran</div>
+                                        <div class="w-row-meta">Unit Payung Sekaki · 1 jam lalu · Rp270.000</div>
+                                    </div><span class="bs bs-warn">Pending</span>
+                                </div>
+                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
+                                    <div class="w-row-ico ic5"><i class="bi bi-box-fill"
+                                            style="font-size:13px"></i></div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="w-row-title">Dewi Kartika — 5,2 kg Kaca</div>
+                                        <div class="w-row-meta">Unit Marpoyan · 2 jam lalu · Rp15.600</div>
+                                    </div><span class="bs bs-new">Ditimbang</span>
+                                </div>
+                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
+                                    <div class="w-row-ico ic3"><i class="bi bi-lightning-fill"
+                                            style="font-size:13px"></i></div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="w-row-title">Agus Santoso — 3,1 kg Elektronik</div>
+                                        <div class="w-row-meta">Unit Bukit Raya · 3 jam lalu · Rp62.000</div>
+                                    </div><span class="bs bs-ok">Lunas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- W-PAGE: Setoran -->
+            <div id="w-setoran" class="w-content" style="display:none">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <div>
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Manajemen Setoran
+                        </div>
+                        <div style="font-size:11px;color:var(--muted)">342 kg masuk hari ini — 5 setoran pending</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="w-btn w-btn-ghost" style="font-size:11px"><i
+                                class="bi bi-download me-1"></i>Export</button>
+                        <button class="w-btn w-btn-ghost" style="font-size:11px"
+                            onclick="openWModal('wm-filter')"><i class="bi bi-funnel me-1"></i>Filter</button>
+                        <button class="w-btn w-btn-primary" style="font-size:11px"
+                            onclick="openWModal('wm-tambah-setoran')"><i class="bi bi-plus-lg me-1"></i>Catat
+                            Setoran</button>
+                    </div>
+                </div>
+                <div class="w-panel">
+                    <div class="d-flex gap-2 mb-3">
+                        <div class="w-search flex-grow-1"><i class="bi bi-search si"></i><input type="text"
+                                placeholder="Cari nasabah, jenis sampah..." style="width:100%"></div>
+                        <div class="d-flex gap-1">
+                            <button class="chip active">Semua</button>
+                            <button class="chip">Plastik</button>
+                            <button class="chip">Kertas</button>
+                            <button class="chip">Logam</button>
+                            <button class="chip">Elektronik</button>
+                        </div>
+                    </div>
+                    <table class="w-tbl">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nasabah</th>
+                                <th>Jenis Sampah</th>
+                                <th>Berat</th>
+                                <th>Nilai</th>
+                                <th>Unit</th>
+                                <th>Waktu</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">4712</td>
+                                <td>
+                                    <div style="font-size:11px;font-weight:600">Siti Rahayu</div>
+                                </td>
+                                <td><span class="bs bs-ok">Plastik HDPE</span></td>
+                                <td style="font-weight:600">12,5 kg</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp62.500</td>
+                                <td style="font-size:10px;color:var(--muted)">Sukajadi</td>
+                                <td style="font-size:10px;color:var(--muted)">15 mnt lalu</td>
+                                <td><span class="bs bs-green">Lunas</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">4711</td>
+                                <td>
+                                    <div style="font-size:11px;font-weight:600">Hendra Wijaya</div>
+                                </td>
+                                <td><span class="bs bs-new">Kertas</span></td>
+                                <td style="font-weight:600">8 kg</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp24.000</td>
+                                <td style="font-size:10px;color:var(--muted)">Tampan</td>
+                                <td style="font-size:10px;color:var(--muted)">30 mnt lalu</td>
+                                <td><span class="bs bs-green">Lunas</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">4710</td>
+                                <td>
+                                    <div style="font-size:11px;font-weight:600">CV Maju Bersama</div>
+                                </td>
+                                <td><span class="bs bs-purple">Logam</span></td>
+                                <td style="font-weight:600">45 kg</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp270.000</td>
+                                <td style="font-size:10px;color:var(--muted)">Payung Sekaki</td>
+                                <td style="font-size:10px;color:var(--muted)">1 jam lalu</td>
+                                <td><span class="bs bs-warn">Pending</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-setoran')">Verifikasi</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">4709</td>
+                                <td>
+                                    <div style="font-size:11px;font-weight:600">Dewi Kartika</div>
+                                </td>
+                                <td><span class="bs bs-ok">Kaca</span></td>
+                                <td style="font-weight:600">5,2 kg</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp15.600</td>
+                                <td style="font-size:10px;color:var(--muted)">Marpoyan</td>
+                                <td style="font-size:10px;color:var(--muted)">2 jam lalu</td>
+                                <td><span class="bs bs-new">Ditimbang</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">4708</td>
+                                <td>
+                                    <div style="font-size:11px;font-weight:600">Agus Santoso</div>
+                                </td>
+                                <td><span class="bs bs-orange">Elektronik</span></td>
+                                <td style="font-weight:600">3,1 kg</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp62.000</td>
+                                <td style="font-size:10px;color:var(--muted)">Bukit Raya</td>
+                                <td style="font-size:10px;color:var(--muted)">3 jam lalu</td>
+                                <td><span class="bs bs-green">Lunas</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">4707</td>
+                                <td>
+                                    <div style="font-size:11px;font-weight:600">Yuni Pratiwi</div>
+                                </td>
+                                <td><span class="bs bs-ok">Plastik PET</span></td>
+                                <td style="font-weight:600">9 kg</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp54.000</td>
+                                <td style="font-size:10px;color:var(--muted)">Sail</td>
+                                <td style="font-size:10px;color:var(--muted)">4 jam lalu</td>
+                                <td><span class="bs bs-green">Lunas</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- W-PAGE: Nasabah -->
+            <div id="w-nasabah" class="w-content" style="display:none">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <div>
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Data Nasabah</div>
+                        <div style="font-size:11px;color:var(--muted)">128 nasabah aktif — 3 nasabah baru bulan ini
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="w-btn w-btn-ghost" style="font-size:11px"><i
+                                class="bi bi-download me-1"></i>Export</button>
+                        <button class="w-btn w-btn-primary" style="font-size:11px"
+                            onclick="openWModal('wm-tambah-nasabah')"><i class="bi bi-person-plus me-1"></i>Tambah
+                            Nasabah</button>
+                    </div>
+                </div>
+                <div class="w-panel">
+                    <div class="w-search mb-3" style="width:100%"><i class="bi bi-search si"></i><input
+                            type="text" placeholder="Cari nama nasabah, unit..." style="width:100%"></div>
+                    <table class="w-tbl">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Nama</th>
+                                <th>Tipe</th>
+                                <th>Unit</th>
+                                <th>Total Setoran</th>
+                                <th>Saldo</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">BS-001</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar" style="width:28px;height:28px;font-size:10px">SR</div>
+                                        <div style="font-size:11px;font-weight:600">Siti Rahayu</div>
+                                    </div>
+                                </td>
+                                <td><span class="bs bs-ok">Perorangan</span></td>
+                                <td style="font-size:10px;color:var(--muted)">Sukajadi</td>
+                                <td style="font-weight:600">87 kg / 47 trx</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp380.000</td>
+                                <td><span class="bs bs-green">Aktif</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-nasabah')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">BS-002</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar"
+                                            style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,var(--teal),#004d40)">
+                                            HW</div>
+                                        <div style="font-size:11px;font-weight:600">Hendra Wijaya</div>
+                                    </div>
+                                </td>
+                                <td><span class="bs bs-ok">Perorangan</span></td>
+                                <td style="font-size:10px;color:var(--muted)">Tampan</td>
+                                <td style="font-weight:600">63 kg / 38 trx</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp215.000</td>
+                                <td><span class="bs bs-green">Aktif</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-nasabah')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">BS-003</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar"
+                                            style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,var(--purple),#4527a0)">
+                                            CM</div>
+                                        <div style="font-size:11px;font-weight:600">CV Maju Bersama</div>
+                                    </div>
+                                </td>
+                                <td><span class="bs bs-purple">Korporat</span></td>
+                                <td style="font-size:10px;color:var(--muted)">Payung Sekaki</td>
+                                <td style="font-weight:600">210 kg / 29 trx</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp1,2 Jt</td>
+                                <td><span class="bs bs-green">Aktif</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-nasabah')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">BS-004</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar"
+                                            style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,var(--orange),#bf360c)">
+                                            DK</div>
+                                        <div style="font-size:11px;font-weight:600">Dewi Kartika</div>
+                                    </div>
+                                </td>
+                                <td><span class="bs bs-ok">Perorangan</span></td>
+                                <td style="font-size:10px;color:var(--muted)">Marpoyan</td>
+                                <td style="font-weight:600">42 kg / 22 trx</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp95.000</td>
+                                <td><span class="bs bs-green">Aktif</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-nasabah')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">BS-005</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar"
+                                            style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,var(--red),#b71c1c)">
+                                            AS</div>
+                                        <div style="font-size:11px;font-weight:600">Agus Santoso</div>
+                                    </div>
+                                </td>
+                                <td><span class="bs bs-ok">Perorangan</span></td>
+                                <td style="font-size:10px;color:var(--muted)">Bukit Raya</td>
+                                <td style="font-weight:600">28 kg / 11 trx</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp310.000</td>
+                                <td><span class="bs bs-green">Aktif</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-nasabah')">Detail</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-size:10px;color:var(--muted)">BS-006</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar"
+                                            style="width:28px;height:28px;font-size:10px;background:linear-gradient(135deg,#607d8b,#37474f)">
+                                            YP</div>
+                                        <div style="font-size:11px;font-weight:600">Yuni Pratiwi</div>
+                                    </div>
+                                </td>
+                                <td><span class="bs bs-ok">Perorangan</span></td>
+                                <td style="font-size:10px;color:var(--muted)">Sail</td>
+                                <td style="font-weight:600">9 kg / 8 trx</td>
+                                <td style="font-weight:700;color:var(--cyan)">Rp128.000</td>
+                                <td><span class="bs bs-warn">Baru</span></td>
+                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                        onclick="openWModal('wm-detail-nasabah')">Detail</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- W-PAGE: Harga Sampah -->
+            <div id="w-harga" class="w-content" style="display:none">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <div>
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Harga Beli
+                            Sampah</div>
+                        <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
+                        </div>
+                    </div>
+                    <button class="w-btn w-btn-primary" style="font-size:11px"
+                        onclick="openWModal('wm-update-harga')"><i class="bi bi-pencil-fill me-1"></i>Update
+                        Harga</button>
+                </div>
+                <div class="w-panel">
+                    <table class="w-tbl">
+                        <thead>
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Jenis Sampah</th>
+                                <th>Syarat</th>
+                                <th>Harga/kg</th>
+                                <th>Perubahan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="bs bs-ok">Plastik</span></td>
+                                <td style="font-size:11px;font-weight:600">Plastik HDPE (botol)</td>
+                                <td style="font-size:10px;color:var(--muted)">Bersih & kering</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 5.000
+                                </td>
+                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
+                            </tr>
+                            <tr>
+                                <td><span class="bs bs-ok">Plastik</span></td>
+                                <td style="font-size:11px;font-weight:600">Plastik PET (botol minum)</td>
+                                <td style="font-size:10px;color:var(--muted)">Tanpa tutup & label</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 6.000
+                                </td>
+                                <td style="font-size:10px;color:var(--cyan)">↑ dari Rp5.500</td>
+                            </tr>
+                            <tr>
+                                <td><span class="bs bs-ok">Plastik</span></td>
+                                <td style="font-size:11px;font-weight:600">Kantong plastik (kresek)</td>
+                                <td style="font-size:10px;color:var(--muted)">Sudah dipilah</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 1.500
+                                </td>
+                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
+                            </tr>
+                            <tr>
+                                <td><span class="bs bs-new">Kertas</span></td>
+                                <td style="font-size:11px;font-weight:600">Kardus (dos)</td>
+                                <td style="font-size:10px;color:var(--muted)">Kering, tidak basah</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 2.000
+                                </td>
+                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
+                            </tr>
+                            <tr>
+                                <td><span class="bs bs-new">Kertas</span></td>
+                                <td style="font-size:11px;font-weight:600">Kertas HVS / Koran</td>
+                                <td style="font-size:10px;color:var(--muted)">Tanpa lakban</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 3.000
+                                </td>
+                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
+                            </tr>
+                            <tr>
+                                <td><span class="bs bs-purple">Logam</span></td>
+                                <td style="font-size:11px;font-weight:600">Besi / Baja</td>
+                                <td style="font-size:10px;color:var(--muted)">Bebas karat berat</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 3.500
+                                </td>
+                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
+                            </tr>
+                            <tr>
+                                <td><span class="bs bs-purple">Logam</span></td>
+                                <td style="font-size:11px;font-weight:600">Aluminium</td>
+                                <td style="font-size:10px;color:var(--muted)">Kaleng & lembaran</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 14.000
+                                </td>
+                                <td style="font-size:10px;color:var(--red)">↓ dari Rp15.000</td>
+                            </tr>
+                            <tr>
+                                <td><span class="bs bs-orange">Elektronik</span></td>
+                                <td style="font-size:11px;font-weight:600">E-waste (HP, kabel, PCB)</td>
+                                <td style="font-size:10px;color:var(--muted)">Dikirim ke mitra</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 20.000
+                                </td>
+                                <td style="font-size:10px;color:var(--cyan)">↑ dari Rp18.000</td>
+                            </tr>
+                            <tr>
+                                <td><span class="bs bs-err">Kaca</span></td>
+                                <td style="font-size:11px;font-weight:600">Kaca / Botol kaca</td>
+                                <td style="font-size:10px;color:var(--muted)">Tidak pecah</td>
+                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 3.000
+                                </td>
+                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- W-PAGE: Laporan -->
+            <div id="w-laporan" class="w-content" style="display:none">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                    <div>
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Laporan & Analitik
+                        </div>
+                        <div style="font-size:11px;color:var(--muted)">Rekap bulanan — Januari s/d Mei 2026</div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="w-btn w-btn-ghost" style="font-size:11px"><i
+                                class="bi bi-download me-1"></i>Unduh PDF</button>
+                        <button class="w-btn w-btn-primary" style="font-size:11px"><i
+                                class="bi bi-printer me-1"></i>Cetak Laporan</button>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-8">
+                        <div class="w-panel">
+                            <div class="w-panel-title">Total Sampah Masuk per Bulan (kg & nilai)</div>
+                            <div class="w-cb" id="w-chart-bars" style="height:140px"></div>
+                            <div class="d-flex gap-3 mt-2">
+                                <div class="d-flex align-items-center gap-1">
+                                    <div style="width:10px;height:10px;border-radius:2px;background:#2e7d32"></div>
+                                    <span style="font-size:9px;color:var(--muted)">Berat (kg ×10)</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <div style="width:10px;height:10px;border-radius:2px;background:#1b5e20"></div>
+                                    <span style="font-size:9px;color:var(--muted)">Nilai (×100K)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="w-panel h-100">
+                            <div class="w-panel-title">Ringkasan Tahun 2026</div>
+                            <div class="d-flex flex-column gap-3">
+                                <div>
+                                    <div
+                                        style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">
+                                        Total Sampah</div>
+                                    <div
+                                        style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--cyan)">
+                                        8,2 Ton</div>
+                                    <div style="font-size:10px;color:var(--muted)">Jan–Mei 2026</div>
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">
+                                        Total Nilai</div>
+                                    <div
+                                        style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--blue)">
+                                        Rp42,5 Jt</div>
+                                    <div style="font-size:10px;color:var(--muted)">Dibayarkan ke nasabah</div>
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px">
+                                        Nasabah Terlayani</div>
+                                    <div
+                                        style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--orange)">
+                                        128</div>
+                                    <div style="font-size:10px;color:var(--muted)">+15 nasabah baru</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="w-panel">
+                            <div class="w-panel-title">Top Nasabah Bulan Ini</div>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="d-flex align-items-center gap-2 p-2"
+                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px">
+                                    <span
+                                        style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--cyan);width:20px">1</span>
+                                    <div class="flex-grow-1">
+                                        <div style="font-size:11px;font-weight:600">CV Maju Bersama</div>
+                                        <div style="font-size:9px;color:var(--muted)">210 kg · Payung Sekaki</div>
+                                    </div><span style="font-weight:700;font-size:11px;color:var(--cyan)">Rp1,2
+                                        Jt</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 p-2"
+                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px">
+                                    <span
+                                        style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--blue);width:20px">2</span>
+                                    <div class="flex-grow-1">
+                                        <div style="font-size:11px;font-weight:600">Siti Rahayu</div>
+                                        <div style="font-size:9px;color:var(--muted)">87 kg · Sukajadi</div>
+                                    </div><span
+                                        style="font-weight:700;font-size:11px;color:var(--blue)">Rp520.000</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 p-2"
+                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px">
+                                    <span
+                                        style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--orange);width:20px">3</span>
+                                    <div class="flex-grow-1">
+                                        <div style="font-size:11px;font-weight:600">Hendra Wijaya</div>
+                                        <div style="font-size:9px;color:var(--muted)">63 kg · Tampan</div>
+                                    </div><span
+                                        style="font-weight:700;font-size:11px;color:var(--orange)">Rp378.000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="w-panel">
+                            <div class="w-panel-title">Komposisi Sampah Bulan Ini</div>
+                            <div class="d-flex flex-column gap-2">
+                                <div>
+                                    <div class="d-flex justify-content-between mb-1"><span
+                                            style="font-size:11px;font-weight:600">Plastik</span><span
+                                            style="font-size:10px;color:var(--cyan);font-weight:700">42% · 143
+                                            kg</span></div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:42%;background:var(--cyan)"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between mb-1"><span
+                                            style="font-size:11px;font-weight:600">Kertas & Kardus</span><span
+                                            style="font-size:10px;color:var(--blue);font-weight:700">28% · 96
+                                            kg</span></div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:28%;background:var(--blue)"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between mb-1"><span
+                                            style="font-size:11px;font-weight:600">Logam</span><span
+                                            style="font-size:10px;color:var(--purple);font-weight:700">18% · 62
+                                            kg</span></div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:18%;background:var(--purple)"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between mb-1"><span
+                                            style="font-size:11px;font-weight:600">Elektronik</span><span
+                                            style="font-size:10px;color:var(--orange);font-weight:700">7% · 24
+                                            kg</span></div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:7%;background:var(--orange)"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between mb-1"><span
+                                            style="font-size:11px;font-weight:600">Kaca & Lainnya</span><span
+                                            style="font-size:10px;color:var(--teal);font-weight:700">5% · 17 kg</span>
+                                    </div>
+                                    <div class="prog-wrap">
+                                        <div class="prog-fill" style="width:5%;background:var(--teal)"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- W-PAGE: Notifikasi -->
+            <div id="w-notifikasi" class="w-content" style="display:none">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Notifikasi</div>
+                    <button class="w-btn w-btn-ghost" style="font-size:11px">Tandai Semua Dibaca</button>
+                </div>
+                <div class="w-panel">
+                    <div class="d-flex flex-column gap-2">
+                        <div class="notif-item unread">
+                            <div class="notif-dot-item"></div>
+                            <div class="flex-grow-1">
+                                <div style="font-size:12px;font-weight:600">Setoran baru — CV Maju Bersama</div>
+                                <div style="font-size:10px;color:var(--muted);margin-top:2px">45 kg logam campuran ·
+                                    Rp270.000 · Unit Payung Sekaki · Perlu verifikasi</div>
+                                <div style="font-size:9px;color:var(--muted);margin-top:4px">1 jam yang lalu</div>
+                            </div>
+                        </div>
+                        <div class="notif-item unread">
+                            <div class="notif-dot-item"></div>
+                            <div class="flex-grow-1">
+                                <div style="font-size:12px;font-weight:600">Permintaan penarikan saldo baru</div>
+                                <div style="font-size:10px;color:var(--muted);margin-top:2px">Siti Rahayu minta tarik
+                                    Rp150.000 · Agus Santoso minta tarik Rp200.000</div>
+                                <div style="font-size:9px;color:var(--muted);margin-top:4px">10 menit yang lalu</div>
+                            </div>
+                        </div>
+                        <div class="notif-item unread">
+                            <div class="notif-dot-item"></div>
+                            <div class="flex-grow-1">
+                                <div style="font-size:12px;font-weight:600">Harga beli plastik PET diperbarui</div>
+                                <div style="font-size:10px;color:var(--muted);margin-top:2px">Naik dari Rp5.500 →
+                                    Rp6.000/kg · Berlaku mulai hari ini</div>
+                                <div style="font-size:9px;color:var(--muted);margin-top:4px">Hari ini, 08:00</div>
+                            </div>
+                        </div>
+                        <div class="notif-item">
+                            <div style="width:7px;height:7px;flex-shrink:0;margin-top:5px"></div>
+                            <div class="flex-grow-1">
+                                <div style="font-size:12px;font-weight:600">Laporan bulanan April telah dihasilkan
+                                </div>
+                                <div style="font-size:10px;color:var(--muted);margin-top:2px">Total 1,8 ton sampah ·
+                                    Rp8,4 juta nilai terkumpul bulan April</div>
+                                <div style="font-size:9px;color:var(--muted);margin-top:4px">1 Mei 2026</div>
+                            </div>
+                        </div>
+                        <div class="notif-item">
+                            <div style="width:7px;height:7px;flex-shrink:0;margin-top:5px"></div>
+                            <div class="flex-grow-1">
+                                <div style="font-size:12px;font-weight:600">Nasabah baru terdaftar — Yuni Pratiwi
+                                </div>
+                                <div style="font-size:10px;color:var(--muted);margin-top:2px">Unit Sail · No.
+                                    BS-2026-128 · Jenis Perorangan</div>
+                                <div style="font-size:9px;color:var(--muted);margin-top:4px">28 April 2026</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-panel-title mt-3">Log Aktivitas</div>
+                    <div class="d-flex flex-column gap-1">
+                        <div class="timeline-item">
+                            <div class="tl-dot ic1"><i class="bi bi-recycle" style="font-size:11px"></i></div>
+                            <div class="tl-body">
+                                <div class="tl-title">Setoran diterima — Siti Rahayu · 12,5 kg Plastik HDPE</div>
+                                <div class="tl-sub">Unit Sukajadi · Rp62.500 · Lunas</div>
+                                <div class="tl-time">15 menit lalu</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="tl-dot ic2"><i class="bi bi-newspaper" style="font-size:11px"></i></div>
+                            <div class="tl-body">
+                                <div class="tl-title">Setoran diterima — Hendra Wijaya · 8 kg Kertas</div>
+                                <div class="tl-sub">Unit Tampan · Rp24.000 · Lunas</div>
+                                <div class="tl-time">30 menit lalu</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="tl-dot"
+                                style="background:rgba(211,47,47,.10);color:var(--red);border-color:#fff"><i
+                                    class="bi bi-wallet2" style="font-size:11px"></i></div>
+                            <div class="tl-body">
+                                <div class="tl-title">Saldo dicairkan — Hendra Wijaya · Rp100.000</div>
+                                <div class="tl-sub">Transfer ke rekening BRI</div>
+                                <div class="tl-time">Kemarin, 14:30</div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="tl-dot"
+                                style="background:var(--cyan-10);color:var(--cyan);border-color:#fff"><i
+                                    class="bi bi-person-plus-fill" style="font-size:11px"></i></div>
+                            <div class="tl-body">
+                                <div class="tl-title">Nasabah baru terdaftar — Yuni Pratiwi</div>
+                                <div class="tl-sub">Unit Sail · No. BS-2026-128</div>
+                                <div class="tl-time">28 April 2026</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- W-PAGE: Setelan / Profil -->
+            <div id="w-setelan" class="w-content" style="display:none">
+                <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:16px">Profil &
+                    Setelan</div>
+                <div class="row g-3">
+                    <div class="col-4">
+                        <div class="prof-card">
+                            <div class="d-flex align-items-center gap-3 mb-4">
+                                <div class="avatar" style="width:56px;height:56px;font-size:20px">BS</div>
+                                <div>
+                                    <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700">Budi
+                                        Santoso</div>
+                                    <div style="font-size:11px;color:var(--muted)">Pengelola Bank Sampah</div>
+                                    <button class="w-btn w-btn-ghost"
+                                        style="font-size:10px;padding:4px 12px;margin-top:6px"
+                                        onclick="openWModal('wm-edit-profil')">Edit Profil</button>
+                                </div>
+                            </div>
+                            <div class="prof-field"><label>Email</label><span>budi@banksampah.id</span></div>
+                            <div class="prof-field"><label>No. HP</label><span>0812-3456-7890</span></div>
+                            <div class="prof-field"><label>Kode Unit</label><span>BSN-PKU-001</span></div>
+                            <div class="prof-field"><label>Bergabung</label><span>1 Januari 2024</span></div>
+                        </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="w-panel">
+                            <div class="w-panel-title">Informasi Bank Sampah</div>
+                            <div class="row g-3">
+                                <div class="col-6"><label class="w-form-label">Nama Bank Sampah</label><input
+                                        class="w-form-input" type="text" value="Bank Sampah Nusantara"></div>
+                                <div class="col-6"><label class="w-form-label">Kode Unit</label><input
+                                        class="w-form-input" type="text" value="BSN-PKU-001" disabled></div>
+                                <div class="col-6"><label class="w-form-label">Kota / Kabupaten</label><input
+                                        class="w-form-input" type="text" value="Pekanbaru"></div>
+                                <div class="col-6"><label class="w-form-label">Provinsi</label><input
+                                        class="w-form-input" type="text" value="Riau"></div>
+                                <div class="col-12"><label class="w-form-label">Alamat Lengkap</label>
+                                    <textarea class="w-form-input" rows="2">Jl. Sudirman No. 45, Pekanbaru, Riau 28111</textarea>
+                                </div>
+                                <div class="col-6"><label class="w-form-label">Jam Buka</label><input
+                                        class="w-form-input" type="time" value="08:00"></div>
+                                <div class="col-6"><label class="w-form-label">Jam Tutup</label><input
+                                        class="w-form-input" type="time" value="16:00"></div>
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-end gap-2"><button
+                                            class="w-btn w-btn-ghost">Reset</button><button
+                                            class="w-btn w-btn-primary">Simpan Pengaturan</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /w-main -->
+    </div>
+    <!-- /desktop-wrapper -->
+
+
+    <!-- ══ DESKTOP MODALS ══ -->
+    <div class="w-modal-overlay" id="wm-detail-setoran" onclick="closeWModal(event,'wm-detail-setoran')">
+        <div class="w-modal w-modal-md">
+            <div class="w-modal-header">
+                <div class="w-modal-title">Detail Setoran #TRX-2026-04712</div>
+                <div class="w-modal-close" onclick="closeWModal(null,'wm-detail-setoran')"><i
+                        class="bi bi-x-lg"></i></div>
+            </div>
+            <div class="w-modal-body">
+                <div
+                    style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:18px;text-align:center;margin-bottom:20px">
+                    <div
+                        style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                        Nilai Setoran</div>
+                    <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:700;color:var(--cyan)">Rp
+                        62.500</div>
+                    <div style="font-size:12px;color:var(--muted);margin-top:4px">12,5 kg × Rp5.000/kg — Plastik HDPE
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="detail-field"><span class="df-key">No. Transaksi</span><span
+                                class="df-val">TRX-2026-04712</span></div>
+                        <div class="detail-field"><span class="df-key">Nasabah</span><span class="df-val">Siti
+                                Rahayu (BS-001)</span></div>
+                        <div class="detail-field"><span class="df-key">Jenis Sampah</span><span
+                                class="df-val">Plastik HDPE</span></div>
+                        <div class="detail-field"><span class="df-key">Berat</span><span class="df-val">12,5
+                                kg</span></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="detail-field"><span class="df-key">Harga/kg</span><span class="df-val">Rp
+                                5.000</span></div>
+                        <div class="detail-field"><span class="df-key">Unit</span><span class="df-val">Unit
+                                Sukajadi</span></div>
+                        <div class="detail-field"><span class="df-key">Petugas</span><span class="df-val">Budi
+                                Santoso</span></div>
+                        <div class="detail-field"><span class="df-key">Tanggal</span><span class="df-val">29 Mei
+                                2026, 09:45</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-modal-footer"><button class="w-btn w-btn-ghost"
+                    onclick="closeWModal(null,'wm-detail-setoran')">Tutup</button><button
+                    class="w-btn w-btn-ghost"><i class="bi bi-printer me-1"></i>Cetak Struk</button><button
+                    class="w-btn w-btn-primary">Tandai Lunas</button></div>
+        </div>
+    </div>
+
+    <div class="w-modal-overlay" id="wm-detail-nasabah" onclick="closeWModal(event,'wm-detail-nasabah')">
+        <div class="w-modal w-modal-md">
+            <div class="w-modal-header">
+                <div class="w-modal-title">Detail Nasabah</div>
+                <div class="w-modal-close" onclick="closeWModal(null,'wm-detail-nasabah')"><i
+                        class="bi bi-x-lg"></i></div>
+            </div>
+            <div class="w-modal-body">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div class="avatar" style="width:52px;height:52px;font-size:18px">SR</div>
+                    <div>
+                        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">Siti Rahayu</div>
+                        <div style="font-size:11px;color:var(--muted)">No. Nasabah: BS-001 · Unit Sukajadi</div>
+                    </div>
+                    <span class="bs bs-green ms-auto">Aktif</span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div
+                            style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:12px;padding:14px;text-align:center">
+                            <div
+                                style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">
+                                Saldo Tabungan</div>
+                            <div
+                                style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--cyan)">
+                                Rp 380.000</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div
+                            style="background:var(--bg-deep);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center">
+                            <div
+                                style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">
+                                Total Setoran</div>
+                            <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700">87 kg / 47 trx
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2 mt-2">
+                    <div class="col-6">
+                        <div class="detail-field"><span class="df-key">No. HP</span><span
+                                class="df-val">0812-3456-7890</span></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="detail-field"><span class="df-key">Bergabung</span><span class="df-val">12
+                                Maret 2024</span></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="detail-field"><span class="df-key">Terakhir Setor</span><span
+                                class="df-val">29 Mei 2026</span></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="detail-field"><span class="df-key">Jenis Sampah Utama</span><span
+                                class="df-val">Plastik HDPE</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-modal-footer"><button class="w-btn w-btn-ghost"
+                    onclick="closeWModal(null,'wm-detail-nasabah')">Tutup</button><button class="w-btn w-btn-ghost"
+                    onclick="openWModal('wm-tambah-setoran')">Catat Setoran</button><button
+                    class="w-btn w-btn-danger">Proses Penarikan</button></div>
+        </div>
+    </div>
+
+    <div class="w-modal-overlay" id="wm-tambah-setoran" onclick="closeWModal(event,'wm-tambah-setoran')">
+        <div class="w-modal w-modal-md">
+            <div class="w-modal-header">
+                <div class="w-modal-title">Catat Setoran Baru</div>
+                <div class="w-modal-close" onclick="closeWModal(null,'wm-tambah-setoran')"><i
+                        class="bi bi-x-lg"></i></div>
+            </div>
+            <div class="w-modal-body">
+                <div class="row g-3">
+                    <div class="col-12"><label class="w-form-label">Nasabah</label><select class="w-form-input">
+                            <option>-- Pilih Nasabah --</option>
+                            <option>Siti Rahayu (BS-001)</option>
+                            <option>Hendra Wijaya (BS-002)</option>
+                            <option>CV Maju Bersama (BS-003)</option>
+                            <option>Dewi Kartika (BS-004)</option>
+                            <option>Agus Santoso (BS-005)</option>
+                        </select></div>
+                    <div class="col-6"><label class="w-form-label">Jenis Sampah</label><select
+                            class="w-form-input">
+                            <option>Plastik HDPE</option>
+                            <option>Plastik PET</option>
+                            <option>Kantong Plastik</option>
+                            <option>Kardus</option>
+                            <option>Kertas HVS</option>
+                            <option>Besi / Baja</option>
+                            <option>Aluminium</option>
+                            <option>Elektronik (e-waste)</option>
+                            <option>Kaca</option>
+                        </select></div>
+                    <div class="col-6"><label class="w-form-label">Berat (kg)</label><input class="w-form-input"
+                            type="number" placeholder="Masukkan berat" step="0.1"></div>
+                    <div class="col-6"><label class="w-form-label">Unit Bank Sampah</label><select
+                            class="w-form-input">
+                            <option>Unit Sukajadi</option>
+                            <option>Unit Tampan</option>
+                            <option>Unit Payung Sekaki</option>
+                            <option>Unit Marpoyan</option>
+                            <option>Unit Bukit Raya</option>
+                            <option>Unit Sail</option>
+                        </select></div>
+                    <div class="col-6"><label class="w-form-label">Status</label><select class="w-form-input">
+                            <option>Ditimbang</option>
+                            <option>Pending Verifikasi</option>
+                            <option>Lunas</option>
+                        </select></div>
+                    <div class="col-12"><label class="w-form-label">Catatan</label>
+                        <textarea class="w-form-input" rows="2" placeholder="Kondisi sampah, keterangan tambahan..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="w-modal-footer"><button class="w-btn w-btn-ghost"
+                    onclick="closeWModal(null,'wm-tambah-setoran')">Batal</button><button
+                    class="w-btn w-btn-primary"><i class="bi bi-check2-circle me-1"></i>Simpan Setoran</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="w-modal-overlay" id="wm-tambah-nasabah" onclick="closeWModal(event,'wm-tambah-nasabah')">
+        <div class="w-modal w-modal-sm">
+            <div class="w-modal-header">
+                <div class="w-modal-title">Daftarkan Nasabah Baru</div>
+                <div class="w-modal-close" onclick="closeWModal(null,'wm-tambah-nasabah')"><i
+                        class="bi bi-x-lg"></i></div>
+            </div>
+            <div class="w-modal-body">
+                <div class="d-flex flex-column gap-3">
+                    <div><label class="w-form-label">Nama Lengkap / Nama Usaha</label><input class="w-form-input"
+                            type="text" placeholder="Nama nasabah atau badan usaha"></div>
+                    <div><label class="w-form-label">No. HP</label><input class="w-form-input" type="tel"
+                            placeholder="08xx-xxxx-xxxx"></div>
+                    <div><label class="w-form-label">Jenis Nasabah</label><select class="w-form-input">
+                            <option>Perorangan</option>
+                            <option>Korporat / Usaha</option>
+                            <option>Sekolah / Lembaga</option>
+                        </select></div>
+                    <div><label class="w-form-label">Unit Bank Sampah</label><select class="w-form-input">
+                            <option>Unit Sukajadi</option>
+                            <option>Unit Tampan</option>
+                            <option>Unit Payung Sekaki</option>
+                            <option>Unit Marpoyan</option>
+                            <option>Unit Bukit Raya</option>
+                            <option>Unit Sail</option>
+                        </select></div>
+                    <div><label class="w-form-label">Alamat</label>
+                        <textarea class="w-form-input" rows="2" placeholder="Alamat lengkap nasabah..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="w-modal-footer"><button class="w-btn w-btn-ghost"
+                    onclick="closeWModal(null,'wm-tambah-nasabah')">Batal</button><button
+                    class="w-btn w-btn-primary">Daftarkan</button></div>
+        </div>
+    </div>
+
+    <div class="w-modal-overlay" id="wm-update-harga" onclick="closeWModal(event,'wm-update-harga')">
+        <div class="w-modal w-modal-md">
+            <div class="w-modal-header">
+                <div class="w-modal-title">Update Harga Beli Sampah</div>
+                <div class="w-modal-close" onclick="closeWModal(null,'wm-update-harga')"><i
+                        class="bi bi-x-lg"></i></div>
+            </div>
+            <div class="w-modal-body">
+                <div class="row g-3">
+                    <div class="col-6"><label class="w-form-label">Plastik HDPE (Rp/kg)</label><input
+                            class="w-form-input" type="number" value="5000"></div>
+                    <div class="col-6"><label class="w-form-label">Plastik PET (Rp/kg)</label><input
+                            class="w-form-input" type="number" value="6000"></div>
+                    <div class="col-6"><label class="w-form-label">Kardus (Rp/kg)</label><input
+                            class="w-form-input" type="number" value="2000"></div>
+                    <div class="col-6"><label class="w-form-label">Kertas HVS (Rp/kg)</label><input
+                            class="w-form-input" type="number" value="3000"></div>
+                    <div class="col-6"><label class="w-form-label">Besi / Baja (Rp/kg)</label><input
+                            class="w-form-input" type="number" value="3500"></div>
+                    <div class="col-6"><label class="w-form-label">Aluminium (Rp/kg)</label><input
+                            class="w-form-input" type="number" value="14000"></div>
+                    <div class="col-6"><label class="w-form-label">E-waste (Rp/kg)</label><input
+                            class="w-form-input" type="number" value="20000"></div>
+                    <div class="col-6"><label class="w-form-label">Kaca (Rp/kg)</label><input
+                            class="w-form-input" type="number" value="3000"></div>
+                    <div class="col-12"><label class="w-form-label">Berlaku Mulai</label><input
+                            class="w-form-input" type="date" value="2026-05-29"></div>
+                </div>
+            </div>
+            <div class="w-modal-footer"><button class="w-btn w-btn-ghost"
+                    onclick="closeWModal(null,'wm-update-harga')">Batal</button><button
+                    class="w-btn w-btn-primary">Simpan Harga Baru</button></div>
+        </div>
+    </div>
+
+    <div class="w-modal-overlay" id="wm-edit-profil" onclick="closeWModal(event,'wm-edit-profil')">
+        <div class="w-modal w-modal-sm">
+            <div class="w-modal-header">
+                <div class="w-modal-title">Edit Profil</div>
+                <div class="w-modal-close" onclick="closeWModal(null,'wm-edit-profil')"><i class="bi bi-x-lg"></i>
+                </div>
+            </div>
+            <div class="w-modal-body">
+                <div class="d-flex flex-column gap-3">
+                    <div><label class="w-form-label">Nama Lengkap</label><input class="w-form-input"
+                            type="text" value="Budi Santoso"></div>
+                    <div><label class="w-form-label">Email</label><input class="w-form-input" type="email"
+                            value="budi@banksampah.id"></div>
+                    <div><label class="w-form-label">No. HP</label><input class="w-form-input" type="tel"
+                            value="0812-3456-7890"></div>
+                    <div><label class="w-form-label">Jabatan</label><input class="w-form-input" type="text"
+                            value="Pengelola Bank Sampah" disabled></div>
+                </div>
+            </div>
+            <div class="w-modal-footer"><button class="w-btn w-btn-ghost"
+                    onclick="closeWModal(null,'wm-edit-profil')">Batal</button><button
+                    class="w-btn w-btn-primary">Simpan</button></div>
+        </div>
+    </div>
+
+    <div class="w-modal-overlay" id="wm-filter" onclick="closeWModal(event,'wm-filter')">
+        <div class="w-modal w-modal-sm">
+            <div class="w-modal-header">
+                <div class="w-modal-title">Filter Setoran</div>
+                <div class="d-flex gap-2 align-items-center"><button class="w-btn w-btn-ghost"
+                        style="font-size:11px;padding:5px 12px">Reset</button>
+                    <div class="w-modal-close" onclick="closeWModal(null,'wm-filter')"><i class="bi bi-x-lg"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="w-modal-body">
+                <div class="d-flex flex-column gap-3">
+                    <div><label class="w-form-label">Status</label>
+                        <div class="d-flex gap-1 flex-wrap"><button class="chip active">Semua</button><button
+                                class="chip">Pending</button><button class="chip">Ditimbang</button><button
+                                class="chip">Lunas</button></div>
+                    </div>
+                    <div><label class="w-form-label">Jenis Sampah</label><select class="w-form-input">
+                            <option>Semua Jenis</option>
+                            <option>Plastik</option>
+                            <option>Kertas</option>
+                            <option>Logam</option>
+                            <option>Elektronik</option>
+                            <option>Kaca</option>
+                        </select></div>
+                    <div><label class="w-form-label">Unit</label><select class="w-form-input">
+                            <option>Semua Unit</option>
+                            <option>Unit Sukajadi</option>
+                            <option>Unit Tampan</option>
+                            <option>Unit Payung Sekaki</option>
+                            <option>Unit Marpoyan</option>
+                        </select></div>
+                    <div class="row g-2">
+                        <div class="col-6"><label class="w-form-label">Dari</label><input class="w-form-input"
+                                type="date"></div>
+                        <div class="col-6"><label class="w-form-label">Sampai</label><input class="w-form-input"
+                                type="date"></div>
+                    </div>
+                    <div><label class="w-form-label">Urutkan</label><select class="w-form-input">
+                            <option>Terbaru</option>
+                            <option>Terlama</option>
+                            <option>Berat Terbesar</option>
+                            <option>Nilai Terbesar</option>
+                        </select></div>
+                </div>
+            </div>
+            <div class="w-modal-footer"><button class="w-btn w-btn-ghost"
+                    onclick="closeWModal(null,'wm-filter')">Batal</button><button
+                    class="w-btn w-btn-primary">Terapkan</button></div>
+        </div>
+    </div>
+
+    <div class="w-modal-overlay" id="wm-konfirmasi-logout" onclick="closeWModal(event,'wm-konfirmasi-logout')">
+        <div class="w-modal w-modal-sm">
+            <div class="w-modal-body" style="text-align:center;padding:32px 28px">
+                <div class="confirm-icon danger"><i class="bi bi-box-arrow-right"></i></div>
+                <div
+                    style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text-main)">
+                    Keluar dari Sistem?</div>
+                <div style="font-size:12px;color:var(--muted);margin-bottom:24px">Sesi Anda akan berakhir. Pastikan
+                    semua setoran sudah tersimpan.</div>
+                <div class="d-flex gap-2 justify-content-center"><button class="w-btn w-btn-ghost"
+                        onclick="closeWModal(null,'wm-konfirmasi-logout')">Batal</button><button
+                        class="w-btn w-btn-danger" style="padding:9px 24px">Ya, Keluar</button></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function mNav(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const pg = document.getElementById(pageId);
+            if (pg) pg.classList.add('active');
+            const body = pg && pg.querySelector('.m-body');
+            if (body) body.scrollTop = 0;
+        }
+        document.querySelectorAll('.m-nav-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.dataset.page;
+                if (target) mNav(target);
+                const nav = this.closest('nav');
+                nav.querySelectorAll('.m-nav-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function openDetail(id) {
+            document.getElementById(id).classList.add('open');
+        }
+
+        function closeMSheet(e, id) {
+            if (!e || e.target === document.getElementById(id))
+                document.getElementById(id).classList.remove('open');
+        }
+
+        const wPages = ['w-dashboard', 'w-setoran', 'w-nasabah', 'w-harga', 'w-laporan', 'w-notifikasi', 'w-setelan'];
+        const wTitles = {
+            'w-dashboard': 'Dashboard Pengelola',
+            'w-setoran': 'Manajemen Setoran',
+            'w-nasabah': 'Data Nasabah',
+            'w-harga': 'Harga Sampah',
+            'w-laporan': 'Laporan & Analitik',
+            'w-notifikasi': 'Notifikasi',
+            'w-setelan': 'Profil & Setelan'
+        };
+
+        function wNav(pageId) {
+            wPages.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            const el = document.getElementById(pageId);
+            if (el) el.style.display = 'flex';
+            document.querySelectorAll('.w-nav[data-wpg]').forEach(n => n.classList.remove('active'));
+            const nav = document.querySelector(`.w-nav[data-wpg="${pageId}"]`);
+            if (nav) nav.classList.add('active');
+            const ti = document.querySelector('.w-title');
+            if (ti && wTitles[pageId]) ti.textContent = wTitles[pageId];
+        }
+        document.querySelectorAll('.w-nav[data-wpg]').forEach(nav => {
+            nav.addEventListener('click', function() {
+                wNav(this.dataset.wpg);
+            });
+        });
+
+        function openWModal(id) {
+            document.getElementById(id).classList.add('open');
+        }
+
+        function closeWModal(e, id) {
+            if (!e || e.target === document.getElementById(id))
+                document.getElementById(id).classList.remove('open');
+        }
+
+        document.querySelectorAll('.chip').forEach(c => {
+            c.addEventListener('click', function() {
+                const parent = this.closest('.d-flex,.m-chips');
+                if (parent) parent.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Chart data — kg sampah & nilai per bulan
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        const kgData = [1.2, 1.5, 1.3, 1.8, 2.0, 0, 0, 0, 0, 0, 0, 0]; // ton
+        const nilaiData = [6.2, 7.8, 6.5, 8.4, 9.1, 0, 0, 0, 0, 0, 0, 0]; // juta
+
+        function drawChart(containerId, isWeb) {
+            const c = document.getElementById(containerId);
+            if (!c) return;
+            const maxK = Math.max(...kgData);
+            const maxN = Math.max(...nilaiData);
+            c.innerHTML = '';
+            months.forEach((m, i) => {
+                const col = document.createElement('div');
+                col.className = isWeb ? 'w-cb-col' : 'bar-col';
+                const h1 = kgData[i] ? Math.round((kgData[i] / maxK) * (isWeb ? 110 : 88)) : 4;
+                const h2 = nilaiData[i] ? Math.round((nilaiData[i] / maxN) * (isWeb ? 110 : 88)) : 4;
+                const opacity = kgData[i] ? '.9' : '.25';
+                col.innerHTML = `
+          <div style="display:flex;gap:2px;align-items:flex-end;flex:1;width:100%">
+            <div style="flex:1;height:${h1}px;background:#2e7d32;border-radius:3px 3px 0 0;opacity:${opacity}"></div>
+            <div style="flex:1;height:${h2}px;background:#1b5e20;border-radius:3px 3px 0 0;opacity:${opacity}"></div>
+          </div>
+          <span class="${isWeb?'w-cb-lbl':'bar-lbl'}">${m}</span>`;
+                c.appendChild(col);
+            });
+        }
+        drawChart('m-chart-bars', false);
+        drawChart('w-chart-bars', true);
+    </script>
+</body>
+
+</html>
