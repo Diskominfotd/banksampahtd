@@ -12,7 +12,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'nik', 'nik_hash', 'nomor_hp', 'rekening', 'mewakili', 'organisasi_id'])]
+#[Fillable([
+    'name', 'email', 'password', 'nik', 
+    'nik_hash', 'nomor_hp', 'rekening', 
+    'mewakili', 'organisasi_id']
+    )]
+    
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -29,6 +34,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'nik' => 'encrypted',
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];

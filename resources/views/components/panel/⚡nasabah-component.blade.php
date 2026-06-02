@@ -1,15 +1,56 @@
 <?php
 
 use Livewire\Component;
+use App\Services\UserServices;
+use App\Models\Organisasi;
 
 new class extends Component {
-    //
+    protected UserServices $userService;
+    public ?string $nama = '';
+    public ?string $nik = '';
+    public ?string $nomorHp = '';
+    public ?string $email = '';
+    public $jenis = '0';
+    public ?int $organisasi = null;
+    public ?string $rekening = '';
+
+    public function boot(UserServices $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    public function registerNasabah()
+    {
+        $rules = [
+            'nama' => 'required',
+            'nik' => 'required|digits:16',
+            'nomorHp' => 'required|regex:/^08\d{8,}$/',
+            'email' => 'required|email',
+            'jenis' => 'required|in:0,1',
+            'rekening' => 'required',
+        ];
+
+        if ($this->jenis === 1) {
+            $rules['organisasi'] = 'required|exists:organisasi,id';
+        } else {
+            $rules['organisasi'] = 'nullable';
+        }
+
+        $this->validate($rules);
+    }
+
+    public function getData()
+    {
+        return [
+            'organisasi' => Organisasi::query()->get(),
+        ];
+    }
 };
 ?>
 
 <div>
     {{-- Order your soul. Reduce your wants. - Augustine --}}
-    <div class="modal fade" id="wm-tambah-nasabah" tabindex="-1">
+    <div wire:ignore.self class="modal fade" id="wm-tambah-nasabah" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-m">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
@@ -18,57 +59,80 @@ new class extends Component {
                         <i class="bi bi-x-lg"></i>
                     </div>
                 </div>
-                <form>
-                    @csrf
+                <form wire:submit="registerNasabah">
                     <div class="w-modal-body">
                         <div class="d-flex flex-column gap-3">
                             <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">Nama Lengkap / Nama Usaha</label>
-                                    <input class="w-form-input" type="text" name="name"
+                                    <input class="w-form-input" type="text" wire:model="nama"
                                         placeholder="Nama nasabah atau badan usaha">
+                                    @error('nama')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-6">
                                     <label class="w-form-label">NIK</label>
-                                    <input class="w-form-input" type="text" name="nik"
+                                    <input class="w-form-input" type="text" wire:model="nik"
                                         placeholder="16 digit NIK KTP" maxlength="16">
+                                    @error('nik')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">No. HP</label>
-                                    <input class="w-form-input" type="tel" name="nomor_hp"
-                                        placeholder="08xx-xxxx-xxxx">
+                                    <input class="w-form-input" type="tel" placeholder="08xx-xxxx-xxxx"
+                                        wire:model="nomorHp">
+                                    @error('nomorHp')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-6">
                                     <label class="w-form-label">Email</label>
                                     <input class="w-form-input" type="email" name="email"
-                                        placeholder="email@gamil.com">
+                                        placeholder="email@gamil.com" wire:model="email">
+                                    @error('email')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">Jenis Nasabah</label>
-                                    <select class="w-form-input" name="mewakili">
-                                        <option value="perorangan">Perorangan</option>
-                                        <option value="korporat">Kelompok</option>
+                                    <select class="w-form-input" wire:model.live="jenis">
+                                        <option value="0">Perorangan</option>
+                                        <option value="1">Kelompok</option>
                                     </select>
+                                    @error('jenis')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
                                 <div class="col-6">
                                     <label class="w-form-label">Organisasi</label>
-                                    <select class="w-form-input" name="organisasi_id">
-                                        <option value="1">Unit Sukajadi</option>
+                                    <select class="w-form-input" wire:model="organisasi" @disabled($jenis === 0)>
+                                        <option value="">Pilih Organisasi</option>
+                                        @foreach ($this->getData()['organisasi'] as $org)
+                                            <option value="{{ $org->id }}">{{ $org->nama }}</option>
+                                        @endforeach
                                     </select>
+
+                                    @error('organisasi')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div>
                                 <label class="w-form-label">No. Rekening</label>
-                                <input class="w-form-input" type="text" name="rekening"
-                                    placeholder="Nomor rekening bank sampah">
+                                <input class="w-form-input" type="text" wire:model="rekening"
+                                    placeholder="Nomor rekening bank sampah" wire:model="rekening">
+                                @error('rekening')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
                     </div>
-
                     <div class="w-modal-footer">
                         <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="w-btn w-btn-primary">Daftarkan</button>
@@ -77,7 +141,7 @@ new class extends Component {
             </div>
         </div>
     </div>
-    <div class="modal fade" id="wm-detail-nasabah" tabindex="-1">
+    <div wire:ignore.self class="modal fade" id="wm-detail-nasabah" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
@@ -113,7 +177,8 @@ new class extends Component {
                                 <div
                                     style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">
                                     Total Setoran</div>
-                                <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700">87 kg / 47 trx
+                                <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700">87 kg / 47
+                                    trx
                                 </div>
                             </div>
                         </div>
@@ -124,11 +189,13 @@ new class extends Component {
                                     class="df-val">0812-3456-7890</span></div>
                         </div>
                         <div class="col-6">
-                            <div class="detail-field"><span class="df-key">Bergabung</span><span class="df-val">12 Maret
+                            <div class="detail-field"><span class="df-key">Bergabung</span><span class="df-val">12
+                                    Maret
                                     2024</span></div>
                         </div>
                         <div class="col-6">
-                            <div class="detail-field"><span class="df-key">Terakhir Setor</span><span class="df-val">29
+                            <div class="detail-field"><span class="df-key">Terakhir Setor</span><span
+                                    class="df-val">29
                                     Mei 2026</span></div>
                         </div>
                         <div class="col-6">

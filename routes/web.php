@@ -1,9 +1,15 @@
 <?php
 
 use App\Http\Controllers\PanelController;
+use App\Http\Middleware\Authenticate;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [PanelController::class, 'home']);
-Route::get('/nasabah', [PanelController::class, 'nasabah']);
-Route::get('/setoran', [PanelController::class, 'home']);
-Route::get('/kategori', [PanelController::class, 'home']);
+// Route::middleware(['throttle:global'])->group(function () {
+    Route::get('/login', [PanelController::class, 'login'])->name('login');
+    Route::middleware(Authenticate::class)->group(function (): void {
+        Route::get('/', [PanelController::class, 'home'])->name('home');
+        Route::get('/nasabah', [PanelController::class, 'nasabah'])->name('nasabah');
+        Route::get('/setoran', [PanelController::class, 'setoran'])->name('setoran');
+        Route::get('/kategori', [PanelController::class, 'kategori'])->name('kategori');
+    });
+// });

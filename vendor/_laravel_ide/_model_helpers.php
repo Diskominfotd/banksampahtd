@@ -1665,7 +1665,8 @@ namespace App\Models {
      * @property string $password
      * @property string|null $rekening
      * @property string|null $nomor_hp
-     * @property string|null $nik
+     * @property string|null $nik_hash
+     * @property mixed $nik
      * @property \Illuminate\Support\Carbon|null $email_verified_at
      * @property string $email
      * @property string $name
@@ -1683,6 +1684,7 @@ namespace App\Models {
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereEmail($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereEmailVerifiedAt($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereNik($value)
+     * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereNikHash($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereNomorHp($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User whereRekening($value)
      * @method static \Illuminate\Database\Eloquent\Builder<User>|User wherePassword($value)
