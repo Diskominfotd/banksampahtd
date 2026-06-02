@@ -28,19 +28,25 @@ class UserServicesImpl implements UserServices
         Auth::login($user);
         return redirect()->route('home');
     }
-    public function register(array $data)
+    public function register(array $data): User
     {
-        DB::transaction(function () use ($data) {
-            $user = User::create([
+        return DB::transaction(function () use ($data) {
+            return User::create([
                 'nik' => $data['nik'],
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'nomor_hp' => $data['nomor_hp'],
                 'mewakili' => $data['mewakili'],
-                'organisasi_id' => $data['organisasi_id'],
+                'organisasi_id' => $data['organisasi_id'] ?? null,
                 'password' => Hash::make($data['password']),
                 'rekening' => $data['rekening'],
+                
             ]);
-        });
+        }); 
+    }
+
+    public function userBuilder()
+    {
+        return User::query();
     }
 }

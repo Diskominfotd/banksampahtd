@@ -3,8 +3,10 @@
 use Livewire\Component;
 use App\Services\UserServices;
 use App\Models\Organisasi;
+use Livewire\WithPagination;
 
 new class extends Component {
+    use WithPagination;
     protected UserServices $userService;
     public ?string $nama = '';
     public ?string $nik = '';
@@ -13,6 +15,7 @@ new class extends Component {
     public $jenis = '0';
     public ?int $organisasi = null;
     public ?string $rekening = '';
+    public ?string $password = '';
 
     public function boot(UserServices $userService)
     {
@@ -27,22 +30,39 @@ new class extends Component {
             'nomorHp' => 'required|regex:/^08\d{8,}$/',
             'email' => 'required|email',
             'jenis' => 'required|in:0,1',
-            'rekening' => 'required',
+            'rekening' => 'required|string',
+            'organisasi' => $this->jenis == '0' ? 'nullable' : 'required' . '|exists:organisasis,id',
+            'password' => 'required|min:6',
         ];
-
-        if ($this->jenis === 1) {
-            $rules['organisasi'] = 'required|exists:organisasi,id';
-        } else {
-            $rules['organisasi'] = 'nullable';
-        }
-
         $this->validate($rules);
+        $this->userService->register([
+            'name' => $this->nama,
+            'nik' => $this->nik,
+            'nomor_hp' => $this->nomorHp,
+            'email' => $this->email,
+            'mewakili' => $this->jenis,
+            'organisasi_id' => $this->organisasi,
+            'password' => $this->password,
+            'rekening' => $this->rekening,
+        ]);
+        $this->reset(['nama', 'nik', 'nomorHp', 'email', 'jenis', 'organisasi', 'rekening', 'password']);
+        $this->dispatch('close-modal');
+    }
+
+    public function updatedJenis($value)
+    {
+        if ($value === '0') {
+            $this->organisasi = null;
+        }
     }
 
     public function getData()
     {
+        $user = $this->userService->userBuilder();
+        $nasabah = $user->with('organisasi')->latest()->paginate(10);
         return [
             'organisasi' => Organisasi::query()->get(),
+            'nasabah' => $nasabah,
         ];
     }
 };
@@ -50,6 +70,9 @@ new class extends Component {
 
 <div>
     {{-- Order your soul. Reduce your wants. - Augustine --}}
+    @php
+        $data = $this->getData();
+    @endphp
     <div wire:ignore.self class="modal fade" id="wm-tambah-nasabah" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-m">
             <div class="modal-content w-modal">
@@ -111,31 +134,55 @@ new class extends Component {
                                 </div>
                                 <div class="col-6">
                                     <label class="w-form-label">Organisasi</label>
-                                    <select class="w-form-input" wire:model="organisasi" @disabled($jenis === 0)>
+                                    <select class="w-form-input" wire:model.live="organisasi"
+                                        @disabled($jenis === '0')>
                                         <option value="">Pilih Organisasi</option>
-                                        @foreach ($this->getData()['organisasi'] as $org)
+                                        @foreach ($data['organisasi'] as $org)
                                             <option value="{{ $org->id }}">{{ $org->nama }}</option>
                                         @endforeach
                                     </select>
-
                                     @error('organisasi')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
                             </div>
-                            <div>
-                                <label class="w-form-label">No. Rekening</label>
-                                <input class="w-form-input" type="text" wire:model="rekening"
-                                    placeholder="Nomor rekening bank sampah" wire:model="rekening">
-                                @error('rekening')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">No. Rekening</label>
+                                    <input class="w-form-input" type="text" wire:model="rekening"
+                                        placeholder="Nomor rekening bank sampah" wire:model="rekening">
+                                    @error('rekening')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <div x-data="{ show: false }">
+                                        <label class="w-form-label">Password</label>
+                                        <div style="position:relative">
+                                            <input class="w-form-input" :type="show ? 'text' : 'password'"
+                                                wire:model="password" placeholder="Password nasabah"
+                                                style="padding-right:40px">
+                                            <button type="button" @click="show = !show"
+                                                style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted)">
+                                                <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                                            </button>
+                                        </div>
+                                        @error('password')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="w-modal-footer">
-                        <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="w-btn w-btn-primary">Daftarkan</button>
+                        <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
+                            wire:loading.attr="disabled" wire:target="registerNasabah">Batal</button>
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="registerNasabah">
+                            <span wire:loading.remove wire:target="registerNasabah">Daftarkan</span>
+                            <span wire:loading wire:target="registerNasabah">Loading...</span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -267,27 +314,38 @@ new class extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td style="font-size:10px;color:var(--muted)">BS-001</td>
-                                <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="avatar" style="width:28px;height:28px;font-size:10px">SR</div>
-                                        <div style="font-size:11px;font-weight:600">Siti Rahayu</div>
-                                    </div>
-                                </td>
-                                <td><span class="bs bs-ok">Perorangan</span></td>
-                                <td style="font-size:10px;color:var(--muted)">Sukajadi</td>
-                                <td style="font-weight:600">87 kg / 47 trx</td>
-                                <td style="font-weight:700;color:var(--cyan)">Rp380.000</td>
-                                <td><span class="bs bs-green">Aktif</span></td>
-                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                        data-bs-toggle="modal" data-bs-target="#wm-detail-nasabah">Detail</button>
-                                </td>
-                            </tr>
+                            @foreach ($data['nasabah'] as $nasabah)
+                                <tr>
+                                    <td style="font-size:10px;color:var(--muted)">1</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar" style="width:28px;height:28px;font-size:10px">{{ $nasabah->initials() }}</div>
+                                            <div style="font-size:11px;font-weight:600">{{ $nasabah->name ?: '-' }}</div>
+                                        </div>
+                                    </td>
+                                    <td><span class="bs bs-ok">
+                                        {{ $nasabah->mewakili == '0' ? 'Perorangan' : 'Kelompok' }}
+                                    </span></td>
+                                    <td style="font-size:10px;color:var(--muted)">Sukajadi</td>
+                                    <td style="font-weight:600">0 kg / 0 trx</td>
+                                    <td style="font-weight:700;color:var(--cyan)">Rp 0</td>
+                                    <td><span class="bs bs-green">Aktif</span></td>
+                                    <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                            data-bs-toggle="modal" data-bs-target="#wm-detail-nasabah">Detail</button>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+    @script
+        <script>
+            $wire.on('close-modal', () => {
+                $('#registerNasabah').modal('hide');
+            })
+        </script>
+    @endscript
 </div>
