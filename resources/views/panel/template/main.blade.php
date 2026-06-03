@@ -555,8 +555,12 @@
             border-top: 1px solid var(--border-light);
             padding: 10px 0 env(safe-area-inset-bottom, 10px);
             flex-shrink: 0;
-            position: sticky;
+            position: fixed;
+            /* ← ganti dari sticky */
             bottom: 0;
+            left: 0;
+            right: 0;
+            /* ← tambah ini */
             z-index: 100;
             box-shadow: 0 -1px 8px rgba(46, 125, 50, .08);
         }
@@ -1063,18 +1067,22 @@
         /* ── DESKTOP ── */
         @media (min-width:992px) {
 
+
             html,
             body {
                 height: 100vh;
                 overflow: hidden;
             }
 
-            .m-bottom-nav,
             .m-page-header,
             .m-header,
             .m-body,
+            .m-bottom-nav {
+                display: none !important;
+            }
             .detail-overlay {
                 display: none !important;
+                /* ← .m-bottom-nav sudah dihapus dari sini */
             }
 
             .desktop-wrapper {
@@ -1650,6 +1658,7 @@
 
     @yield('content')
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function mNav(pageId) {
@@ -1754,6 +1763,7 @@
         drawChart('m-chart-bars', false);
         drawChart('w-chart-bars', true);
     </script>
+
 </body>
 
 </html>

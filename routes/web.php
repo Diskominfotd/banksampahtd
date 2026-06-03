@@ -11,5 +11,6 @@ use Illuminate\Support\Facades\Route;
         Route::get('/nasabah', [PanelController::class, 'nasabah'])->name('nasabah');
         Route::get('/setoran', [PanelController::class, 'setoran'])->name('setoran');
         Route::get('/kategori', [PanelController::class, 'kategori'])->name('kategori');
+        Route::get('/harga', [PanelController::class, 'harga'])->name('harga');
     });
 // });

@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\Impl;
 
+use App\Models\Category;
 use App\Models\User;
 use App\Services\UserServices;
 use Illuminate\Support\Facades\Auth;
@@ -40,13 +41,38 @@ class UserServicesImpl implements UserServices
                 'organisasi_id' => $data['organisasi_id'] ?? null,
                 'password' => Hash::make($data['password']),
                 'rekening' => $data['rekening'],
-                
+                'bank_sampah_id' => $data['bank_sampah_id'],
             ]);
-        }); 
+        });
+    }
+
+    public function getUserById(int $id)
+    {
+        return User::query()->find($id);
+    }
+
+    public function doLogout()
+    {
+        Auth::logout();
+        return redirect()->route('login');
     }
 
     public function userBuilder()
     {
         return User::query();
+    }
+
+    public function createCategory(array $data): Category
+    {
+        return DB::transaction(function () use ($data) {
+            return Category::create([
+                'name' => $data['name'],
+            ]);
+        });
+    }
+
+    public function categoriesBuilder()
+    {
+        return Category::query();
     }
 }

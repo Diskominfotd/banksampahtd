@@ -18,4 +18,12 @@ class PanelController extends Controller
     {
         return view('panel.pages.nasabah');
     }
+    public function kategori()
+    {
+        return view('panel.pages.category');
+    }
+    public function harga()
+    {
+        return view('panel.pages.price');
+    }
 }

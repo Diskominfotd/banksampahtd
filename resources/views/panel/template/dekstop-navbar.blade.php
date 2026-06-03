@@ -12,11 +12,12 @@
     <a href="/nasabah" class="w-nav {{ request()->is('nasabah') ? 'active' : '' }}">
         <i class="bi bi-people-fill"></i>
     </a>
-
-    <a href="/kategori" class="w-nav {{ request()->is('kategori') ? 'active' : '' }}">
+    <a href="/harga" class="w-nav {{ request()->is('harga') ? 'active' : '' }}">
         <i class="bi bi-tags-fill"></i>
     </a>
-
+    <a href="/kategori" class="w-nav {{ request()->is('kategori') ? 'active' : '' }}">
+        <i class="bi bi-grid-fill"></i>
+    </a>
     <a href="/laporan" class="w-nav {{ request()->is('laporan') ? 'active' : '' }}">
         <i class="bi bi-graph-up-arrow"></i>
     </a>

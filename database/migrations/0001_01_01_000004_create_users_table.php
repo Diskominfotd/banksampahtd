@@ -20,8 +20,10 @@ return new class extends Migration {
             $table->string('nomor_hp')->nullable();
             $table->string('rekening')->nullable();
             $table->string('password');
-            $table->boolean('mewakili')->default(false);
+            $table->enum('mewakili', ['perorangan', 'kelompok'])->default('perorangan');
+            $table->enum('status', ['active', 'inactive'])->default('active');
             $table->foreignId('organisasi_id')->nullable()->constrained('organisasis')->cascadeOnDelete();
+            $table->foreignId('bank_sampah_id')->nullable()->constrained('bank_sampahs')->cascadeOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });

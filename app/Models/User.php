@@ -12,12 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable([
-    'name', 'email', 'password', 'nik', 
-    'nik_hash', 'nomor_hp', 'rekening', 
-    'mewakili', 'organisasi_id']
-    )]
-    
+#[Fillable(['name', 'email', 'password', 'nik', 'nik_hash', 'nomor_hp', 'rekening', 'mewakili', 'organisasi_id', 'status', 'bank_sampah_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -45,14 +40,15 @@ class User extends Authenticatable
      */
     public function initials(): string
     {
-        return Str::of($this->name)
-            ->explode(' ')
-            ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
-            ->implode('');
+        return Str::of($this->name)->explode(' ')
+        ->take(2)->map(fn($word) => Str::substr($word, 0, 1))->implode('');
     }
-      public function organisasi()
+    public function organisasi()
     {
         return $this->belongsTo(Organisasi::class, 'organisasi_id');
+    }
+    public function unit()
+    {
+        return $this->belongsTo(BankSampah::class, 'bank_sampah_id');
     }
 }

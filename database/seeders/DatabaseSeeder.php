@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\BankSampah;
 use App\Models\Kategori;
 use App\Models\Organisasi;
 use App\Models\SubKategori;
@@ -18,6 +19,28 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $induk = BankSampah::create([
+            'nama' => 'Bank Sampah Induk Pekanbaru',
+            'jenis' => 'induk',
+            'alamat' => 'Jl. Sudirman No. 1',
+            'telepon' => '081234567890',
+        ]);
+        BankSampah::create([
+            'nama' => 'Bank Sampah Unit Marpoyan',
+            'jenis' => 'unit',
+            'parent_id' => $induk->id,
+            'alamat' => 'Jl. Marpoyan',
+            'telepon' => '081111111111',
+        ]);
+
+        BankSampah::create([
+            'nama' => 'Bank Sampah Unit Panam',
+            'jenis' => 'unit',
+            'parent_id' => $induk->id,
+            'alamat' => 'Jl. Panam',
+            'telepon' => '082222222222',
+        ]);
+
         $org = Organisasi::create([
             'nama' => 'Organisasi 1',
         ]);
@@ -35,19 +58,9 @@ class DatabaseSeeder extends Seeder
             'rekening' => '111111111',
             'mewakili' => true,
             'organisasi_id' => $org->id,
+            'bank_sampah_id' => $induk->id,
         ]);
         $user1->assignRole($role1);
         $role1->givePermissionTo($admin);
-
-        $kategori = Kategori::create([
-            'nama' => 'Plastik',
-        ]);
-
-        $subKategori = SubKategori::create([
-            'nama' => 'Botol Plastik',
-            'harga' => 5000,
-            'kategori_id' => $kategori->id,
-        ]);
-
     }
 }
