@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 new class extends Component {
     use WithPagination;
     protected UserServices $userService;
+    
     // Properti untuk form pendaftaran nasabah
     public ?string $nama = '';
     public ?string $nik = '';
@@ -61,7 +62,6 @@ new class extends Component {
                 'digits:16',
                 function ($attribute, $value, $fail) {
                     $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->exists();
-
                     if ($exists) {
                         $fail('NIK sudah terdaftar.');
                     }

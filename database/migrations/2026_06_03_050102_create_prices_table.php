@@ -10,8 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('price_types', function (Blueprint $table) {
+        Schema::create('prices', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('trash_id')->constrained()->cascadeOnDelete();
+
+            $table->foreignId('bank_id')
+            ->constrained('bank_sampahs')
+            ->cascadeOnDelete();
+
+            $table->decimal('harga', 12, 2);
 
             $table->timestamps();
         });
@@ -22,6 +29,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('price_types');
+        Schema::dropIfExists('prices');
     }
 };

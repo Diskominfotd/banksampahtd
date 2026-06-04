@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable([
-    'name',
- ])]
+#[Fillable(['name'])]
 class Category extends Model
 {
-    
+    public function trash()
+    {
+        return $this->hasMany(Trash::class);
+    }
 }

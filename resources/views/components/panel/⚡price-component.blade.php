@@ -1,14 +1,57 @@
 <?php
 
 use Livewire\Component;
-
+use App\Services\TrashServices;
+use Livewire\WithPagination;
 new class extends Component {
-    //
+    use WithPagination;
+    protected TrashServices $trashService;
+
+    public ?int $kategori;
+    public string $nama = '';
+    public string $syarat = '';
+    public ?int $harga = null;
+
+    public function boot(TrashServices $trashService)
+    {
+        $this->trashService = $trashService;
+    }
+
+    public function newJenis()
+    {
+        $rules = [
+            'kategori' => 'required|exists:categories,id',
+            'nama' => 'required|string|max:100',
+            'syarat' => 'required|string|max:100',
+            'harga' => 'required|integer|min:0',
+        ];
+        $this->validate($rules);
+        $this->trashService->createJenis([
+            'category_id' => $this->kategori,
+            'nama' => $this->nama,
+            'syarat' => $this->syarat,
+            'harga' => $this->harga,
+        ]);
+        $this->reset(['kategori', 'nama', 'syarat', 'harga']);
+    }
+
+    public function getData()
+    {
+        $categories = $this->trashService->categoryBuilder()->get();
+        $trashs = $this->trashService->getTrashBuilder()->latest()->paginate(10);
+        return [
+            'categories' => $categories,
+            'trashs' => $trashs,
+        ];
+    }
 };
 ?>
 
 <div>
     {{-- The only way to do great work is to love what you do. - Steve Jobs --}}
+    @php
+        $data = $this->getData();
+    @endphp
     <div class="desktop-wrapper">
         @include('panel.template.dekstop-navbar')
         <div class="w-main">
@@ -37,9 +80,10 @@ new class extends Component {
                         <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
                         </div>
                     </div>
-                    <button class="w-btn w-btn-primary" style="font-size:11px"
-                        onclick="openWModal('wm-update-harga')"><i class="bi bi-pencil-fill me-1"></i>Update
-                        Harga</button>
+                    <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
+                        data-bs-target="#wm-tambah-jenis"><i class="bi bi-patch-plus me-1">
+                        </i>Tambah Jenis
+                    </button>
                 </div>
                 <div class="w-panel">
                     <table class="w-tbl">
@@ -53,82 +97,106 @@ new class extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><span class="bs bs-ok">Plastik</span></td>
-                                <td style="font-size:11px;font-weight:600">Plastik HDPE (botol)</td>
-                                <td style="font-size:10px;color:var(--muted)">Bersih & kering</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 5.000
-                                </td>
-                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
-                            </tr>
-                            <tr>
-                                <td><span class="bs bs-ok">Plastik</span></td>
-                                <td style="font-size:11px;font-weight:600">Plastik PET (botol minum)</td>
-                                <td style="font-size:10px;color:var(--muted)">Tanpa tutup & label</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 6.000
-                                </td>
-                                <td style="font-size:10px;color:var(--cyan)">↑ dari Rp5.500</td>
-                            </tr>
-                            <tr>
-                                <td><span class="bs bs-ok">Plastik</span></td>
-                                <td style="font-size:11px;font-weight:600">Kantong plastik (kresek)</td>
-                                <td style="font-size:10px;color:var(--muted)">Sudah dipilah</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 1.500
-                                </td>
-                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
-                            </tr>
-                            <tr>
-                                <td><span class="bs bs-new">Kertas</span></td>
-                                <td style="font-size:11px;font-weight:600">Kardus (dos)</td>
-                                <td style="font-size:10px;color:var(--muted)">Kering, tidak basah</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 2.000
-                                </td>
-                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
-                            </tr>
-                            <tr>
-                                <td><span class="bs bs-new">Kertas</span></td>
-                                <td style="font-size:11px;font-weight:600">Kertas HVS / Koran</td>
-                                <td style="font-size:10px;color:var(--muted)">Tanpa lakban</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 3.000
-                                </td>
-                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
-                            </tr>
-                            <tr>
-                                <td><span class="bs bs-purple">Logam</span></td>
-                                <td style="font-size:11px;font-weight:600">Besi / Baja</td>
-                                <td style="font-size:10px;color:var(--muted)">Bebas karat berat</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 3.500
-                                </td>
-                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
-                            </tr>
-                            <tr>
-                                <td><span class="bs bs-purple">Logam</span></td>
-                                <td style="font-size:11px;font-weight:600">Aluminium</td>
-                                <td style="font-size:10px;color:var(--muted)">Kaleng & lembaran</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 14.000
-                                </td>
-                                <td style="font-size:10px;color:var(--red)">↓ dari Rp15.000</td>
-                            </tr>
-                            <tr>
-                                <td><span class="bs bs-orange">Elektronik</span></td>
-                                <td style="font-size:11px;font-weight:600">E-waste (HP, kabel, PCB)</td>
-                                <td style="font-size:10px;color:var(--muted)">Dikirim ke mitra</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 20.000
-                                </td>
-                                <td style="font-size:10px;color:var(--cyan)">↑ dari Rp18.000</td>
-                            </tr>
-                            <tr>
-                                <td><span class="bs bs-err">Kaca</span></td>
-                                <td style="font-size:11px;font-weight:600">Kaca / Botol kaca</td>
-                                <td style="font-size:10px;color:var(--muted)">Tidak pecah</td>
-                                <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">Rp 3.000
-                                </td>
-                                <td style="font-size:10px;color:var(--muted)">Stabil</td>
-                            </tr>
+                            @foreach ($data['trashs'] as $t)
+                                <tr>
+                                    <td><span class="bs bs-ok">{{ ucfirst($t->category->name) }}</span></td>
+                                    <td style="font-size:11px;font-weight:600">{{ ucfirst($t->nama) }}</td>
+                                    <td style="font-size:10px;color:var(--muted)">{{ ucfirst($t->syarat) }}</td>
+                                    <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">
+                                        @php $price = $t->prices->first() @endphp
+                                        Rp {{ number_format($price?->harga ?? 0, 0, ',', '.') }}
+                                        {{ dd($price) }}
+                                    </td>
+                                    <td style="font-size:10px;color:var(--muted)">Stabil</td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+    <div wire:ignore.self class="modal fade" id="wm-tambah-jenis" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-m">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Daftarkan Jenis Sampah Baru</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <form wire:submit="newJenis">
+                    <div class="w-modal-body">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">Kategori</label>
+                                    <select class="w-form-input" wire:model.live="kategori">
+                                        <option value="" hidden>Pilih Kategori</option>
+                                        @foreach ($data['categories'] as $category)
+                                            <option value="{{ $category->id }}">
+                                                {{ ucfirst($category->name) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('kategori')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">Nama</label>
+                                    <input class="w-form-input" type="text" wire:model="nama"
+                                        placeholder="Nama Jenis Sampah" maxlength="100">
+                                    @error('nama')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="w-form-label">Syarat</label>
+                                    <input class="w-form-input" type="text" wire:model="syarat"
+                                        placeholder="Syarat Jenis Sampah" maxlength="100">
+                                    @error('syarat')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div x-data="{
+                                    raw: '',
+                                    formatted: '',
+                                    format(val) {
+                                        let num = val.replace(/\D/g, '');
+                                        if (!num) {
+                                            this.formatted = '';
+                                            this.raw = '';
+                                            $wire.set('harga', null); // reset ke null kalau kosong
+                                            return;
+                                        }
+                                        let number = parseInt(num, 10);
+                                        this.raw = number;
+                                        this.formatted = 'Rp ' + number.toLocaleString('id-ID');
+                                        $wire.set('harga', number); // sync langsung ke Livewire property
+                                    }
+                                }">
+                                    <label class="w-form-label">Harga/Kg</label>
+                                    <input class="w-form-input" type="text" placeholder="Rp 0" maxlength="20"
+                                        x-model="formatted" @input="format($event.target.value)" wire:ignore>
+                                    {{-- input hidden tidak perlu lagi --}}
+                                    @error('harga')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-modal-footer">
+                        <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
+                            wire:loading.attr="disabled" wire:target="newJenis">Batal</button>
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="newJenis">
+                            <span wire:loading.remove wire:target="newJenis">Daftarkan</span>
+                            <span wire:loading wire:target="newJenis">Loading...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </div>
