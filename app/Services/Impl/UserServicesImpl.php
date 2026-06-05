@@ -16,7 +16,9 @@ class UserServicesImpl implements UserServices
         $password = $data['password'];
         $hashedNik = hash('sha256', $nik);
 
-        $user = User::query()->where('nik_hash', $hashedNik)->first();
+        $user = User::query()
+        ->where('nik_hash', $hashedNik)
+        ->first();
 
         if (!$user) {
             return redirect()->route('login')
