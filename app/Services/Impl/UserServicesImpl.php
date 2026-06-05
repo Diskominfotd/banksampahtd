@@ -19,11 +19,13 @@ class UserServicesImpl implements UserServices
         $user = User::query()->where('nik_hash', $hashedNik)->first();
 
         if (!$user) {
-            return redirect()->route('login')->with('error', 'Nik atau password anda salah');
+            return redirect()->route('login')
+            ->with('error', 'Nik atau password anda salah');
         }
 
         if (!Hash::check($password, $user->password)) {
-            return redirect()->route('login')->with('error', 'Nik atau password anda salah');
+            return redirect()->route('login')
+            ->with('error', 'Nik atau password anda salah');
         }
 
         Auth::login($user);
