@@ -14,7 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->string('nama');
             $table->text('syarat')->nullable();
-            $table->foreignId('category_id')->nullable()->constrained('categories')->cascadeOnDelete();
+            $table->foreignId('category_id')->nullable()
+            ->constrained('categories')->cascadeOnDelete();
             $table->timestamps();
         });
     }

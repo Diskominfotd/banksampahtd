@@ -2,6 +2,7 @@
 
 use Livewire\Component;
 use App\Services\TrashServices;
+use App\Models\Price;
 use Livewire\WithPagination;
 new class extends Component {
     use WithPagination;
@@ -11,6 +12,9 @@ new class extends Component {
     public string $nama = '';
     public string $syarat = '';
     public ?int $harga = null;
+
+    //Price
+    public array $prices = [];
 
     public function boot(TrashServices $trashService)
     {
@@ -35,6 +39,33 @@ new class extends Component {
         $this->reset(['kategori', 'nama', 'syarat', 'harga']);
     }
 
+    public function priceDetail()
+    {
+        $bank = Auth::user()->unit;
+
+        $this->prices = $this->trashService
+            ->priceList()
+            ->map(
+                fn($price) => [
+                    'id' => $price->id,
+                    'label' => $price->trash->nama,
+                    'value' => $price->harga,
+                    'is_induk' => !Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->exists(),
+                ],
+            )
+            ->toArray();
+    }
+    // Livewire
+    public function updatePrice($index)
+    {
+        $price = $this->prices[$index];
+        $this->trashService->updatePrice($price['id'], [
+            'value' => $price['value'],
+            'is_induk' => $price['is_induk'],
+        ]);
+        $this->priceDetail();
+    }
+
     public function getData()
     {
         $categories = $this->trashService->categoryBuilder()->get();
@@ -52,6 +83,7 @@ new class extends Component {
     @php
         $data = $this->getData();
     @endphp
+    {{-- {{ dd(json_encode($data['prices'], JSON_PRETTY_PRINT)) }} --}}
     <div class="desktop-wrapper">
         @include('panel.template.dekstop-navbar')
         <div class="w-main">
@@ -80,12 +112,20 @@ new class extends Component {
                         <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
                         </div>
                     </div>
-                    <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
-                        data-bs-target="#wm-tambah-jenis"><i class="bi bi-patch-plus me-1">
-                        </i>Tambah Jenis
-                    </button>
+                    <div class="d-flex gap-1">
+                        <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
+                            data-bs-target="#wm-tambah-jenis">
+                            <i class="bi bi-patch-plus me-1"></i>Tambah Jenis
+                        </button>
+
+                        <button wire:click="priceDetail" class="w-btn w-btn-primary" style="font-size:11px"
+                            data-bs-toggle="modal" data-bs-target="#wm-update-harga">
+                            <i class="bi bi-pencil-fill me-1"></i>Update Harga
+                        </button>
+                    </div>
                 </div>
                 <div class="w-panel">
+
                     <table class="w-tbl">
                         <thead>
                             <tr>
@@ -93,7 +133,7 @@ new class extends Component {
                                 <th>Jenis Sampah</th>
                                 <th>Syarat</th>
                                 <th>Harga/kg</th>
-                                <th>Perubahan</th>
+                                <th>Type Harga</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -105,9 +145,17 @@ new class extends Component {
                                     <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">
                                         @php $price = $t->prices->first() @endphp
                                         Rp {{ number_format($price?->harga ?? 0, 0, ',', '.') }}
-                                        {{ dd($price) }}
+
                                     </td>
-                                    <td style="font-size:10px;color:var(--muted)">Stabil</td>
+                                    <td style="font-size:10px;color:var(--muted)">
+                                        Unit
+                                    </td>
+                                    <td>
+                                        <button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                            data-bs-toggle="modal" data-bs-target="#wm-detail-nasabah">
+                                            Ubah Harga
+                                        </button>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -177,7 +225,6 @@ new class extends Component {
                                     <label class="w-form-label">Harga/Kg</label>
                                     <input class="w-form-input" type="text" placeholder="Rp 0" maxlength="20"
                                         x-model="formatted" @input="format($event.target.value)" wire:ignore>
-                                    {{-- input hidden tidak perlu lagi --}}
                                     @error('harga')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
@@ -195,6 +242,71 @@ new class extends Component {
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div wire:ignore.self class="modal fade" id="wm-update-harga" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-m">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Ubah Harga</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <div class="w-modal-body">
+                    <div class="row g-3">
+                        @foreach ($prices as $index => $price)
+                            <div class="col-12">
+                                <label class="w-form-label">{{ $price['label'] }} (Rp/kg)</label>
+                                <div class="d-flex gap-2 align-items-center" x-data="{
+                                    formatted: '',
+                                    init() {
+                                        this.formatted = 'Rp ' + Number({{ $price['value'] }}).toLocaleString('id-ID');
+                                    },
+                                    format(val) {
+                                        let num = val.replace(/\D/g, '');
+                                        if (!num) {
+                                            this.formatted = '';
+                                            $wire.set('prices.{{ $index }}.value', null);
+                                            return;
+                                        }
+                                        let number = parseInt(num, 10);
+                                        this.formatted = 'Rp ' + number.toLocaleString('id-ID');
+                                        $wire.set('prices.{{ $index }}.value', number);
+                                    }
+                                }"
+                                    x-init="init()">
+                                    <input class="w-form-input flex-grow-1" type="text" x-model="formatted"
+                                        @input="format($event.target.value)" wire:ignore
+                                        :disabled="$wire.prices[{{ $index }}]?.is_induk">
+                                    <button type="button"
+                                        class="btn btn-primary btn-sm text-nowrap align-self-stretch px-2"
+                                        style="font-size: 0.75rem;" wire:click="updatePrice({{ $index }})"
+                                        wire:loading.attr="disabled" wire:target="updatePrice({{ $index }})">
+                                        <span wire:loading.remove
+                                            wire:target="updatePrice({{ $index }})">Ubah</span>
+                                        <span wire:loading wire:target="updatePrice({{ $index }})">
+                                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                                        </span>
+                                    </button>
+                                </div>
+                                @if (Auth::user()->unit->parent_id)
+                                    <div class="form-check mt-1">
+                                        <input class="form-check-input" type="checkbox"
+                                            id="harga_induk_{{ $index }}"
+                                            wire:model="prices.{{ $index }}.is_induk">
+                                        <label class="form-check-label text-muted small"
+                                            for="harga_induk_{{ $index }}">
+                                            Gunakan harga induk
+                                        </label>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="w-modal-footer">
+
+                </div>
             </div>
         </div>
     </div>

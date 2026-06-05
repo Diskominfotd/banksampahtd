@@ -32,8 +32,10 @@ class UserServicesImpl implements UserServices
     public function register(array $data): User
     {
         return DB::transaction(function () use ($data) {
+            $hashedNik = hash('sha256', $data['nik']);
             return User::create([
                 'nik' => $data['nik'],
+                'nik_hash' => $hashedNik,
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'nomor_hp' => $data['nomor_hp'],

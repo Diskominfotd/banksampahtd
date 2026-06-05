@@ -9,7 +9,7 @@ use Livewire\WithPagination;
 new class extends Component {
     use WithPagination;
     protected UserServices $userService;
-    
+
     // Properti untuk form pendaftaran nasabah
     public ?string $nama = '';
     public ?string $nik = '';
