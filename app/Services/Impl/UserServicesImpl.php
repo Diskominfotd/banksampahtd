@@ -16,18 +16,14 @@ class UserServicesImpl implements UserServices
         $password = $data['password'];
         $hashedNik = hash('sha256', $nik);
 
-        $user = User::query()
-        ->where('nik_hash', $hashedNik)
-        ->first();
+        $user = User::query()->where('nik_hash', $hashedNik)->first();
 
         if (!$user) {
-            return redirect()->route('login')
-            ->with('error', 'Nik atau password anda salah');
+            return redirect()->route('login')->with('error', 'Nik atau password anda salah');
         }
 
         if (!Hash::check($password, $user->password)) {
-            return redirect()->route('login')
-            ->with('error', 'Nik atau password anda salah');
+            return redirect()->route('login')->with('error', 'Nik atau password anda salah');
         }
 
         Auth::login($user);
@@ -77,8 +73,30 @@ class UserServicesImpl implements UserServices
         });
     }
 
+    public function updateCategory(array $data, int $id): Category
+    {
+        return DB::transaction(function () use ($data, $id) {
+            $category = Category::findOrFail($id);
+            $category->update([
+                'name' => $data['name'],
+            ]);
+            return $category;
+        });
+    }
+
+    public function categoryById(int $id){
+        return Category::findOrFail($id);
+    }
+
     public function categoriesBuilder()
     {
         return Category::query();
+    }
+
+    public function delete(int $id){
+        $category = Category::findOrFail($id);
+        if($category){
+          return $category->delete();
+        }
     }
 }

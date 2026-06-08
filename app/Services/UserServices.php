@@ -1,6 +1,8 @@
 <?php
 namespace App\Services;
 
+use App\Models\Category;
+
 interface UserServices
 {
     public function doLogin(array $data);
@@ -10,4 +12,7 @@ interface UserServices
     public function userBuilder();
     public function createCategory(array $data);
     public function categoriesBuilder();
+    public function updateCategory(array $data, int $id): Category;
+    public function categoryById(int $id);
+     public function delete(int $id);
 }

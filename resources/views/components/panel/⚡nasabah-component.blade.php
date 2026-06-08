@@ -161,7 +161,7 @@ new class extends Component {
             </div>
         </div>
 
-        @include('panel.template.mobile-bottombar')
+        @include('components.⚡mobile-nav')
     </div>
 
     {{-- ======= BOTTOM SHEET MOBILE — backdrop ======= --}}
@@ -594,6 +594,7 @@ new class extends Component {
                 // Tutup modal desktop
                 const el = document.getElementById('wm-tambah-nasabah');
                 if (el) bootstrap.Modal.getInstance(el)?.hide();
+                $('#responPermohonan').modal('hide');
 
                 // Tutup bottom sheet mobile
                 Alpine.store('sheet').hide();

@@ -26,4 +26,8 @@ class PanelController extends Controller
     {
         return view('panel.pages.price');
     }
+
+    public function setoran(){
+         return view('panel.pages.setoran');
+    }
 }
