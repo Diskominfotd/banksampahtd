@@ -13,6 +13,10 @@ new class extends Component {
 
     public ?string $keyword = '';
 
+    public function movePage(string $route)
+    {
+        return redirect()->route($route);
+    }
     public function boot(UserServices $userService)
     {
         $this->userService = $userService;
@@ -84,7 +88,7 @@ new class extends Component {
 
     public function getData()
     {
-            $categoriyBuilder = $this->userService->categoriesBuilder();
+        $categoriyBuilder = $this->userService->categoriesBuilder();
         if ($this->keyword) {
             $categoriyBuilder->where('name', 'LIKE', '%' . $this->keyword . '%');
         }
@@ -111,7 +115,7 @@ new class extends Component {
     {{-- ======= MOBILE ======= --}}
     <div id="m-nasabah">
         <div class="m-page-header">
-            <div class="m-back">
+            <div class="m-back" wire:click="movePage('home')">
                 <i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
             <div class="ph-title">Data Kategori</div>
@@ -267,6 +271,11 @@ new class extends Component {
                         Kategori</button>
                 </div>
                 <div class="w-panel">
+                    <div class="w-search mb-3" style="width:100%">
+                        <i class="bi bi-search si"></i>
+                        <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit..."
+                            style="width:100%">
+                    </div>
                     <table class="w-tbl">
                         <thead>
                             <tr>
@@ -327,7 +336,7 @@ new class extends Component {
                             wire:loading.attr="disabled" wire:target="createCategory">Batal</button>
                         <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
                             wire:target="createCategory">
-                            <span wire:loading.remove wire:target="createCategory">Tambah</span>
+                            <span wire:loading.remove wire:target="createCategory">Simpan</span>
                             <span wire:loading wire:target="createCategory">Loading...</span>
                         </button>
                     </div>
@@ -339,7 +348,7 @@ new class extends Component {
         <div class="modal-dialog modal-dialog-centered modal-m">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
-                    <div class="w-modal-title">Kategori</div>
+                    <div class="w-modal-title">Ubah Kategori</div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <form wire:submit="editCategory">
@@ -356,7 +365,7 @@ new class extends Component {
                             wire:loading.attr="disabled" wire:target="editCategory">Batal</button>
                         <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
                             wire:target="editCategory">
-                            <span wire:loading.remove wire:target="editCategory">Tambah</span>
+                            <span wire:loading.remove wire:target="editCategory">Simpan</span>
                             <span wire:loading wire:target="editCategory">Loading...</span>
                         </button>
                     </div>

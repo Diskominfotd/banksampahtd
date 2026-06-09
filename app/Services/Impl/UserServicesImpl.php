@@ -110,6 +110,14 @@ class UserServicesImpl implements UserServices
         return Category::query();
     }
 
+    public function deleteUser(int $id)
+    {
+        $user = User::findOrFail($id);
+        if ($user) {
+            return $user->delete();
+        }
+    }
+
     public function delete(int $id)
     {
         $category = Category::findOrFail($id);

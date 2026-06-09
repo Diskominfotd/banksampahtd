@@ -26,8 +26,12 @@ class PanelController extends Controller
     {
         return view('panel.pages.price');
     }
-
-    public function setoran(){
-         return view('panel.pages.setoran');
+    public function setoran()
+    {
+        return view('panel.pages.setoran');
+    }
+    public function catatSetoran()
+    {
+        return view('panel.pages.catat-setoran');
     }
 }

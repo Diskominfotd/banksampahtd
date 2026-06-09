@@ -5,6 +5,7 @@ use App\Services\UserServices;
 use App\Models\Organisasi;
 use App\Models\BankSampah;
 use Livewire\WithPagination;
+use Livewire\Attributes\On;
 
 new class extends Component {
     use WithPagination;
@@ -37,6 +38,12 @@ new class extends Component {
     public ?string $statusNasabah = '';
     public ?string $unitNasabah = '';
 
+    public ?string $userId = '';
+
+    public function updatedKeyword()
+    {
+        $this->resetPage();
+    }
     public function boot(UserServices $userService)
     {
         $this->userService = $userService;
@@ -61,6 +68,8 @@ new class extends Component {
         $this->rekeningNasabah = $user->rekening;
         $this->passwordNasabah = $user->password;
         $this->unitNasabah = $user->unit->id;
+
+        $this->userId = $user->id;
     }
 
     public function editNasabah()
@@ -160,6 +169,35 @@ new class extends Component {
             'nasabah' => $nasabah,
         ];
     }
+    #[On('doDelete')]
+    public function delete()
+    {
+        $this->userService->deleteUser($this->userId);
+    }
+
+    public function alertDelete(string $userId)
+    {
+        $this->userId = decrypt($userId);
+        $this->js(
+            <<<JS
+                Swal.fire({
+                title: "Hapus",
+                text: "Apakah Anda Yakin ?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal"
+                }).then((result) => {
+                   if (result.isConfirmed) {
+                Livewire.dispatch('doDelete');
+                }
+                });
+            JS
+            ,
+        );
+    }
 };
 ?>
 
@@ -206,16 +244,21 @@ new class extends Component {
                             <div class="list-sub">
                                 {{ $nasabah->organisasi->nama ?? '-' }} · 0 setoran · Saldo Rp 0
                             </div>
+                            <div class="d-flex gap-1 mt-2">
+                                <button @click="$store.sheet.show('edit-nasabah')"
+                                    wire:click="detail('{{ encrypt($nasabah->id) }}')" class="btn-tx">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button wire:click="alertDelete('{{ encrypt($nasabah->id) }}')" class="btn-tx"><i
+                                        class="bi bi-trash-fill"></i>
+                                </button>
+                            </div>
                         </div>
-                        <span wire:click="detail('{{ encrypt($nasabah->id) }}')" class="bs bs-ok"
-                            @click="$store.sheet.show('edit-nasabah')" style="cursor:pointer">
-                            Edit
-                        </span>
+                        <span class="bs bs-ok">{{ ucfirst($nasabah->status) }}</span>
                     </div>
                 @endforeach
             </div>
         </div>
-
         @include('components.⚡mobile-bottombar')
     </div>
 
@@ -312,7 +355,8 @@ new class extends Component {
 
             <div class="f-group">
                 <label>No. Rekening</label>
-                <input class="f-input" type="text" wire:model="rekening" placeholder="Nomor rekening bank sampah">
+                <input class="f-input" type="text" wire:model="rekening"
+                    placeholder="Nomor rekening bank sampah">
                 @error('rekening')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
@@ -438,16 +482,18 @@ new class extends Component {
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
-
-            <button type="submit" class="btn-primary mb-2" style="width:100%" wire:loading.attr="disabled"
-                wire:target="editNasabah">
-                <span wire:loading.remove wire:target="editNasabah">
-                    <i class="bi bi-check-lg me-1"></i>Simpan Perubahan
-                </span>
-                <span wire:loading wire:target="editNasabah">Loading...</span>
-            </button>
-            <button type="button" class="btn-outline" style="width:100%"
-                @click="$store.sheet.hide()">Batal</button>
+            <div class="d-flex gap-2 mt-2">
+                <button type="button" class="btn-outline w-100" @click="$store.sheet.hide()">
+                    Batal
+                </button>
+                <button type="submit" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
+                    wire:target="editNasabah">
+                    <span wire:loading.remove wire:target="editNasabah">
+                        <i class="bi bi-check-lg me-1"></i>Simpan
+                    </span>
+                    <span wire:loading wire:target="editNasabah">Loading...</span>
+                </button>
+            </div>
         </form>
     </div>
 
@@ -547,6 +593,10 @@ new class extends Component {
                                             data-bs-toggle="modal" data-bs-target="#wm-detail-nasabah">
                                             Detail
                                         </button>
+                                        <button wire:click="alertDelete('{{ encrypt($nasabah->id) }}')"
+                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
+                                            Hapus
+                                        </button>
                                     </td>
                                 </tr>
                             @endforeach
@@ -565,7 +615,7 @@ new class extends Component {
                     <div class="w-modal-title">Daftarkan Nasabah Baru</div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
-                <form wire:submit="editNasabah">
+                <form wire:submit="registerNasabah">
                     <div class="w-modal-body">
                         <div class="d-flex flex-column gap-3">
                             <div class="row g-3">
@@ -672,7 +722,7 @@ new class extends Component {
                         <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
                             wire:loading.attr="disabled" wire:target="registerNasabah">Batal</button>
                         <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
-                            wire:target="editNasabah">
+                            wire:target="registerNasabah">
                             <span wire:loading.remove wire:target="registerNasabah">Daftarkan</span>
                             <span wire:loading wire:target="registerNasabah">Loading...</span>
                         </button>

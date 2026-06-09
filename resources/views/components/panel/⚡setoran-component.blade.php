@@ -3,7 +3,10 @@
 use Livewire\Component;
 
 new class extends Component {
-    //
+    public function movePage(string $route)
+    {
+        return redirect()->route($route);
+    }
 };
 ?>
 
@@ -11,7 +14,8 @@ new class extends Component {
     {{-- We must ship. - Taylor Otwell --}}
     <div id="m-setoran">
         <div class="m-page-header">
-            <div class="m-back" onclick="mNav('m-beranda')"><i class="bi bi-chevron-left" style="font-size:12px"></i></div>
+            <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
+            </div>
             <div class="ph-title">Daftar Setoran</div>
             <div class="ms-auto d-flex gap-2">
                 <div class="m-gear"
@@ -20,7 +24,7 @@ new class extends Component {
                 </div>
                 <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
-                    onclick="openDetail('m-tambah-setoran')"><i class="bi bi-plus-lg"></i></div>
+                    wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i></div>
             </div>
         </div>
         <div class="m-body" style="padding-top:16px">
@@ -85,12 +89,7 @@ new class extends Component {
                 </div>
             </div>
         </div>
-        <nav class="m-bottom-nav">
-            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
-            <a class="m-nav-btn active" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
-            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
-            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
-        </nav>
+        @include('panel.template.mobile-bottombar')
     </div>
 
     {{-- ======= DEKSTOP ======= --}}
@@ -128,7 +127,7 @@ new class extends Component {
                         <button class="w-btn w-btn-ghost" style="font-size:11px" onclick="openWModal('wm-filter')"><i
                                 class="bi bi-funnel me-1"></i>Filter</button>
                         <button class="w-btn w-btn-primary" style="font-size:11px"
-                            onclick="openWModal('wm-tambah-setoran')"><i class="bi bi-plus-lg me-1"></i>Catat
+                            wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg me-1"></i>Catat
                             Setoran</button>
                     </div>
                 </div>

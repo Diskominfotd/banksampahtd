@@ -10,4 +10,6 @@ interface TrashServices
     public function getTrashBuilder();
     public function priceList();
     public function updatePrice(int $priceId, array $data);
+    public function updateJenis(array $data, int $id);
+    public function deleteTrash(int $id);
 }

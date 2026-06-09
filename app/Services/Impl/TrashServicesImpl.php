@@ -24,6 +24,18 @@ class TrashServicesImpl implements TrashServices
     {
         return Trash::with('category')->findOrFail($id);
     }
+
+    public function deleteTrash(int $id)
+    {
+        $priceTrash = Price::with('trash')->findOrFail($id);
+
+        if ($priceTrash->trash) {
+            $priceTrash->trash->delete();
+        }
+
+        return $priceTrash->delete();
+    }
+
     public function getTrashBuilder()
     {
         $bank = Auth::user()->unit;
@@ -47,6 +59,19 @@ class TrashServicesImpl implements TrashServices
                 'harga' => $data['harga'],
             ]);
             return $trash;
+        });
+    }
+    public function updateJenis(array $data, int $id)
+    {
+        return DB::transaction(function () use ($data, $id) {
+            $trash = Trash::findOrFail($id);
+            if ($trash) {
+                $trash->update([
+                    'nama' => $data['nama'],
+                    'syarat' => $data['syarat'],
+                    'category_id' => $data['category_id'],
+                ]);
+            }
         });
     }
 
