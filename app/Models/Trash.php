@@ -17,4 +17,9 @@ class Trash extends Model
     {
         return $this->hasMany(Price::class);
     }
+
+    public function setoranItems()
+    {
+        return $this->hasMany(SetoranItem::class);
+    }
 }
