@@ -14,5 +14,6 @@ interface UserServices
     public function categoriesBuilder();
     public function updateCategory(array $data, int $id): Category;
     public function categoryById(int $id);
-     public function delete(int $id);
+    public function delete(int $id);
+    public function updateUser(int $id, array $data);
 }

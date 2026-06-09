@@ -49,8 +49,8 @@ class DatabaseSeeder extends Seeder
         $role2 = Role::create(['name' => 'general']);
         $admin = Permission::create(['name' => 'view admin dashboard']);
         $user1 = User::factory()->create([
-            'name' => 'admin',
-            'email' => 'admin@example.com',
+            'name' => 'user induk',
+            'email' => 'induk@example.com',
             'password' => bcrypt('rahasia'),
             'nik' => '1301073005960001',
             'nik_hash' => hash('sha256', '1301073005960001'),
@@ -62,5 +62,19 @@ class DatabaseSeeder extends Seeder
         ]);
         $user1->assignRole($role1);
         $role1->givePermissionTo($admin);
+
+         $user2 = User::factory()->create([
+            'name' => 'user unit',
+            'email' => 'unit@example.com',
+            'password' => bcrypt('rahasia'),
+            'nik' => '1301073005960002',
+            'nik_hash' => hash('sha256', '1301073005960002'),
+            'nomor_hp' => '089999999992',
+            'rekening' => '111111112',
+            'mewakili' => true,
+            'organisasi_id' => $org->id,
+            'bank_sampah_id' => 2,
+        ]);
+         $user2->assignRole($role1);
     }
 }

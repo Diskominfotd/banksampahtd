@@ -3,15 +3,23 @@
 use Livewire\Component;
 use App\Services\TrashServices;
 use App\Models\Price;
+use App\Models\BankSampah;
+use Illuminate\Support\Facades\Auth;
 use Livewire\WithPagination;
 new class extends Component {
     use WithPagination;
     protected TrashServices $trashService;
 
+    // new jenis attribut
     public ?int $kategori;
     public string $nama = '';
     public string $syarat = '';
     public ?int $harga = null;
+
+    // update jenis attribut'
+    public ?int $kategoriJenis;
+    public ?string $namaJenis;
+    public ?string $syaratJenis;
 
     //Price
     public array $prices = [];
@@ -37,6 +45,18 @@ new class extends Component {
             'harga' => $this->harga,
         ]);
         $this->reset(['kategori', 'nama', 'syarat', 'harga']);
+        $this->dispatch('close-modal');
+    }
+
+    public function editJenis() {}
+
+    public function detailJenis(string $id)
+    {
+        $id = decrypt($id);
+        $item = $this->trashService->getTrashById($id);
+        $this->kategoriJenis = $item->category->id;
+        $this->namaJenis = $item->nama;
+        $this->syaratJenis = $item->syarat;
     }
 
     public function priceDetail()
@@ -65,11 +85,38 @@ new class extends Component {
         ]);
         $this->priceDetail();
     }
+     public function priceAndTrashList()
+    {
+        $bank = Auth::user()->unit;
+        $induk = BankSampah::whereNull('parent_id')->first();
+
+        if ($bank->use_parent_price) {
+            return Price::with(['bank', 'trash'])
+                ->where('bank_id', $induk->id)
+                ->get();
+        }
+
+        // Ambil price unit, kalau tidak ada fallback ke harga induk
+        return Price::with(['bank', 'trash'])
+            ->where('bank_id', $induk->id) // base dari induk
+            ->paginate(10)
+            ->map(function ($price) use ($bank) {
+                // Cek apakah unit punya harga sendiri untuk trash ini
+                $unitPrice = Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->first();
+
+                // Kalau ada, pakai harga unit — kalau tidak, pakai harga induk
+                if ($unitPrice) {
+                    return $unitPrice->load(['bank', 'trash']);
+                }
+
+                return $price;
+            });
+    }
 
     public function getData()
     {
         $categories = $this->trashService->categoryBuilder()->get();
-        $trashs = $this->trashService->getTrashBuilder()->latest()->paginate(10);
+        $trashs = $this->priceAndTrashList();
         return [
             'categories' => $categories,
             'trashs' => $trashs,
@@ -83,9 +130,8 @@ new class extends Component {
     @php
         $data = $this->getData();
     @endphp
-    {{-- {{ dd(json_encode($data['prices'], JSON_PRETTY_PRINT)) }} --}}
     <div class="desktop-wrapper">
-        @include('panel.template.dekstop-navbar')
+        @include('components.⚡dekstop-navbar')
         <div class="w-main">
             <header class="w-topbar">
                 <div id="w-topbar-info">
@@ -134,26 +180,31 @@ new class extends Component {
                                 <th>Syarat</th>
                                 <th>Harga/kg</th>
                                 <th>Type Harga</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {{-- {{ dd(json_encode($data['trashs'], JSON_PRETTY_PRINT)) }} --}}
                             @foreach ($data['trashs'] as $t)
                                 <tr>
-                                    <td><span class="bs bs-ok">{{ ucfirst($t->category->name) }}</span></td>
-                                    <td style="font-size:11px;font-weight:600">{{ ucfirst($t->nama) }}</td>
+                                    <td><span class="bs bs-ok">{{ ucfirst($t->trash->category->name) }}</span></td>
+                                    <td style="font-size:11px;font-weight:600">{{ ucfirst($t->trash->nama) }}</td>
                                     <td style="font-size:10px;color:var(--muted)">{{ ucfirst($t->syarat) }}</td>
                                     <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--cyan)">
-                                        @php $price = $t->prices->first() @endphp
-                                        Rp {{ number_format($price?->harga ?? 0, 0, ',', '.') }}
-
+                                        Rp {{ number_format($t->harga ?? 0, 0, ',', '.') }}
                                     </td>
                                     <td style="font-size:10px;color:var(--muted)">
-                                        Unit
+                                        {{ ucfirst($t->type) }}
                                     </td>
                                     <td>
+                                        <button wire:click="detailJenis('{{ encrypt($t->trash->id) }}')"
+                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                            data-bs-toggle="modal" data-bs-target="#wm-edit-jenis">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
                                         <button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
                                             data-bs-toggle="modal" data-bs-target="#wm-detail-nasabah">
-                                            Ubah Harga
+                                            <i class="bi bi-trash-fill"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -161,6 +212,68 @@ new class extends Component {
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div wire:ignore.self class="modal fade" id="wm-edit-jenis" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-m">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Ubah Jenis Sampah</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <form wire:submit="newJenis">
+                    <div class="w-modal-body">
+                        <div wire:loading.flex wire:target="detailJenis"
+                            class="justify-content-center align-items-center"
+                            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                            <div class="spinner-border text-success"></div>
+                        </div>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">Kategori</label>
+                                    <select class="w-form-input" wire:model.live="kategoriJenis">
+                                        <option value="" hidden>Pilih Kategori</option>
+                                        @foreach ($data['categories'] as $category)
+                                            <option value="{{ $category->id }}">
+                                                {{ ucfirst($category->name) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('kategori')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">Nama</label>
+                                    <input class="w-form-input" type="text" wire:model="namaJenis"
+                                        placeholder="Nama Jenis Sampah" maxlength="100">
+                                    @error('namaJenis')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="w-form-label">Syarat</label>
+                                    <input class="w-form-input" type="text" wire:model="syaratJenis"
+                                        placeholder="Syarat Jenis Sampah" maxlength="100">
+                                    @error('syaratJenis')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-modal-footer">
+                        <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
+                            wire:loading.attr="disabled" wire:target="newJenis">Batal</button>
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="newJenis">
+                            <span wire:loading.remove wire:target="newJenis">Ubah</span>
+                            <span wire:loading wire:target="newJenis">Loading...</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -253,6 +366,10 @@ new class extends Component {
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <div class="w-modal-body">
+                    <div wire:loading.flex wire:target="priceDetail" class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
+                    </div>
                     <div class="row g-3">
                         @foreach ($prices as $index => $price)
                             <div class="col-12">
@@ -260,7 +377,18 @@ new class extends Component {
                                 <div class="d-flex gap-2 align-items-center" x-data="{
                                     formatted: '',
                                     init() {
-                                        this.formatted = 'Rp ' + Number({{ $price['value'] }}).toLocaleString('id-ID');
+                                        this.syncFromWire();
+                                        $watch(() => $wire.prices[{{ $index }}]?.value, () => {
+                                            this.syncFromWire();
+                                        });
+                                    },
+                                    syncFromWire() {
+                                        let val = $wire.prices[{{ $index }}]?.value;
+                                        if (!val) {
+                                            this.formatted = '';
+                                            return;
+                                        }
+                                        this.formatted = 'Rp ' + Number(val).toLocaleString('id-ID');
                                     },
                                     format(val) {
                                         let num = val.replace(/\D/g, '');
@@ -278,14 +406,16 @@ new class extends Component {
                                     <input class="w-form-input flex-grow-1" type="text" x-model="formatted"
                                         @input="format($event.target.value)" wire:ignore
                                         :disabled="$wire.prices[{{ $index }}]?.is_induk">
-                                    <button type="button"
-                                        class="btn btn-primary btn-sm text-nowrap align-self-stretch px-2"
-                                        style="font-size: 0.75rem;" wire:click="updatePrice({{ $index }})"
-                                        wire:loading.attr="disabled" wire:target="updatePrice({{ $index }})">
-                                        <span wire:loading.remove
-                                            wire:target="updatePrice({{ $index }})">Ubah</span>
+                                    <button type="button" title="Ubah"
+                                        style="width:28px;height:28px;flex-shrink:0;border-radius:50%;background:none;border:0.5px solid #198754;color:#198754;display:flex;align-items:center;justify-content:center;padding:0;"
+                                        wire:click="updatePrice({{ $index }})" wire:loading.attr="disabled"
+                                        wire:target="updatePrice({{ $index }})">
+                                        <span wire:loading.remove wire:target="updatePrice({{ $index }})">
+                                            <i class="bi bi-check2" style="font-size:14px;"></i>
+                                        </span>
                                         <span wire:loading wire:target="updatePrice({{ $index }})">
-                                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                                            <span class="spinner-border spinner-border-sm" role="status"
+                                                style="width:12px;height:12px;border-width:1.5px;"></span>
                                         </span>
                                     </button>
                                 </div>
@@ -310,5 +440,13 @@ new class extends Component {
             </div>
         </div>
     </div>
-
+    @script
+        <script>
+            $wire.on('close-modal', () => {
+                // Tutup modal desktop
+                const el = document.getElementById('wm-tambah-jenis');
+                if (el) bootstrap.Modal.getInstance(el)?.hide();
+            });
+        </script>
+    @endscript
 </div>

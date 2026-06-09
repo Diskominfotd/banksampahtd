@@ -2,8 +2,8 @@
 
 use Livewire\Component;
 use App\Services\UserServices;
-use Livewire\WithPagination;
 use Livewire\Attributes\On;
+use Livewire\WithPagination;
 new class extends Component {
     use WithPagination;
     protected UserServices $userService;
@@ -21,7 +21,7 @@ new class extends Component {
     public function createCategory()
     {
         $this->validate([
-            'nama' => 'required|string|max:50|unique:categories,name',
+            'nama' => 'required|string|max:255|unique:categories,name',
         ]);
         $this->userService->createCategory([
             'name' => $this->nama,
@@ -49,18 +49,6 @@ new class extends Component {
         );
         $this->reset('namaKategori');
         $this->dispatch('close-modal');
-    }
-
-    public function getData()
-    {
-        $categoriyBuilder = $this->userService->categoriesBuilder();
-        if ($this->keyword) {
-            $categoriyBuilder->where('name', 'LIKE', '%' . $this->keyword . '%');
-        }
-        $categories = $categoriyBuilder->latest()->paginate(10);
-        return [
-            'categories' => $categories,
-        ];
     }
 
     #[On('doDelete')]
@@ -93,6 +81,18 @@ new class extends Component {
             ,
         );
     }
+
+    public function getData()
+    {
+            $categoriyBuilder = $this->userService->categoriesBuilder();
+        if ($this->keyword) {
+            $categoriyBuilder->where('name', 'LIKE', '%' . $this->keyword . '%');
+        }
+        $categories = $categoriyBuilder->latest()->paginate(10);
+        return [
+            'categories' => $categories,
+        ];
+    }
 };
 ?>
 
@@ -108,7 +108,6 @@ new class extends Component {
     @php
         $data = $this->getData();
     @endphp
-
     {{-- ======= MOBILE ======= --}}
     <div id="m-nasabah">
         <div class="m-page-header">
@@ -234,11 +233,8 @@ new class extends Component {
         </form>
     </div>
 
-
-
-    {{-- ======= DEKSTOP ======= --}}
     <div class="desktop-wrapper">
-        @include('panel.template.dekstop-navbar')
+        @include('components.⚡dekstop-navbar')
         <div class="w-main">
             <header class="w-topbar">
                 <div id="w-topbar-info">
@@ -299,7 +295,6 @@ new class extends Component {
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
                                             Hapus
                                         </button>
-
                                     </td>
                                 </tr>
                             @endforeach
@@ -340,7 +335,7 @@ new class extends Component {
             </div>
         </div>
     </div>
-     <div wire:ignore.self class="modal fade" id="wm-edit-kategori" tabindex="-1">
+    <div wire:ignore.self class="modal fade" id="wm-edit-kategori" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-m">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
@@ -371,12 +366,9 @@ new class extends Component {
     </div>
     @script
         <script>
-            $wire.on('close-modal', () => {
-                const el = document.getElementById('wm-tambah-kategori');
-                if (el) bootstrap.Modal.getInstance(el)?.hide();
-                $('#wm-edit-kategori).modal('hide');
-
-                // Tutup bottom sheet mobile
+            $wire.on("close-modal", () => {
+                $('#wm-tambah-kategori').modal('hide');
+                $('#wm-edit-kategori').modal('hide');
                 Alpine.store('sheet').hide();
             });
         </script>

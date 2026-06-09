@@ -47,6 +47,22 @@ class UserServicesImpl implements UserServices
             ]);
         });
     }
+    public function updateUser(int $id, array $data)
+    {
+        $user = User::findOrFail($id);
+        $hashedNik = hash('sha256', $data['nik']);
+        $user->update([
+            'nik' => $data['nik'],
+            'nik_hash' => $hashedNik,
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'nomor_hp' => $data['nomor_hp'],
+            'mewakili' => $data['mewakili'],
+            'organisasi_id' => $data['organisasi_id'] ?? null,
+            'rekening' => $data['rekening'],
+            'bank_sampah_id' => $data['bank_sampah_id'],
+        ]);
+    }
 
     public function getUserById(int $id)
     {
@@ -84,7 +100,8 @@ class UserServicesImpl implements UserServices
         });
     }
 
-    public function categoryById(int $id){
+    public function categoryById(int $id)
+    {
         return Category::findOrFail($id);
     }
 
@@ -93,10 +110,11 @@ class UserServicesImpl implements UserServices
         return Category::query();
     }
 
-    public function delete(int $id){
+    public function delete(int $id)
+    {
         $category = Category::findOrFail($id);
-        if($category){
-          return $category->delete();
+        if ($category) {
+            return $category->delete();
         }
     }
 }

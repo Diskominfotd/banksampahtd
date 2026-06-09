@@ -142,7 +142,7 @@ new class extends Component {
         @include('panel.template.mobile-bottombar')
     </div>
     <div class="desktop-wrapper">
-        @include('panel.template.dekstop-navbar')
+         @include('components.⚡dekstop-navbar')
         <div class="w-main">
             <header class="w-topbar">
                 <div id="w-topbar-info">

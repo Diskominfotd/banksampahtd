@@ -10,6 +10,9 @@ new class extends Component {
     use WithPagination;
     protected UserServices $userService;
 
+    //Properti untuk search
+    public ?string $keyword = '';
+
     // Properti untuk form pendaftaran nasabah
     public ?string $nama = '';
     public ?string $nik = '';
@@ -22,6 +25,7 @@ new class extends Component {
     public ?int $unit = null;
 
     // Properti detail nasabah
+    public string $nasabahId;
     public ?string $namaNasabah = '';
     public ?string $nikNasabah = '';
     public ?string $nomorHpNasabah = '';
@@ -38,10 +42,16 @@ new class extends Component {
         $this->userService = $userService;
     }
 
+    public function movePage(string $route)
+    {
+        return redirect()->route($route);
+    }
+
     public function detail(string $id)
     {
         $id = decrypt($id);
         $user = $this->userService->getUserById($id);
+        $this->nasabahId = $user->id;
         $this->namaNasabah = $user->name;
         $this->nikNasabah = $user->nik;
         $this->nomorHpNasabah = $user->nomor_hp;
@@ -50,7 +60,43 @@ new class extends Component {
         $this->organisasiNasabah = $user->organisasi_id;
         $this->rekeningNasabah = $user->rekening;
         $this->passwordNasabah = $user->password;
-        $this->unitNasabah = $user->unit->nama;
+        $this->unitNasabah = $user->unit->id;
+    }
+
+    public function editNasabah()
+    {
+        $rules = [
+            'namaNasabah' => 'required|string|max:120',
+            'nikNasabah' => [
+                'required',
+                'digits:16',
+                function ($attribute, $value, $fail) {
+                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->where('id', '!=', $this->nasabahId)->exists();
+                    if ($exists) {
+                        $fail('NIK sudah terdaftar.');
+                    }
+                },
+            ],
+            'nomorHpNasabah' => 'required|regex:/^08\d{8,}$/',
+            'emailNasabah' => 'required|email',
+            'jenisNasabah' => 'required|in:perorangan,kelompok',
+            'rekeningNasabah' => 'required|string',
+            'organisasiNasabah' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
+            'unitNasabah' => 'required|exists:bank_sampahs,id',
+        ];
+        $this->validate($rules);
+        $this->userService->updateUser($this->nasabahId, [
+            'name' => $this->namaNasabah,
+            'nik' => $this->nikNasabah,
+            'nomor_hp' => $this->nomorHpNasabah,
+            'email' => $this->emailNasabah,
+            'mewakili' => $this->jenisNasabah,
+            'organisasi_id' => $this->organisasiNasabah,
+            'rekening' => $this->rekeningNasabah,
+            'bank_sampah_id' => $this->unitNasabah,
+        ]);
+        $this->reset(['namaNasabah', 'nikNasabah', 'nomorHpNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'rekening', 'rekeningNasabah', 'unitNasabah']);
+        $this->dispatch('close-modal');
     }
 
     public function registerNasabah()
@@ -101,7 +147,13 @@ new class extends Component {
     public function getData()
     {
         $user = $this->userService->userBuilder();
-        $nasabah = $user->with('organisasi')->latest()->paginate(10);
+        $nasabahQuery = $user->with('organisasi');
+        if ($this->keyword) {
+            $nasabahQuery->where('name', 'like', "%{$this->keyword}%")->orWhereHas('unit', function ($q) {
+                $q->where('nama', 'like', "%{$this->keyword}%");
+            });
+        }
+        $nasabah = $nasabahQuery->latest()->paginate(10);
         return [
             'organisasi' => Organisasi::query()->get(),
             'banksampah' => BankSampah::query()->get(),
@@ -124,7 +176,7 @@ new class extends Component {
     {{-- ======= MOBILE ======= --}}
     <div id="m-nasabah">
         <div class="m-page-header">
-            <div class="m-back" onclick="mNav('m-beranda')">
+            <div class="m-back" wire:click="movePage('home')">
                 <i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
             <div class="ph-title">Data Nasabah</div>
@@ -140,7 +192,7 @@ new class extends Component {
         <div class="m-body" style="padding-top:16px">
             <div class="m-search mb-3">
                 <i class="bi bi-search si"></i>
-                <input type="text" placeholder="Cari nama nasabah, unit...">
+                <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit...">
             </div>
             <div class="d-flex flex-column gap-2">
                 @foreach ($data['nasabah'] as $index => $nasabah)
@@ -155,13 +207,16 @@ new class extends Component {
                                 {{ $nasabah->organisasi->nama ?? '-' }} · 0 setoran · Saldo Rp 0
                             </div>
                         </div>
-                        <span class="bs bs-ok">Aktif</span>
+                        <span wire:click="detail('{{ encrypt($nasabah->id) }}')" class="bs bs-ok"
+                            @click="$store.sheet.show('edit-nasabah')" style="cursor:pointer">
+                            Edit
+                        </span>
                     </div>
                 @endforeach
             </div>
         </div>
 
-        @include('components.⚡mobile-nav')
+        @include('components.⚡mobile-bottombar')
     </div>
 
     {{-- ======= BOTTOM SHEET MOBILE — backdrop ======= --}}
@@ -169,7 +224,8 @@ new class extends Component {
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
-        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak></div>
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
 
     {{-- ======= BOTTOM SHEET MOBILE — konten + form ======= --}}
     <div x-show="$store.sheet.is('tambah-nasabah')" x-transition:enter="transition ease-out duration-300"
@@ -288,10 +344,116 @@ new class extends Component {
                 @click="$store.sheet.hide()">Batal</button>
         </form>
     </div>
+    {{-- Backdrop edit --}}
+    <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
+
+    {{-- Sheet edit --}}
+    <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full"
+        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;
+           background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
+           padding:20px;max-height:90dvh;overflow-y:auto"
+        x-cloak>
+        <div class="sheet-handle"></div>
+        <div
+            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+                margin-bottom:18px;color:var(--text-main)">
+            Edit Nasabah
+        </div>
+        <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+            <div class="spinner-border text-success"></div>
+        </div>
+        <form wire:submit="editNasabah">
+            <div class="f-group">
+                <label>Nama Lengkap / Nama Usaha</label>
+                <input class="f-input" type="text" wire:model="namaNasabah">
+                @error('namaNasabah')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <div class="f-group">
+                <label>Nik</label>
+                <input class="f-input" type="text" wire:model="nikNasabah">
+                @error('nikNasabah')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <div class="f-group">
+                <label>No. HP</label>
+                <input class="f-input" type="tel" wire:model="nomorHpNasabah" placeholder="08xx-xxxx-xxxx">
+                @error('nomorHpNasabah')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <div class="f-group">
+                <label>Email</label>
+                <input class="f-input" type="email" wire:model="emailNasabah">
+                @error('emailNasabah')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <div class="f-group">
+                <label>Jenis Nasabah</label>
+                <select class="f-input" wire:model.live="jenisNasabah">
+                    <option value="perorangan">Perorangan</option>
+                    <option value="kelompok">Kelompok</option>
+                </select>
+            </div>
+            <div class="f-group">
+                <label>Organisasi</label>
+                <select class="f-input" wire:model="organisasiNasabah" @disabled($jenisNasabah === 'perorangan')>
+                    <option value="">Pilih Organisasi</option>
+                    @foreach ($data['organisasi'] as $org)
+                        <option value="{{ $org->id }}">{{ $org->nama }}</option>
+                    @endforeach
+                </select>
+                @error('organisasiNasabah')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <div class="f-group">
+                <label>Unit</label>
+                <select class="f-input" wire:model="unitNasabah">
+                    <option value="">Pilih Unit</option>
+                    @foreach ($data['banksampah'] as $bank)
+                        <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
+                    @endforeach
+                </select>
+                @error('unitNasabah')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <div class="f-group">
+                <label>No. Rekening</label>
+                <input class="f-input" type="text" wire:model="rekeningNasabah">
+                @error('rekeningNasabah')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+
+            <button type="submit" class="btn-primary mb-2" style="width:100%" wire:loading.attr="disabled"
+                wire:target="editNasabah">
+                <span wire:loading.remove wire:target="editNasabah">
+                    <i class="bi bi-check-lg me-1"></i>Simpan Perubahan
+                </span>
+                <span wire:loading wire:target="editNasabah">Loading...</span>
+            </button>
+            <button type="button" class="btn-outline" style="width:100%"
+                @click="$store.sheet.hide()">Batal</button>
+        </form>
+    </div>
 
     {{-- ======= DESKTOP ======= --}}
     <div class="desktop-wrapper">
-        @include('panel.template.dekstop-navbar')
+        @include('components.⚡dekstop-navbar')
         <div class="w-main">
             <header class="w-topbar">
                 <div id="w-topbar-info">
@@ -333,7 +495,8 @@ new class extends Component {
                 <div class="w-panel">
                     <div class="w-search mb-3" style="width:100%">
                         <i class="bi bi-search si"></i>
-                        <input type="text" placeholder="Cari nama nasabah, unit..." style="width:100%">
+                        <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit..."
+                            style="width:100%">
                     </div>
                     <table class="w-tbl">
                         <thead>
@@ -376,10 +539,14 @@ new class extends Component {
                                     <td>
                                         <button wire:click="detail('{{ encrypt($nasabah->id) }}')"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                            data-bs-toggle="modal" data-bs-target="#wm-edit-nasabah">
+                                            Ubah
+                                        </button>
+                                        <button wire:click="detail('{{ encrypt($nasabah->id) }}')"
+                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
                                             data-bs-toggle="modal" data-bs-target="#wm-detail-nasabah">
                                             Detail
                                         </button>
-
                                     </td>
                                 </tr>
                             @endforeach
@@ -398,7 +565,7 @@ new class extends Component {
                     <div class="w-modal-title">Daftarkan Nasabah Baru</div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
-                <form wire:submit="registerNasabah">
+                <form wire:submit="editNasabah">
                     <div class="w-modal-body">
                         <div class="d-flex flex-column gap-3">
                             <div class="row g-3">
@@ -505,7 +672,7 @@ new class extends Component {
                         <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
                             wire:loading.attr="disabled" wire:target="registerNasabah">Batal</button>
                         <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
-                            wire:target="registerNasabah">
+                            wire:target="editNasabah">
                             <span wire:loading.remove wire:target="registerNasabah">Daftarkan</span>
                             <span wire:loading wire:target="registerNasabah">Loading...</span>
                         </button>
@@ -524,6 +691,10 @@ new class extends Component {
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <div class="w-modal-body">
+                    <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
+                    </div>
                     <div class="d-flex align-items-center gap-3 mb-4">
                         <div class="avatar" style="width:52px;height:52px;font-size:18px">SR</div>
                         <div>
@@ -588,15 +759,116 @@ new class extends Component {
         </div>
     </div>
 
+    {{-- ======= MODAL DESKTOP: EDIT NASABAH ======= --}}
+    <div wire:ignore.self class="modal fade" id="wm-edit-nasabah" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-m">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Edit Nasabah</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <form wire:submit="editNasabah">
+                    <div class="w-modal-body">
+                        <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+                            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                            <div class="spinner-border text-success"></div>
+                        </div>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">Nama Lengkap / Nama Usaha</label>
+                                    <input class="w-form-input" type="text" wire:model="namaNasabah">
+                                    @error('namaNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">NIK</label>
+                                    <input class="w-form-input" type="text" wire:model="nikNasabah"
+                                        placeholder="16 digit NIK KTP" maxlength="16">
+                                    @error('nikNasabah')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">Email</label>
+                                    <input class="w-form-input" type="email" wire:model="emailNasabah">
+                                    @error('emailNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">Jenis Nasabah</label>
+                                    <select class="w-form-input" wire:model.live="jenisNasabah">
+                                        <option value="perorangan">Perorangan</option>
+                                        <option value="kelompok">Kelompok</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">Organisasi</label>
+                                    <select class="w-form-input" wire:model="organisasiNasabah"
+                                        @disabled($jenisNasabah === 'perorangan')>
+                                        <option value="">Pilih Organisasi</option>
+                                        @foreach ($data['organisasi'] as $org)
+                                            <option value="{{ $org->id }}">{{ $org->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('editOrganisasi')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">Unit</label>
+                                    <select class="w-form-input" wire:model="unitNasabah">
+                                        <option value="">Pilih Unit</option>
+                                        @foreach ($data['banksampah'] as $bank)
+                                            <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('unitNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">No. Rekening</label>
+                                    <input class="w-form-input" type="text" wire:model="rekeningNasabah">
+                                    @error('rekeningNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">No. HP</label>
+                                    <input class="w-form-input" type="tel" wire:model="nomorHpNasabah">
+                                    @error('nomorHpNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-modal-footer">
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="editNasabah">
+                            <span wire:loading.remove wire:target="editNasabah">Simpan</span>
+                            <span wire:loading wire:target="editNasabah">Loading...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     @script
         <script>
             $wire.on('close-modal', () => {
-                // Tutup modal desktop
-                const el = document.getElementById('wm-tambah-nasabah');
-                if (el) bootstrap.Modal.getInstance(el)?.hide();
-                $('#responPermohonan').modal('hide');
-
-                // Tutup bottom sheet mobile
+                $('#wm-tambah-nasabah').modal('hide');
+                $('#wm-edit-nasabah').modal('hide');
                 Alpine.store('sheet').hide();
             });
         </script>
