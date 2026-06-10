@@ -75,32 +75,24 @@ class TrashServicesImpl implements TrashServices
         });
     }
 
-    public function priceAndTrashList()
-    {
+    public function priceAndTrashList() {
         $bank = Auth::user()->unit;
         $induk = BankSampah::whereNull('parent_id')->first();
 
         if ($bank->use_parent_price) {
             return Price::with(['bank', 'trash'])
-                ->where('bank_id', $induk->id)
-                ->get();
+                ->where('bank_id', $induk->id);
         }
+        $unitPrices = Price::where('bank_id', $bank->id)->pluck('id', 'trash_id');
+        $indukPriceIds = Price::where('bank_id', $induk->id)->pluck('id', 'trash_id');
 
-        // Ambil price unit, kalau tidak ada fallback ke harga induk
-        return Price::with(['bank', 'trash'])
-            ->where('bank_id', $induk->id) // base dari induk
-            ->get()
-            ->map(function ($price) use ($bank) {
-                // Cek apakah unit punya harga sendiri untuk trash ini
-                $unitPrice = Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->first();
+        $mergedIds = $indukPriceIds
+            ->mapWithKeys(function ($indukId, $trashId) use ($unitPrices) {
+                return [$trashId => $unitPrices->get($trashId, $indukId)];
+            })
+            ->values();
 
-                // Kalau ada, pakai harga unit — kalau tidak, pakai harga induk
-                if ($unitPrice) {
-                    return $unitPrice->load(['bank', 'trash']);
-                }
-
-                return $price;
-            });
+        return Price::with(['bank', 'trash'])->whereIn('id', $mergedIds);
     }
 
     public function priceList()

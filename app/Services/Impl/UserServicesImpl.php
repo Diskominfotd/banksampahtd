@@ -1,6 +1,8 @@
 <?php
 namespace App\Services\Impl;
 
+use App\Models\BankSampah;
+use App\Models\BukuTabungan;
 use App\Models\Category;
 use App\Models\User;
 use App\Services\UserServices;
@@ -41,9 +43,8 @@ class UserServicesImpl implements UserServices
                 'nomor_hp' => $data['nomor_hp'],
                 'mewakili' => $data['mewakili'],
                 'organisasi_id' => $data['organisasi_id'] ?? null,
-                'password' => Hash::make($data['password']),
-                'rekening' => $data['rekening'],
                 'bank_sampah_id' => $data['bank_sampah_id'],
+                'password' => Hash::make($data['password']),
             ]);
         });
     }
@@ -59,7 +60,6 @@ class UserServicesImpl implements UserServices
             'nomor_hp' => $data['nomor_hp'],
             'mewakili' => $data['mewakili'],
             'organisasi_id' => $data['organisasi_id'] ?? null,
-            'rekening' => $data['rekening'],
             'bank_sampah_id' => $data['bank_sampah_id'],
         ]);
     }
@@ -67,6 +67,10 @@ class UserServicesImpl implements UserServices
     public function getUserById(int $id)
     {
         return User::query()->find($id);
+    }
+    public function getBukuTabunganByUserId(int $id)
+    {
+        return BukuTabungan::where('user_id', $id)->get();
     }
 
     public function doLogout()
@@ -124,5 +128,32 @@ class UserServicesImpl implements UserServices
         if ($category) {
             return $category->delete();
         }
+    }
+
+    public function createBukuTabungan(int $userId, int $bankId)
+    {
+        return DB::transaction(function () use ($userId, $bankId) {
+            $user = $this->getUserById($userId);
+
+            $exists = BukuTabungan::where('user_id', $user->id)
+            ->where('bank_id', $bankId)->exists();
+            if ($exists) {
+                session()->flash('failed', 'Nasabah sudah punya rekening di unit ini');
+                return null;
+            }
+            $bank = BankSampah::findOrFail($bankId);
+            do {
+                $nomorRekening = $bank->kode_bank . str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
+            } while (BukuTabungan::where('nomor_rekening', $nomorRekening)
+            ->exists());
+
+            BukuTabungan::create([
+                'nama' => $user->name,
+                'nomor_rekening' => $nomorRekening,
+                'user_id' => $user->id,
+                'bank_id' => $bankId,
+            ]);
+           return session()->flash('success', 'Berhasil');
+        });
     }
 }

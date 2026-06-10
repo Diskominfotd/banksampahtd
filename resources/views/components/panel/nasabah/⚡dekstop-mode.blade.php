@@ -1,503 +1,14 @@
 <?php
 
 use Livewire\Component;
-use App\Services\UserServices;
-use App\Models\Organisasi;
-use App\Models\BankSampah;
-use Livewire\WithPagination;
-use Livewire\Attributes\On;
 
 new class extends Component {
-    use WithPagination;
-    protected UserServices $userService;
-
-    //Properti untuk search
-    public ?string $keyword = '';
-
-    // Properti untuk form pendaftaran nasabah
-    public ?string $nama = '';
-    public ?string $nik = '';
-    public ?string $nomorHp = '';
-    public ?string $email = '';
-    public $jenis = 'perorangan';
-    public ?int $organisasi = null;
-    public ?string $rekening = '';
-    public ?string $password = '';
-    public ?int $unit = null;
-
-    // Properti detail nasabah
-    public string $nasabahId;
-    public ?string $namaNasabah = '';
-    public ?string $nikNasabah = '';
-    public ?string $nomorHpNasabah = '';
-    public ?string $emailNasabah = '';
-    public $jenisNasabah = 'perorangan';
-    public ?int $organisasiNasabah = null;
-    public ?string $rekeningNasabah = '';
-    public ?string $passwordNasabah = '';
-    public ?string $statusNasabah = '';
-    public ?string $unitNasabah = '';
-
-    public ?string $userId = '';
-
-    public function updatedKeyword()
-    {
-        $this->resetPage();
-    }
-    public function boot(UserServices $userService)
-    {
-        $this->userService = $userService;
-    }
-
-    public function movePage(string $route)
-    {
-        return redirect()->route($route);
-    }
-
-    public function detail(string $id)
-    {
-        $id = decrypt($id);
-        $user = $this->userService->getUserById($id);
-        $this->nasabahId = $user->id;
-        $this->namaNasabah = $user->name;
-        $this->nikNasabah = $user->nik;
-        $this->nomorHpNasabah = $user->nomor_hp;
-        $this->emailNasabah = $user->email;
-        $this->jenisNasabah = $user->mewakili;
-        $this->organisasiNasabah = $user->organisasi_id;
-        $this->rekeningNasabah = $user->rekening;
-        $this->passwordNasabah = $user->password;
-        $this->unitNasabah = $user->unit->id;
-
-        $this->userId = $user->id;
-    }
-
-    public function editNasabah()
-    {
-        $rules = [
-            'namaNasabah' => 'required|string|max:120',
-            'nikNasabah' => [
-                'required',
-                'digits:16',
-                function ($attribute, $value, $fail) {
-                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->where('id', '!=', $this->nasabahId)->exists();
-                    if ($exists) {
-                        $fail('NIK sudah terdaftar.');
-                    }
-                },
-            ],
-            'nomorHpNasabah' => 'required|regex:/^08\d{8,}$/',
-            'emailNasabah' => 'required|email',
-            'jenisNasabah' => 'required|in:perorangan,kelompok',
-            'rekeningNasabah' => 'required|string',
-            'organisasiNasabah' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
-            'unitNasabah' => 'required|exists:bank_sampahs,id',
-        ];
-        $this->validate($rules);
-        $this->userService->updateUser($this->nasabahId, [
-            'name' => $this->namaNasabah,
-            'nik' => $this->nikNasabah,
-            'nomor_hp' => $this->nomorHpNasabah,
-            'email' => $this->emailNasabah,
-            'mewakili' => $this->jenisNasabah,
-            'organisasi_id' => $this->organisasiNasabah,
-            'rekening' => $this->rekeningNasabah,
-            'bank_sampah_id' => $this->unitNasabah,
-        ]);
-        $this->reset(['namaNasabah', 'nikNasabah', 'nomorHpNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'rekening', 'rekeningNasabah', 'unitNasabah']);
-        $this->dispatch('close-modal');
-    }
-
-    public function registerNasabah()
-    {
-        $rules = [
-            'nama' => 'required',
-            'nik' => [
-                'required',
-                'digits:16',
-                function ($attribute, $value, $fail) {
-                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->exists();
-                    if ($exists) {
-                        $fail('NIK sudah terdaftar.');
-                    }
-                },
-            ],
-            'nomorHp' => 'required|regex:/^08\d{8,}$/',
-            'email' => 'required|email',
-            'jenis' => 'required|in:perorangan,kelompok',
-            'rekening' => 'required|string',
-            'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
-            'password' => 'required|min:6',
-            'unit' => 'required|exists:bank_sampahs,id',
-        ];
-        $this->validate($rules);
-        $this->userService->register([
-            'name' => $this->nama,
-            'nik' => $this->nik,
-            'nomor_hp' => $this->nomorHp,
-            'email' => $this->email,
-            'mewakili' => $this->jenis,
-            'organisasi_id' => $this->organisasi,
-            'password' => $this->password,
-            'rekening' => $this->rekening,
-            'bank_sampah_id' => $this->unit,
-        ]);
-        $this->reset(['nama', 'nik', 'nomorHp', 'email', 'jenis', 'organisasi', 'rekening', 'password']);
-        $this->dispatch('close-modal');
-    }
-
-    public function updatedJenis($value)
-    {
-        if ($value === 'perorangan') {
-            $this->organisasi = null;
-        }
-    }
-
-    public function getData()
-    {
-        $user = $this->userService->userBuilder();
-        $nasabahQuery = $user->with('organisasi');
-        if ($this->keyword) {
-            $nasabahQuery->where('name', 'like', "%{$this->keyword}%")->orWhereHas('unit', function ($q) {
-                $q->where('nama', 'like', "%{$this->keyword}%");
-            });
-        }
-        $nasabah = $nasabahQuery->latest()->paginate(10);
-        return [
-            'organisasi' => Organisasi::query()->get(),
-            'banksampah' => BankSampah::query()->get(),
-            'nasabah' => $nasabah,
-        ];
-    }
-    #[On('doDelete')]
-    public function delete()
-    {
-        $this->userService->deleteUser($this->userId);
-    }
-
-    public function alertDelete(string $userId)
-    {
-        $this->userId = decrypt($userId);
-        $this->js(
-            <<<JS
-                Swal.fire({
-                title: "Hapus",
-                text: "Apakah Anda Yakin ?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Ya",
-                cancelButtonText: "Batal"
-                }).then((result) => {
-                   if (result.isConfirmed) {
-                Livewire.dispatch('doDelete');
-                }
-                });
-            JS
-            ,
-        );
-    }
+    //
 };
 ?>
 
-<div x-data x-init="if (!Alpine.store('sheet')) {
-    Alpine.store('sheet', {
-        active: null,
-        show(name) { this.active = name },
-        hide() { this.active = null },
-        is(name) { return this.active === name },
-    })
-}">
-    @php $data = $this->getData(); @endphp
-
-    {{-- ======= MOBILE ======= --}}
-    <div id="m-nasabah">
-        <div class="m-page-header">
-            <div class="m-back" wire:click="movePage('home')">
-                <i class="bi bi-chevron-left" style="font-size:12px"></i>
-            </div>
-            <div class="ph-title">Data Nasabah</div>
-            <div class="ms-auto">
-                <div class="m-gear"
-                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
-                    @click="$store.sheet.show('tambah-nasabah')">
-                    <i class="bi bi-plus-lg"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="m-body" style="padding-top:16px">
-            <div class="m-search mb-3">
-                <i class="bi bi-search si"></i>
-                <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit...">
-            </div>
-            <div class="d-flex flex-column gap-2">
-                @foreach ($data['nasabah'] as $index => $nasabah)
-                    <div class="list-item fade-up">
-                        <span class="list-num">{{ $index + 1 }}</span>
-                        <div class="avatar" style="width:36px;height:36px;font-size:12px;flex-shrink:0">
-                            {{ strtoupper($nasabah->initials()) }}
-                        </div>
-                        <div class="list-main">
-                            <div class="list-name">{{ ucfirst($nasabah->name) }}</div>
-                            <div class="list-sub">
-                                {{ $nasabah->organisasi->nama ?? '-' }} · 0 setoran · Saldo Rp 0
-                            </div>
-                            <div class="d-flex gap-1 mt-2">
-                                <button @click="$store.sheet.show('edit-nasabah')"
-                                    wire:click="detail('{{ encrypt($nasabah->id) }}')" class="btn-tx">
-                                    <i class="bi bi-pencil-fill"></i>
-                                </button>
-                                <button wire:click="alertDelete('{{ encrypt($nasabah->id) }}')" class="btn-tx"><i
-                                        class="bi bi-trash-fill"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <span class="bs bs-ok">{{ ucfirst($nasabah->status) }}</span>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-        @include('components.⚡mobile-bottombar')
-    </div>
-
-    {{-- ======= BOTTOM SHEET MOBILE — backdrop ======= --}}
-    <div x-show="$store.sheet.is('tambah-nasabah')" x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
-        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
-    </div>
-
-    {{-- ======= BOTTOM SHEET MOBILE — konten + form ======= --}}
-    <div x-show="$store.sheet.is('tambah-nasabah')" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
-        x-transition:leave-end="translate-y-full"
-        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--bg-card,#fff);border-radius:20px 20px 0 0;padding:20px;max-height:90dvh;overflow-y:auto"
-        x-cloak>
-        <div class="sheet-handle"></div>
-
-        <div
-            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
-            Daftarkan Nasabah Baru
-        </div>
-
-        <form wire:submit="registerNasabah">
-            <div class="f-group">
-                <label>Nama Lengkap / Nama Usaha</label>
-                <input class="f-input" type="text" wire:model="nama" placeholder="Nama nasabah atau badan usaha">
-                @error('nama')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="f-group">
-                <label>NIK</label>
-                <input class="f-input" type="text" wire:model="nik" placeholder="16 digit NIK KTP" maxlength="16">
-                @error('nik')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="f-group">
-                <label>No. HP</label>
-                <input class="f-input" type="tel" wire:model="nomorHp" placeholder="08xx-xxxx-xxxx">
-                @error('nomorHp')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="f-group">
-                <label>Email</label>
-                <input class="f-input" type="email" wire:model="email" placeholder="email@gmail.com">
-                @error('email')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="f-group">
-                <label>Jenis Nasabah</label>
-                <select class="f-input" wire:model.live="jenis">
-                    <option value="perorangan">Perorangan</option>
-                    <option value="kelompok">Kelompok</option>
-                </select>
-                @error('jenis')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="f-group">
-                <label>Organisasi</label>
-                <select class="f-input" wire:model="organisasi" @disabled($jenis === 'perorangan')>
-                    <option value="">Pilih Organisasi</option>
-                    @foreach ($data['organisasi'] as $org)
-                        <option value="{{ $org->id }}">{{ $org->nama }}</option>
-                    @endforeach
-                </select>
-                @error('organisasi')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Unit</label>
-                <select class="f-input" wire:model="unit">
-                    <option value="">Pilih Unit</option>
-                    @foreach ($data['banksampah'] as $bank)
-                        <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
-                    @endforeach
-                </select>
-                @error('unit')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="f-group">
-                <label>No. Rekening</label>
-                <input class="f-input" type="text" wire:model="rekening"
-                    placeholder="Nomor rekening bank sampah">
-                @error('rekening')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="f-group" x-data="{ show: false }">
-                <label>Password</label>
-                <div style="position:relative">
-                    <input class="f-input" :type="show ? 'text' : 'password'" wire:model="password"
-                        placeholder="Password nasabah" style="padding-right:40px">
-                    <button type="button" @click="show = !show"
-                        style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted)">
-                        <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
-                    </button>
-                </div>
-                @error('password')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <button type="submit" class="btn-primary mb-2" style="width:100%" wire:loading.attr="disabled"
-                wire:target="registerNasabah">
-                <span wire:loading.remove wire:target="registerNasabah">
-                    <i class="bi bi-person-plus me-1"></i>Daftarkan Nasabah
-                </span>
-                <span wire:loading wire:target="registerNasabah">Loading...</span>
-            </button>
-            <button type="button" class="btn-outline" style="width:100%"
-                @click="$store.sheet.hide()">Batal</button>
-        </form>
-    </div>
-    {{-- Backdrop edit --}}
-    <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
-        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
-    </div>
-
-    {{-- Sheet edit --}}
-    <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
-        x-transition:leave-end="translate-y-full"
-        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;
-           background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
-           padding:20px;max-height:90dvh;overflow-y:auto"
-        x-cloak>
-        <div class="sheet-handle"></div>
-        <div
-            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
-                margin-bottom:18px;color:var(--text-main)">
-            Edit Nasabah
-        </div>
-        <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
-            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
-            <div class="spinner-border text-success"></div>
-        </div>
-        <form wire:submit="editNasabah">
-            <div class="f-group">
-                <label>Nama Lengkap / Nama Usaha</label>
-                <input class="f-input" type="text" wire:model="namaNasabah">
-                @error('namaNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Nik</label>
-                <input class="f-input" type="text" wire:model="nikNasabah">
-                @error('nikNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>No. HP</label>
-                <input class="f-input" type="tel" wire:model="nomorHpNasabah" placeholder="08xx-xxxx-xxxx">
-                @error('nomorHpNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Email</label>
-                <input class="f-input" type="email" wire:model="emailNasabah">
-                @error('emailNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Jenis Nasabah</label>
-                <select class="f-input" wire:model.live="jenisNasabah">
-                    <option value="perorangan">Perorangan</option>
-                    <option value="kelompok">Kelompok</option>
-                </select>
-            </div>
-            <div class="f-group">
-                <label>Organisasi</label>
-                <select class="f-input" wire:model="organisasiNasabah" @disabled($jenisNasabah === 'perorangan')>
-                    <option value="">Pilih Organisasi</option>
-                    @foreach ($data['organisasi'] as $org)
-                        <option value="{{ $org->id }}">{{ $org->nama }}</option>
-                    @endforeach
-                </select>
-                @error('organisasiNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Unit</label>
-                <select class="f-input" wire:model="unitNasabah">
-                    <option value="">Pilih Unit</option>
-                    @foreach ($data['banksampah'] as $bank)
-                        <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
-                    @endforeach
-                </select>
-                @error('unitNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>No. Rekening</label>
-                <input class="f-input" type="text" wire:model="rekeningNasabah">
-                @error('rekeningNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="d-flex gap-2 mt-2">
-                <button type="button" class="btn-outline w-100" @click="$store.sheet.hide()">
-                    Batal
-                </button>
-                <button type="submit" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
-                    wire:target="editNasabah">
-                    <span wire:loading.remove wire:target="editNasabah">
-                        <i class="bi bi-check-lg me-1"></i>Simpan
-                    </span>
-                    <span wire:loading wire:target="editNasabah">Loading...</span>
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- ======= DESKTOP ======= --}}
+<div>
+    {{-- Simplicity is the ultimate sophistication. - Leonardo da Vinci --}}
     <div class="desktop-wrapper">
         @include('components.⚡dekstop-navbar')
         <div class="w-main">
@@ -550,7 +61,7 @@ new class extends Component {
                                 <th>#</th>
                                 <th>Nama</th>
                                 <th>Tipe</th>
-                                <th>Unit</th>
+                                <th>Unit Pendaftaran</th>
                                 <th>Total Setoran</th>
                                 <th>Saldo</th>
                                 <th>Status</th>
@@ -586,22 +97,28 @@ new class extends Component {
                                         <button wire:click="detail('{{ encrypt($nasabah->id) }}')"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
                                             data-bs-toggle="modal" data-bs-target="#wm-edit-nasabah">
-                                            Ubah
+                                            <i class="bi bi-pencil-square"></i>
                                         </button>
                                         <button wire:click="detail('{{ encrypt($nasabah->id) }}')"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
                                             data-bs-toggle="modal" data-bs-target="#wm-detail-nasabah">
-                                            Detail
+                                            <i class="bi bi-eye"></i>
                                         </button>
                                         <button wire:click="alertDelete('{{ encrypt($nasabah->id) }}')"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
-                                            Hapus
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        <button data-bs-toggle="modal" data-bs-target="#wm-rekening-nasabah"
+                                            wire:click="getBukuTabungan('{{ encrypt($nasabah->id) }}')"
+                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
+                                            Rekening
                                         </button>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
+                    {{ $data['nasabah']->links('vendor.pagination.bootstrap-5') }}
                 </div>
             </div>
         </div>
@@ -689,14 +206,6 @@ new class extends Component {
                                         @endforeach
                                     </select>
                                     @error('unit')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-6">
-                                    <label class="w-form-label">No. Rekening</label>
-                                    <input class="w-form-input" type="text" wire:model="rekening"
-                                        placeholder="Nomor rekening bank sampah">
-                                    @error('rekening')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -886,13 +395,6 @@ new class extends Component {
                             </div>
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <label class="w-form-label">No. Rekening</label>
-                                    <input class="w-form-input" type="text" wire:model="rekeningNasabah">
-                                    @error('rekeningNasabah')
-                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-6">
                                     <label class="w-form-label">No. HP</label>
                                     <input class="w-form-input" type="tel" wire:model="nomorHpNasabah">
                                     @error('nomorHpNasabah')
@@ -913,14 +415,65 @@ new class extends Component {
             </div>
         </div>
     </div>
+    {{-- ======= MODAL DESKTOP: REKENING NASABAH ======= --}}
+    <div wire:ignore.self class="modal fade" id="wm-rekening-nasabah" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-m">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Rekening Nasabah</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <div class="w-modal-body">
+                    <form wire:submit="addBukuTabungan">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="w-form-label">Unit</label>
+                                    <select class="w-form-input" wire:model="unitBukuTabungan">
+                                        <option value="">Pilih Unit</option>
+                                        @foreach ($data['banksampah'] as $bank)
+                                            <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('unitBukuTabungan')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                                wire:target="addBukuTabungan">
+                                <span wire:loading.remove wire:target="addBukuTabungan">Tambahkan</span>
+                                <span wire:loading wire:target="addBukuTabungan">Loading...</span>
+                            </button>
+                        </div>
+                    </form>
+                    @if (!empty($bukuTabungan))
+                        <div class="mt-3">
+                            <label class="w-form-label mb-2">Daftar Buku Tabungan</label>
+                            <div class="d-flex flex-column gap-2">
+                                @foreach ($bukuTabungan as $bk)
+                                    <div class="d-flex justify-content-between align-items-center px-3 py-2"
+                                        style="border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb;">
+                                        <span style="font-size: 13px; font-weight: 500; color: #111827;">
+                                            {{ ucfirst($bk['nama']) }}
+                                        </span>
+                                        <span style="font-size: 12px; color: #6b7280; font-family: monospace;">
+                                            {{ $bk['nomor_rekening'] }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <div class="mt-3 text-center" style="font-size: 13px; color: #9ca3af; padding: 12px 0;">
+                            Belum ada buku tabungan
+                        </div>
+                    @endif
 
-    @script
-        <script>
-            $wire.on('close-modal', () => {
-                $('#wm-tambah-nasabah').modal('hide');
-                $('#wm-edit-nasabah').modal('hide');
-                Alpine.store('sheet').hide();
-            });
-        </script>
-    @endscript
+                </div>
+                <div class="w-modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

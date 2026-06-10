@@ -18,7 +18,6 @@ return new class extends Migration {
             $table->string('nik')->nullable();
             $table->string('nik_hash')->nullable();
             $table->string('nomor_hp')->nullable();
-            $table->string('rekening')->nullable();
             $table->string('password');
             $table->enum('mewakili', ['perorangan', 'kelompok'])->default('perorangan');
             $table->enum('status', ['active', 'inactive'])->default('active');

@@ -1,0 +1,246 @@
+<?php
+
+use Livewire\Component;
+use App\Services\UserServices;
+use App\Models\Organisasi;
+use App\Models\BankSampah;
+use Livewire\WithPagination;
+use Livewire\Attributes\On;
+use App\Livewire\TraitComponent;
+new class extends Component {
+    use WithPagination;
+    use TraitComponent;
+    protected UserServices $userService;
+
+    //Properti untuk search
+    public ?string $keyword = '';
+
+    // Properti untuk form pendaftaran nasabah
+    public ?string $nama = '';
+    public ?string $nik = '';
+    public ?string $nomorHp = '';
+    public ?string $email = '';
+    public $jenis = 'perorangan';
+    public ?int $organisasi = null;
+    public ?string $password = '';
+    public ?int $unit = null;
+
+    // Properti detail nasabah
+    public string $nasabahId;
+    public ?string $namaNasabah = '';
+    public ?string $nikNasabah = '';
+    public ?string $nomorHpNasabah = '';
+    public ?string $emailNasabah = '';
+    public $jenisNasabah = 'perorangan';
+    public ?int $organisasiNasabah = null;
+    public ?string $passwordNasabah = '';
+    public ?string $statusNasabah = '';
+    public ?string $unitNasabah = '';
+
+    public ?string $userId = '';
+
+    public array $bukuTabungan = [];
+    public int $unitBukuTabungan;
+
+    public function updatedKeyword()
+    {
+        $this->resetPage();
+    }
+    public function boot(UserServices $userService)
+    {
+        $this->userService = $userService;
+    }
+
+    public function movePage(string $route)
+    {
+        return redirect()->route($route);
+    }
+
+    public function detail(string $id)
+    {
+        $id = decrypt($id);
+        $user = $this->userService->getUserById($id);
+        $this->nasabahId = $user->id;
+        $this->namaNasabah = $user->name;
+        $this->nikNasabah = $user->nik;
+        $this->nomorHpNasabah = $user->nomor_hp;
+        $this->emailNasabah = $user->email;
+        $this->jenisNasabah = $user->mewakili;
+        $this->organisasiNasabah = $user->organisasi_id;
+        $this->passwordNasabah = $user->password;
+        $this->unitNasabah = $user->unit->id;
+
+        $this->userId = $user->id;
+    }
+
+    public function editNasabah()
+    {
+        $rules = [
+            'namaNasabah' => 'required|string|max:120',
+            'nikNasabah' => [
+                'required',
+                'digits:16',
+                function ($attribute, $value, $fail) {
+                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->where('id', '!=', $this->nasabahId)->exists();
+                    if ($exists) {
+                        $fail('NIK sudah terdaftar.');
+                    }
+                },
+            ],
+            'nomorHpNasabah' => 'required|regex:/^08\d{8,}$/',
+            'emailNasabah' => 'required|email',
+            'jenisNasabah' => 'required|in:perorangan,kelompok',
+            'organisasiNasabah' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
+            'unitNasabah' => 'required|exists:bank_sampahs,id',
+        ];
+        $this->validate($rules);
+        $this->userService->updateUser($this->nasabahId, [
+            'name' => $this->namaNasabah,
+            'nik' => $this->nikNasabah,
+            'nomor_hp' => $this->nomorHpNasabah,
+            'email' => $this->emailNasabah,
+            'mewakili' => $this->jenisNasabah,
+            'organisasi_id' => $this->organisasiNasabah,
+            'bank_sampah_id' => $this->unitNasabah,
+        ]);
+        $this->reset(['namaNasabah', 'nikNasabah', 'nomorHpNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'unitNasabah']);
+        $this->dispatch('close-modal');
+    }
+
+    public function registerNasabah()
+    {
+        $rules = [
+            'nama' => 'required',
+            'nik' => [
+                'required',
+                'digits:16',
+                function ($attribute, $value, $fail) {
+                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->exists();
+                    if ($exists) {
+                        $fail('NIK sudah terdaftar.');
+                    }
+                },
+            ],
+            'nomorHp' => 'required|regex:/^08\d{8,}$/',
+            'email' => 'required|email',
+            'jenis' => 'required|in:perorangan,kelompok',
+            'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
+            'password' => 'required|min:6',
+            'unit' => 'required|exists:bank_sampahs,id',
+        ];
+        $this->validate($rules);
+        $this->userService->register([
+            'name' => $this->nama,
+            'nik' => $this->nik,
+            'nomor_hp' => $this->nomorHp,
+            'email' => $this->email,
+            'mewakili' => $this->jenis,
+            'organisasi_id' => $this->organisasi,
+            'password' => $this->password,
+            'bank_sampah_id' => $this->unit,
+        ]);
+        $this->reset(['nama', 'nik', 'nomorHp', 'email', 'jenis', 'organisasi', 'password']);
+        $this->dispatch('close-modal');
+    }
+
+    public function updatedJenis($value)
+    {
+        if ($value === 'perorangan') {
+            $this->organisasi = null;
+        }
+    }
+
+    public function getBukuTabungan(string $nasabahId)
+    {
+        $nasabahId = decrypt($nasabahId);
+        $this->nasabahId = $nasabahId;
+        $data = $this->userService->getBukuTabunganByUserId($nasabahId);
+        $this->bukuTabungan = $data->toArray();
+    }
+    public function addBukuTabungan()
+    {
+        $this->validate([
+            'unitBukuTabungan' => 'required|exists:bank_sampahs,id',
+        ]);
+        $this->userService->createBukuTabungan($this->nasabahId, $this->unitBukuTabungan);
+        $data = $this->userService->getBukuTabunganByUserId($this->nasabahId);
+        $this->bukuTabungan = $data->toArray();
+        $this->alertNotAlowed();
+        $this->alert();
+    }
+
+    public function getData()
+    {
+        $user = $this->userService->userBuilder();
+        $nasabahQuery = $user->with('organisasi');
+        if ($this->keyword) {
+            $nasabahQuery->where('name', 'like', "%{$this->keyword}%")->orWhereHas('unit', function ($q) {
+                $q->where('nama', 'like', "%{$this->keyword}%");
+            });
+        }
+        $nasabah = $nasabahQuery->latest()->paginate(10);
+        return [
+            'organisasi' => Organisasi::query()->get(),
+            'banksampah' => BankSampah::query()->get(),
+            'nasabah' => $nasabah,
+        ];
+    }
+    #[On('doDelete')]
+    public function delete()
+    {
+        $this->userService->deleteUser($this->userId);
+    }
+
+    public function alertDelete(string $userId)
+    {
+        $this->userId = decrypt($userId);
+        $this->js(
+            <<<JS
+                Swal.fire({
+                title: "Hapus",
+                text: "Apakah Anda Yakin ?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya",
+                cancelButtonText: "Batal"
+                }).then((result) => {
+                   if (result.isConfirmed) {
+                Livewire.dispatch('doDelete');
+                }
+                });
+            JS
+            ,
+        );
+    }
+};
+?>
+
+<div x-data x-init="if (!Alpine.store('sheet')) {
+    Alpine.store('sheet', {
+        active: null,
+        show(name) { this.active = name },
+        hide() { this.active = null },
+        is(name) { return this.active === name },
+    })
+}">
+    @php $data = $this->getData(); @endphp
+
+    {{-- ======= MOBILE ======= --}}
+    @include('components.panel.nasabah.⚡mobile-mode')
+
+    {{-- ======= DESKTOP ======= --}}
+    @include('panel.nasabah.⚡dekstop-mode')
+
+    @script
+        <script>
+            $wire.on('close-modal', () => {
+                $('#wm-tambah-nasabah').modal('hide');
+                $('#wm-edit-nasabah').modal('hide');
+                $('#wm-rekening-nasabah').modal('hide');
+                Alpine.store('sheet').hide();
+            });
+        </script>
+    @endscript
+</div>

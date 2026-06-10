@@ -17,4 +17,5 @@ interface UserServices
     public function delete(int $id);
     public function updateUser(int $id, array $data);
     public function deleteUser(int $id);
+    public function getBukuTabunganByUserId(int $id);
 }

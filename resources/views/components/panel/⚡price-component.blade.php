@@ -23,12 +23,16 @@ new class extends Component {
     public ?string $syaratJenis;
     public ?string $jenisId;
 
+    //search
+    public ?string $keyword = '';
+
     //Price
     public array $prices = [];
 
     public ?string $trashId;
 
-    public function movePage(string $route){
+    public function movePage(string $route)
+    {
         return redirect()->route($route);
     }
     public function boot(TrashServices $trashService)
@@ -96,7 +100,8 @@ new class extends Component {
                     'id' => $price->id,
                     'label' => $price->trash->nama,
                     'value' => $price->harga,
-                    'is_induk' => !Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->exists(),
+                    'is_induk' => !Price::where('trash_id', $price->trash_id)
+                    ->where('bank_id', $bank->id)->exists(),
                 ],
             )
             ->toArray();
@@ -110,33 +115,6 @@ new class extends Component {
             'is_induk' => $price['is_induk'],
         ]);
         $this->priceDetail();
-    }
-    public function priceAndTrashList()
-    {
-        $bank = Auth::user()->unit;
-        $induk = BankSampah::whereNull('parent_id')->first();
-
-        if ($bank->use_parent_price) {
-            return Price::with(['bank', 'trash'])
-                ->where('bank_id', $induk->id)
-                ->get();
-        }
-
-        // Ambil price unit, kalau tidak ada fallback ke harga induk
-        return Price::with(['bank', 'trash'])
-            ->where('bank_id', $induk->id) // base dari induk
-            ->paginate(10)
-            ->map(function ($price) use ($bank) {
-                // Cek apakah unit punya harga sendiri untuk trash ini
-                $unitPrice = Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->first();
-
-                // Kalau ada, pakai harga unit — kalau tidak, pakai harga induk
-                if ($unitPrice) {
-                    return $unitPrice->load(['bank', 'trash']);
-                }
-
-                return $price;
-            });
     }
     #[On('doDelete')]
     public function delete()
@@ -170,7 +148,14 @@ new class extends Component {
     public function getData()
     {
         $categories = $this->trashService->categoryBuilder()->get();
-        $trashs = $this->priceAndTrashList();
+        $trashsBuilder = $this->trashService->priceAndTrashList();
+        if ($this->keyword) {
+            $trashsBuilder->whereHas('trash', function ($query) {
+                $query->where('nama', 'like', '%' . $this->keyword . '%');
+            });
+            $this->resetPage();
+        }
+        $trashs = $trashsBuilder->latest()->paginate(10);
         return [
             'categories' => $categories,
             'trashs' => $trashs,
@@ -194,7 +179,8 @@ new class extends Component {
 
     <div id="m-harga">
         <div class="m-page-header">
-            <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i></div>
+            <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
+            </div>
             <div class="ph-title">Harga Sampah</div>
             <div class="ms-auto d-flex gap-2">
                 <div class="m-gear"
@@ -209,7 +195,7 @@ new class extends Component {
             </div>
         </div>
         <div class="m-body" style="padding-top:16px">
-              <div class="m-search mb-3">
+            <div class="m-search mb-3">
                 <i class="bi bi-search si"></i>
                 <input type="text" wire:model.live="keyword" placeholder="Cari nama jenis sampah...">
             </div>
@@ -226,7 +212,8 @@ new class extends Component {
                                     wire:click="detailJenis('{{ encrypt($t->trash->id) }}')" class="btn-tx">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
-                                <button  wire:click="alertDelete('{{ encrypt($t->id) }}')"  class="btn-tx"><i class="bi bi-trash-fill"></i></button>
+                                <button wire:click="alertDelete('{{ encrypt($t->id) }}')" class="btn-tx"><i
+                                        class="bi bi-trash-fill"></i></button>
                             </div>
                         </div>
                         <div style="text-align:right">
@@ -523,7 +510,11 @@ new class extends Component {
                     </div>
                 </div>
                 <div class="w-panel">
-
+                    <div class="w-search mb-3" style="width:100%">
+                        <i class="bi bi-search si"></i>
+                        <input wire:model.live="keyword" type="text" placeholder="Cari jenis sampah..."
+                            style="width:100%">
+                    </div>
                     <table class="w-tbl">
                         <thead>
                             <tr>
@@ -562,6 +553,7 @@ new class extends Component {
                             @endforeach
                         </tbody>
                     </table>
+                    {{ $data['trashs']->links('vendor.pagination.bootstrap-5') }}
                 </div>
             </div>
         </div>
@@ -716,7 +708,11 @@ new class extends Component {
                     <div class="w-modal-title">Ubah Harga</div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
-                <div class="w-modal-body">
+                <div class="m-search mb-3 ms-2 me-2">
+                    <i class="bi bi-search si"></i>
+                    <input type="text" wire:model.live="keyword" placeholder="Cari nama jenis sampah...">
+                </div>
+                <div class="w-modal-body" style="overflow-y: auto; max-height: 60vh;">
                     <div wire:loading.flex wire:target="priceDetail" class="justify-content-center align-items-center"
                         style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                         <div class="spinner-border text-success"></div>

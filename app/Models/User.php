@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'nik', 'nik_hash', 'nomor_hp', 'rekening', 'mewakili', 'organisasi_id', 'status', 'bank_sampah_id'])]
+#[Fillable(['name', 'email', 'password', 'nik', 'nik_hash', 'nomor_hp', 'mewakili', 'organisasi_id', 'status', 'bank_sampah_id'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -53,5 +53,9 @@ class User extends Authenticatable
     public function setorans()
     {
         return $this->hasMany(Setoran::class, 'penyetor_id');
+    }
+    public function bukutabungans()
+    {
+        return $this->hasMany(BukuTabungan::class);
     }
 }
