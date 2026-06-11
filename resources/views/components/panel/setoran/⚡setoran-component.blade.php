@@ -1,17 +1,47 @@
 <?php
 
 use Livewire\Component;
-
+use App\Services\SetoranService;
+use Livewire\WithPagination;
 new class extends Component {
+    use WithPagination;
+    protected SetoranService $setoranService;
+
+    public array $detailItems = [];
+
+    public function boot(SetoranService $setoranService)
+    {
+        $this->setoranService = $setoranService;
+    }
     public function movePage(string $route)
     {
         return redirect()->route($route);
+    }
+    public function detailSetoran(string $nasabahId)
+    {
+        $nasabahId = decrypt($nasabahId);
+        $item = $this->setoranService->getSetoranByIdNasabah($nasabahId);
+        $this->detailItems = $item->toArray();
+        // dd(json_encode( $this->detailItems, JSON_PRETTY_PRINT));
+        // dd($this->detailItems);
+    }
+
+    public function getData()
+    {
+        $builder = $this->setoranService->getSetoranByUnit();
+        // dd(json_encode($builder->latest()->paginate(10), JSON_PRETTY_PRINT));
+        return [
+            'setoran' => $builder->latest()->paginate(10),
+        ];
     }
 };
 ?>
 
 <div>
     {{-- We must ship. - Taylor Otwell --}}
+    @php
+        $data = $this->getData();
+    @endphp
     <div id="m-setoran">
         <div class="m-page-header">
             <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
@@ -148,102 +178,115 @@ new class extends Component {
                             <tr>
                                 <th>#</th>
                                 <th>Nasabah</th>
-                                <th>Jenis Sampah</th>
+                                <th>Nomor Rekening</th>
                                 <th>Berat</th>
                                 <th>Nilai</th>
-                                <th>Unit</th>
+                                <th>Unit Setor</th>
                                 <th>Waktu</th>
-                                <th>Status</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td style="font-size:10px;color:var(--muted)">4712</td>
-                                <td>
-                                    <div style="font-size:11px;font-weight:600">Siti Rahayu</div>
-                                </td>
-                                <td><span class="bs bs-ok">Plastik HDPE</span></td>
-                                <td style="font-weight:600">12,5 kg</td>
-                                <td style="font-weight:700;color:var(--cyan)">Rp62.500</td>
-                                <td style="font-size:10px;color:var(--muted)">Sukajadi</td>
-                                <td style="font-size:10px;color:var(--muted)">15 mnt lalu</td>
-                                <td><span class="bs bs-green">Lunas</span></td>
-                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
-                            </tr>
-                            <tr>
-                                <td style="font-size:10px;color:var(--muted)">4711</td>
-                                <td>
-                                    <div style="font-size:11px;font-weight:600">Hendra Wijaya</div>
-                                </td>
-                                <td><span class="bs bs-new">Kertas</span></td>
-                                <td style="font-weight:600">8 kg</td>
-                                <td style="font-weight:700;color:var(--cyan)">Rp24.000</td>
-                                <td style="font-size:10px;color:var(--muted)">Tampan</td>
-                                <td style="font-size:10px;color:var(--muted)">30 mnt lalu</td>
-                                <td><span class="bs bs-green">Lunas</span></td>
-                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
-                            </tr>
-                            <tr>
-                                <td style="font-size:10px;color:var(--muted)">4710</td>
-                                <td>
-                                    <div style="font-size:11px;font-weight:600">CV Maju Bersama</div>
-                                </td>
-                                <td><span class="bs bs-purple">Logam</span></td>
-                                <td style="font-weight:600">45 kg</td>
-                                <td style="font-weight:700;color:var(--cyan)">Rp270.000</td>
-                                <td style="font-size:10px;color:var(--muted)">Payung Sekaki</td>
-                                <td style="font-size:10px;color:var(--muted)">1 jam lalu</td>
-                                <td><span class="bs bs-warn">Pending</span></td>
-                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                        onclick="openWModal('wm-detail-setoran')">Verifikasi</button></td>
-                            </tr>
-                            <tr>
-                                <td style="font-size:10px;color:var(--muted)">4709</td>
-                                <td>
-                                    <div style="font-size:11px;font-weight:600">Dewi Kartika</div>
-                                </td>
-                                <td><span class="bs bs-ok">Kaca</span></td>
-                                <td style="font-weight:600">5,2 kg</td>
-                                <td style="font-weight:700;color:var(--cyan)">Rp15.600</td>
-                                <td style="font-size:10px;color:var(--muted)">Marpoyan</td>
-                                <td style="font-size:10px;color:var(--muted)">2 jam lalu</td>
-                                <td><span class="bs bs-new">Ditimbang</span></td>
-                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
-                            </tr>
-                            <tr>
-                                <td style="font-size:10px;color:var(--muted)">4708</td>
-                                <td>
-                                    <div style="font-size:11px;font-weight:600">Agus Santoso</div>
-                                </td>
-                                <td><span class="bs bs-orange">Elektronik</span></td>
-                                <td style="font-weight:600">3,1 kg</td>
-                                <td style="font-weight:700;color:var(--cyan)">Rp62.000</td>
-                                <td style="font-size:10px;color:var(--muted)">Bukit Raya</td>
-                                <td style="font-size:10px;color:var(--muted)">3 jam lalu</td>
-                                <td><span class="bs bs-green">Lunas</span></td>
-                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
-                            </tr>
-                            <tr>
-                                <td style="font-size:10px;color:var(--muted)">4707</td>
-                                <td>
-                                    <div style="font-size:11px;font-weight:600">Yuni Pratiwi</div>
-                                </td>
-                                <td><span class="bs bs-ok">Plastik PET</span></td>
-                                <td style="font-weight:600">9 kg</td>
-                                <td style="font-weight:700;color:var(--cyan)">Rp54.000</td>
-                                <td style="font-size:10px;color:var(--muted)">Sail</td>
-                                <td style="font-size:10px;color:var(--muted)">4 jam lalu</td>
-                                <td><span class="bs bs-green">Lunas</span></td>
-                                <td><button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                        onclick="openWModal('wm-detail-setoran')">Detail</button></td>
-                            </tr>
+                            @foreach ($data['setoran'] as $st)
+                                <tr>
+                                    <td style="font-size:10px;color:var(--muted)">1</td>
+                                    <td>
+                                        <div style="font-size:11px;font-weight:600">{{ ucfirst($st->penyetor->name) }}
+                                        </div>
+                                    </td>
+                                    <td><span class="bs bs-ok">
+                                            @foreach ($st->penyetor->bukutabungans as $buku)
+                                                {{ $buku->nomor_rekening }}
+                                            @endforeach
+                                        </span>
+                                    </td>
+                                    <td style="font-weight:600"> {{ number_format($st->total_berat, 0, ',', '.') }} kg
+                                    </td>
+                                    <td style="font-weight:700;color:var(--cyan)">Rp
+                                        {{ number_format($st->total_saldo, 0, ',', '.') }}
+                                    </td>
+                                    <td style="font-size:10px;color:var(--muted)">
+                                        @foreach ($st->penyetor->bukutabungans as $buku)
+                                            {{ $buku->bank->nama }}
+                                        @endforeach
+                                    </td>
+                                    <td style="font-size:10px;color:var(--muted)">
+                                        {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
+                                    </td>
+                                    <td>
+                                        <button wire:click="detailSetoran('{{ encrypt($st->penyetor->id) }}')"
+                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                            data-bs-toggle="modal" data-bs-target="#wm-detail-setoran">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- ======= MODAL DESKTOP: DETAIL Setoran ======= --}}
+    <div wire:ignore.self class="modal fade" id="wm-detail-setoran" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Detail Setoran</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <div class="w-modal-body">
+                    <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
+                    </div>
+                    <table class="w-tbl">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Jenis Sampah</th>
+                                <th>Harga</th>
+                                <th>Berat</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($detailItems['items'] ?? [] as $index => $di)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td style="font-size:11px;font-weight:600">{{ $di['trash']['nama'] }}</td>
+                                    <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
+                                    <td>{{ number_format($di['berat'], 0, ',', '.') }} KG</td>
+                                    <td>Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3"><strong>Total</strong></td>
+                                <td>
+                                    <strong>
+                                        {{ number_format($detailItems['total_berat'] ?? 0, 0, ',', '.') }}
+                                        KG
+                                    </strong>
+                                </td>
+                                <td>
+                                    <strong>
+                                        Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}
+                                    </strong>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="w-modal-footer">
+                    {{-- <button class="w-btn w-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+                    <button class="w-btn w-btn-ghost" data-bs-dismiss="modal"
+                        onclick="setTimeout(()=> new bootstrap.Modal(document.getElementById('wm-tambah-setoran')).show(), 300)">
+                        Catat Setoran
+                    </button>
+                    <button class="w-btn w-btn-danger">Proses Penarikan</button> --}}
                 </div>
             </div>
         </div>

@@ -77,38 +77,38 @@ class DatabaseSeeder extends Seeder
                 'nomor_hp' => '0899999999' . str_pad($i, 2, '0', STR_PAD_LEFT),
                 'mewakili' => true,
                 'organisasi_id' => $org->id,
-                'bank_sampah_id' => 2,
+                'bank_sampah_id' => fake()->randomElement([2, 3]),
             ]);
 
-            $user->assignRole($role1);
+            $user->assignRole($role2);
         }
 
-        // $cat1 = Category::create([
-        //     'name' => 'Plastik',
-        // ]);
+        $cat1 = Category::create([
+            'name' => 'Plastik',
+        ]);
 
-        // $cat2 = Category::create([
-        //     'name' => 'Besi',
-        // ]);
+        $cat2 = Category::create([
+            'name' => 'Besi',
+        ]);
 
-        // $cat3 = Category::create([
-        //     'name' => 'Botol',
-        // ]);
+        $cat3 = Category::create([
+            'name' => 'Botol',
+        ]);
 
-        // $categories = [$cat1->id, $cat2->id, $cat3->id];
+        $categories = [$cat1->id, $cat2->id, $cat3->id];
 
-        // for ($i = 1; $i <= 20; $i++) {
-        //     $trash = Trash::create([
-        //         'nama' => "Sampah {$i}",
-        //         'syarat' => "Kondisi bagus {$i}",
-        //         'category_id' => $categories[array_rand($categories)],
-        //     ]);
+        for ($i = 1; $i <= 20; $i++) {
+            $trash = Trash::create([
+                'nama' => "Sampah {$i}",
+                'syarat' => "Kondisi bagus {$i}",
+                'category_id' => $categories[array_rand($categories)],
+            ]);
 
-        //     $trash->prices()->create([
-        //         'bank_id' => 1,
-        //         'type' => 'induk',
-        //         'harga' => rand(1000, 10000),
-        //     ]);
-        // }
+            $trash->prices()->create([
+                'bank_id' => 1,
+                'type' => 'induk',
+                'harga' => rand(1000, 10000),
+            ]);
+        }
     }
 }

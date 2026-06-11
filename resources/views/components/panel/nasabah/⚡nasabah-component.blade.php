@@ -105,6 +105,7 @@ new class extends Component {
         ]);
         $this->reset(['namaNasabah', 'nikNasabah', 'nomorHpNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'unitNasabah']);
         $this->dispatch('close-modal');
+        $this->alert();
     }
 
     public function registerNasabah()
@@ -141,6 +142,7 @@ new class extends Component {
         ]);
         $this->reset(['nama', 'nik', 'nomorHp', 'email', 'jenis', 'organisasi', 'password']);
         $this->dispatch('close-modal');
+        $this->alert();
     }
 
     public function updatedJenis($value)
@@ -189,6 +191,7 @@ new class extends Component {
     public function delete()
     {
         $this->userService->deleteUser($this->userId);
+        $this->alert();
     }
 
     public function alertDelete(string $userId)

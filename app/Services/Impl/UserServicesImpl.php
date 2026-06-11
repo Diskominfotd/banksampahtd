@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\Hash;
 
 class UserServicesImpl implements UserServices
 {
+    public function checkUser()
+    {
+        return Auth::user();
+    }
+
     public function doLogin(array $data)
     {
         $nik = $data['nik'];
@@ -35,7 +40,7 @@ class UserServicesImpl implements UserServices
     {
         return DB::transaction(function () use ($data) {
             $hashedNik = hash('sha256', $data['nik']);
-            return User::create([
+            User::create([
                 'nik' => $data['nik'],
                 'nik_hash' => $hashedNik,
                 'name' => $data['name'],
@@ -46,6 +51,7 @@ class UserServicesImpl implements UserServices
                 'bank_sampah_id' => $data['bank_sampah_id'],
                 'password' => Hash::make($data['password']),
             ]);
+            return session()->flash('success', 'Berhasil');
         });
     }
     public function updateUser(int $id, array $data)
@@ -62,6 +68,7 @@ class UserServicesImpl implements UserServices
             'organisasi_id' => $data['organisasi_id'] ?? null,
             'bank_sampah_id' => $data['bank_sampah_id'],
         ]);
+        return session()->flash('success', 'Berhasil');
     }
 
     public function getUserById(int $id)
@@ -118,7 +125,8 @@ class UserServicesImpl implements UserServices
     {
         $user = User::findOrFail($id);
         if ($user) {
-            return $user->delete();
+            $user->delete();
+            return session()->flash('success', 'Berhasil');
         }
     }
 
@@ -135,8 +143,7 @@ class UserServicesImpl implements UserServices
         return DB::transaction(function () use ($userId, $bankId) {
             $user = $this->getUserById($userId);
 
-            $exists = BukuTabungan::where('user_id', $user->id)
-            ->where('bank_id', $bankId)->exists();
+            $exists = BukuTabungan::where('user_id', $user->id)->where('bank_id', $bankId)->exists();
             if ($exists) {
                 session()->flash('failed', 'Nasabah sudah punya rekening di unit ini');
                 return null;
@@ -144,8 +151,7 @@ class UserServicesImpl implements UserServices
             $bank = BankSampah::findOrFail($bankId);
             do {
                 $nomorRekening = $bank->kode_bank . str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
-            } while (BukuTabungan::where('nomor_rekening', $nomorRekening)
-            ->exists());
+            } while (BukuTabungan::where('nomor_rekening', $nomorRekening)->exists());
 
             BukuTabungan::create([
                 'nama' => $user->name,
@@ -153,7 +159,20 @@ class UserServicesImpl implements UserServices
                 'user_id' => $user->id,
                 'bank_id' => $bankId,
             ]);
-           return session()->flash('success', 'Berhasil');
+            return session()->flash('success', 'Berhasil');
+        });
+    }
+
+    public function getUserByUnitAndBook()
+    {
+        $user = $this->checkUser();
+
+        return User::with([
+            'bukutabungans' => function ($q) use ($user) {
+                $q->where('bank_id', $user->unit->id);
+            },
+        ])->whereHas('bukutabungans', function ($q) use ($user) {
+            $q->where('bank_id', $user->unit->id);
         });
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setoran extends Model
 {
-    protected $fillable = ['penyetor_id', 'total_berat', 'tanggal'];
+    protected $fillable = ['penyetor_id', 'total_berat', 'tanggal','total_saldo'];
 
     public function penyetor()
     {

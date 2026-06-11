@@ -1,143 +1,14 @@
 <?php
 
 use Livewire\Component;
-use App\Services\UserServices;
-use App\Services\SetoranService;
-use App\Models\Price;
-use App\Models\BankSampah;
-use Livewire\WithPagination;
 
 new class extends Component {
-    use WithPagination;
-    protected UserServices $userService;
-    protected SetoranService $setoranService;
-    public array $nasabah = [];
-    public $selectedNasabah = null;
-    public $items = [];
-    public array $cart = [];
-
-    public function boot(UserServices $userService, SetoranService $setoranService)
-    {
-        $this->userService = $userService;
-        $this->setoranService = $setoranService;
-    }
-    public function pilihNasabah($id)
-    {
-        $this->selectedNasabah = collect($this->nasabah)->firstWhere('id', $id);
-        $this->dispatch('close-modal');
-    }
-    public function getNasabah()
-    {
-        $data = $this->userService->userBuilder()->with('unit')->latest()->paginate(10);
-        $this->nasabah = $data->items();
-    }
-    public function priceAndTrashList()
-    {
-        $bank = Auth::user()->unit;
-        $induk = BankSampah::whereNull('parent_id')->first();
-
-        if ($bank->use_parent_price) {
-            return Price::with(['bank', 'trash'])
-                ->where('bank_id', $induk->id)
-                ->get();
-        }
-
-        // Ambil price unit, kalau tidak ada fallback ke harga induk
-        return Price::with(['bank', 'trash'])
-            ->where('bank_id', $induk->id) // base dari induk
-            ->paginate(10)
-            ->map(function ($price) use ($bank) {
-                // Cek apakah unit punya harga sendiri untuk trash ini
-                $unitPrice = Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->first();
-
-                // Kalau ada, pakai harga unit — kalau tidak, pakai harga induk
-                if ($unitPrice) {
-                    return $unitPrice->load(['bank', 'trash']);
-                }
-
-                return $price;
-            });
-    }
-    public function getJenisSampah()
-    {
-        $data = $this->priceAndTrashList();
-        $this->items = $data;
-    }
-    public function pilihJenisSampah($priceId)
-    {
-        $item = collect($this->items)->firstWhere('id', $priceId);
-        if (!$item) {
-            return;
-        }
-        // Cek apakah sudah ada di cart
-        $existing = collect($this->cart)->search(fn($c) => $c['price_id'] == $priceId);
-
-        if ($existing !== false) {
-            return;
-        }
-        $this->cart[] = [
-            'price_id' => $item->id,
-            'trash_id' => $item->trash_id,
-            'nama' => $item->trash->nama,
-            'type' => $item->type,
-            'berat' => 0,
-        ];
-        $this->dispatch('close-modal');
-    }
-
-    public function updateBerat($index, $berat)
-    {
-        $value = (float) $berat;
-        $this->cart[$index]['berat'] = $value;
-    }
-    public function removeCart($index)
-    {
-        array_splice($this->cart, $index, 1);
-    }
-
-    public function getCartTotalProperty()
-    {
-        return collect($this->cart)->sum(fn($c) => $c['harga'] * $c['berat']);
-    }
-
-    public function getItemsFilteredProperty()
-    {
-        return collect($this->items)->filter(function ($item) {
-            if (!$this->searchJenis) {
-                return true;
-            }
-            return str_contains(strtolower($item->trash->nama), strtolower($this->searchJenis));
-        });
-    }
-
-    public function simpanSetoran()
-    {
-        if (!$this->selectedNasabah) {
-            $this->addError('nasabah', 'Nasabah belum dipilih.');
-            return;
-        }
-        if (empty($this->cart)) {
-            $this->addError('cart', 'Tambahkan minimal satu item setoran.');
-            return;
-        }
-        foreach ($this->cart as $i => $c) {
-            if ($c['berat'] <= 0) {
-                $this->addError("cart_{$i}", "Berat item \"{$c['nama']}\" harus diisi dan lebih dari 0.");
-                return;
-            }
-        }
-        $this->setoranService->createSetoran($this->selectedNasabah, $this->cart);
-
-        $this->cart = [];
-        $this->selectedNasabah = null;
-        $this->resetErrorBag();
-
-        session()->flash('success', 'Setoran berhasil disimpan.');
-    }
+    //
 };
 ?>
 
 <div>
+    {{-- I have not failed. I've just found 10,000 ways that won't work. - Thomas Edison --}}
     <div class="desktop-wrapper">
         @include('components.⚡dekstop-navbar')
         <div class="w-main">
@@ -225,6 +96,8 @@ new class extends Component {
                                         <th>#</th>
                                         <th>Jenis Sampah</th>
                                         <th>Berat</th>
+                                        <th>Harga</th>
+                                        <th>Subtotal</th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -239,12 +112,14 @@ new class extends Component {
                                                     value="{{ $c['berat'] ?: '' }}" placeholder="0.0"
                                                     class="form-control form-control-sm {{ $errors->has('cart_' . $i) ? 'is-invalid' : '' }}"
                                                     style="width:80px"
-                                                    oninput="this.value = this.value.replace(/^0+(\d)/, '$1')">
+                                                    oninput="if(this.value.length > 1 && this.value[0] === '0' && this.value[1] !== '.') this.value = this.value.replace(/^0+/, '')">
                                                 @error("cart_{$i}")
                                                     <div class="invalid-feedback" style="font-size:10px">
                                                         {{ $message }}</div>
                                                 @enderror
                                             </td>
+                                            <td>Rp {{ number_format($c['harga'], 0, ',', '.') }}</td>
+                                            <td>Rp {{ number_format($c['harga'] * $c['berat'], 0, ',', '.') }}</td>
                                             <td>
                                                 <button wire:click="removeCart({{ $i }})"
                                                     class="btn btn-sm btn-link text-danger p-0">
@@ -264,8 +139,8 @@ new class extends Component {
                                     @endforelse
                                     @if (count($cart) > 0)
                                         <tr style="font-weight:700;font-size:12px">
-                                            <td colspan="2" style="text-align:right">Total Berat</td>
-                                            <td>{{ number_format(collect($cart)->sum('berat'), 2, ',', '.') }} kg</td>
+                                            <td colspan="4" style="text-align:right">Total</td>
+                                            <td>Rp {{ number_format($this->cartTotal, 0, ',', '.') }}</td>
                                             <td></td>
                                         </tr>
                                     @endif
@@ -319,7 +194,11 @@ new class extends Component {
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
                                     <div class="w-row-title">{{ ucfirst($n->name) }}</div>
-                                    <div class="w-row-meta">{{ ucfirst($n->unit->nama) }}</div>
+                                    <div class="w-row-meta">
+                                        @foreach ($n->bukutabungans as $bk)
+                                           {{  $bk->nomor_rekening }}
+                                        @endforeach
+                                    </div>
                                 </div>
                                 <span class="{{ $n->status == 'active' ? 'bs bs-green' : 'bs bs-warn' }}">
                                     {{ ucfirst($n->status) }}
@@ -357,12 +236,4 @@ new class extends Component {
             </div>
         </div>
     </div>
-    @script
-        <script>
-            $wire.on('close-modal', () => {
-                $('#wm-pilih-nasabah').modal('hide');
-                $('#wm-pilih-jenis').modal('hide');
-            });
-        </script>
-    @endscript
 </div>

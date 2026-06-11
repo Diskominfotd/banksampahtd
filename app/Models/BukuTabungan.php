@@ -14,8 +14,8 @@ class BukuTabungan extends Model
     {
         return $this->belongsToMany(User::class);
     }
-    public function banks()
+    public function bank()
     {
-        return $this->belongsToMany(BankSampah::class);
+        return $this->belongsTo(BankSampah::class);
     }
 }

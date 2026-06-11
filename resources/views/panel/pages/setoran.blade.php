@@ -1,4 +1,4 @@
 @extends('panel.template.main')
 @section('content')
-   <livewire:panel.setoran-component />
+   <livewire:panel.setoran.setoran-component />
 @endsection

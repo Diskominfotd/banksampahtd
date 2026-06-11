@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SetoranItem extends Model
 {
-    protected $fillable = ['setoran_id', 'price_id', 'trash_id', 'berat'];
+    protected $fillable = ['setoran_id', 'price_id', 'trash_id', 'berat', 'harga', 'sub_total','type'];
 
     public function setoran()
     {

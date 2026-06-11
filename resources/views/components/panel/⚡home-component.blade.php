@@ -155,7 +155,7 @@ new class extends Component {
                     <div class="d-flex align-items-center gap-2">
                         <div class="text-end">
                             <div class="w-uname">Budi Santoso</div>
-                            <div class="w-urole">Pengelola Bank Sampah</div>
+                            <div class="w-urole">{{Auth::user()->unit->nama}}</div>
                         </div>
                         <div class="avatar avatar-sm">BS</div>
                     </div>

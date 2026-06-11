@@ -39,9 +39,7 @@ class TrashServicesImpl implements TrashServices
     public function getTrashBuilder()
     {
         $bank = Auth::user()->unit;
-
         $priceSourceId = $bank->parent_id ?? $bank->id;
-
         return Trash::with(['category', 'prices' => fn($q) => $q->where('bank_id', $priceSourceId)]);
     }
     public function createJenis(array $data): Trash
@@ -75,13 +73,13 @@ class TrashServicesImpl implements TrashServices
         });
     }
 
-    public function priceAndTrashList() {
+    public function priceAndTrashList()
+    {
         $bank = Auth::user()->unit;
         $induk = BankSampah::whereNull('parent_id')->first();
 
         if ($bank->use_parent_price) {
-            return Price::with(['bank', 'trash'])
-                ->where('bank_id', $induk->id);
+            return Price::with(['bank', 'trash'])->where('bank_id', $induk->id);
         }
         $unitPrices = Price::where('bank_id', $bank->id)->pluck('id', 'trash_id');
         $indukPriceIds = Price::where('bank_id', $induk->id)->pluck('id', 'trash_id');
@@ -99,13 +97,11 @@ class TrashServicesImpl implements TrashServices
     {
         $bank = Auth::user()->unit;
         $induk = BankSampah::whereNull('parent_id')->first();
-
         if ($bank->use_parent_price) {
             return Price::with(['bank', 'trash'])
                 ->where('bank_id', $induk->id)
                 ->get();
         }
-
         // Ambil price unit, kalau tidak ada fallback ke harga induk
         return Price::with(['bank', 'trash'])
             ->where('bank_id', $induk->id) // base dari induk

@@ -8,4 +8,6 @@ use App\Models\User;
 interface SetoranService
 {
     public function createSetoran(User $nasabah, array $cart): Setoran;
+    public function getSetoranByUnit();
+    public function getSetoranByIdNasabah(int $nasabahId);
 }
