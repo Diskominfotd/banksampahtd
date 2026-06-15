@@ -1,4 +1,4 @@
 @extends('panel.template.main')
 @section('content')
-   <livewire:panel.category.category-component />
+    <livewire:panel.penarikan.penarikan-component />
 @endsection

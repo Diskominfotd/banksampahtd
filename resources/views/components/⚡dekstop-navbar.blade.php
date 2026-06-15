@@ -13,7 +13,9 @@ new class extends Component {
         <a href="/" class="w-nav" :class="{ 'active': path === '/' }">
             <i class="bi bi-house-fill"></i>
         </a>
-
+        <a href="/penarikan" class="w-nav" :class="{ 'active': path.startsWith('/penarikan') }">
+            <i class="bi bi-cash-stack"></i>
+        </a>
         <a href="/setoran" class="w-nav" :class="{ 'active': path.startsWith('/setoran') }">
             <i class="bi bi-recycle"></i>
             <div class="w-notif-dot"></div>

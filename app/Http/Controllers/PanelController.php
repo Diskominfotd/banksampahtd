@@ -34,4 +34,8 @@ class PanelController extends Controller
     {
         return view('panel.pages.catat-setoran');
     }
+    public function penarikanSaldo()
+    {
+        return view('panel.pages.penarikan');
+    }
 }

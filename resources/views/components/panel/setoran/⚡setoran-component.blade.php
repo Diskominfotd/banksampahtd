@@ -7,6 +7,8 @@ new class extends Component {
     use WithPagination;
     protected SetoranService $setoranService;
 
+    public ?string $keyword = '';
+
     public array $detailItems = [];
 
     public function boot(SetoranService $setoranService)
@@ -22,22 +24,37 @@ new class extends Component {
         $nasabahId = decrypt($nasabahId);
         $item = $this->setoranService->getSetoranByIdNasabah($nasabahId);
         $this->detailItems = $item->toArray();
-        // dd(json_encode( $this->detailItems, JSON_PRETTY_PRINT));
-        // dd($this->detailItems);
     }
 
     public function getData()
     {
         $builder = $this->setoranService->getSetoranByUnit();
-        // dd(json_encode($builder->latest()->paginate(10), JSON_PRETTY_PRINT));
+        if ($this->keyword) {
+            $builder->where(function ($q) {
+                $q->whereHas('penyetor.bukutabungans', function ($q) {
+                    $q->where('nomor_rekening', 'like', "%{$this->keyword}%");
+                })->orWhereHas('penyetor', function ($q) {
+                    $q->where('name', 'like', "%{$this->keyword}%");
+                });
+            });
+            $this->resetPage();
+        }
+        $setoran = $builder->latest()->paginate(10);
         return [
-            'setoran' => $builder->latest()->paginate(10),
+            'setoran' => $setoran,
         ];
     }
 };
 ?>
 
-<div>
+<div x-data x-init="if (!Alpine.store('sheet')) {
+    Alpine.store('sheet', {
+        active: null,
+        show(name) { this.active = name },
+        hide() { this.active = null },
+        is(name) { return this.active === name },
+    })
+}">
     {{-- We must ship. - Taylor Otwell --}}
     @php
         $data = $this->getData();
@@ -57,9 +74,10 @@ new class extends Component {
                     wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i></div>
             </div>
         </div>
-        <div class="m-body" style="padding-top:16px">
-            <div class="m-search mb-2"><i class="bi bi-search si"></i><input type="text"
-                    placeholder="Cari nasabah, jenis sampah..."></div>
+        <div class="m-body mb-5" style="padding-top:16px">
+            <div class="m-search mb-2"><i class="bi bi-search si">
+                </i><input wire:model.live="keyword" type="text" placeholder="Cari no rekening,nama nasabah...">
+            </div>
             <div class="m-chips mb-3">
                 <button class="chip active">Semua</button>
                 <button class="chip">Plastik</button>
@@ -69,80 +87,86 @@ new class extends Component {
                 <button class="chip">Elektronik</button>
             </div>
             <div class="d-flex flex-column gap-2">
-                <div class="list-item fade-up"><span class="list-num">1</span>
-                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
-                    <div class="list-main">
-                        <div class="list-name">Siti Rahayu — 12,5 kg Plastik</div>
-                        <div class="list-sub">Unit Sukajadi · 15 mnt lalu · Rp62.500</div>
-                    </div><span class="bs bs-green" style="cursor:pointer"
-                        onclick="openDetail('m-detail-setoran')">Lunas</span>
-                </div>
-                <div class="list-item fade-up"><span class="list-num">2</span>
-                    <div class="list-ico ic2"><i class="bi bi-newspaper" style="font-size:12px"></i></div>
-                    <div class="list-main">
-                        <div class="list-name">Hendra Wijaya — 8 kg Kertas</div>
-                        <div class="list-sub">Unit Tampan · 30 mnt lalu · Rp24.000</div>
-                    </div><span class="bs bs-green" style="cursor:pointer"
-                        onclick="openDetail('m-detail-setoran')">Lunas</span>
-                </div>
-                <div class="list-item fade-up"><span class="list-num">3</span>
-                    <div class="list-ico ic4"><i class="bi bi-cpu-fill" style="font-size:12px"></i></div>
-                    <div class="list-main">
-                        <div class="list-name">CV Maju Bersama — 45 kg Logam</div>
-                        <div class="list-sub">Unit Payung Sekaki · 1 jam lalu · Rp270.000</div>
-                    </div><span class="bs bs-warn" style="cursor:pointer"
-                        onclick="openDetail('m-detail-setoran')">Pending</span>
-                </div>
-                <div class="list-item fade-up"><span class="list-num">4</span>
-                    <div class="list-ico ic5"><i class="bi bi-box-fill" style="font-size:12px"></i></div>
-                    <div class="list-main">
-                        <div class="list-name">Dewi Kartika — 5,2 kg Kaca</div>
-                        <div class="list-sub">Unit Marpoyan · 2 jam lalu · Rp15.600</div>
-                    </div><span class="bs bs-new" style="cursor:pointer"
-                        onclick="openDetail('m-detail-setoran')">Ditimbang</span>
-                </div>
-                <div class="list-item fade-up"><span class="list-num">5</span>
-                    <div class="list-ico ic3"><i class="bi bi-lightning-fill" style="font-size:12px"></i></div>
-                    <div class="list-main">
-                        <div class="list-name">Agus Santoso — 3,1 kg Elektronik</div>
-                        <div class="list-sub">Unit Bukit Raya · 3 jam lalu · Rp62.000</div>
-                    </div><span class="bs bs-ok" style="cursor:pointer"
-                        onclick="openDetail('m-detail-setoran')">Lunas</span>
-                </div>
-                <div class="list-item fade-up"><span class="list-num">6</span>
-                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
-                    <div class="list-main">
-                        <div class="list-name">Yuni Pratiwi — 9 kg Plastik PET</div>
-                        <div class="list-sub">Unit Sail · 4 jam lalu · Rp54.000</div>
-                    </div><span class="bs bs-green" style="cursor:pointer"
-                        onclick="openDetail('m-detail-setoran')">Lunas</span>
-                </div>
+                @foreach ($data['setoran'] as $st)
+                    <div class="tx-card d-flex align-items-start gap-2 fade-up"
+                        onclick="openDetail('m-detail-setoran')">
+                        <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)"><i
+                                class="bi bi-recycle" style="font-size:14px"></i></div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="tx-name text-truncate">{{ ucfirst($st->penyetor->name) }} —
+                                {{ number_format($st->total_berat, 0, ',', '.') }} Kg</div>
+                            <div class="tx-date"><i class="bi bi-clock me-1"></i>
+                                {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }} · @foreach ($st->penyetor->bukutabungans as $buku)
+                                    {{ $buku->bank->nama }}
+                                @endforeach ·
+                                <b>Rp {{ number_format($st->total_saldo, 0, ',', '.') }}</b>
+                            </div>
+                            <div class="d-flex gap-1 mt-2">
+                                <button @click="$store.sheet.show('detail-setoran')"
+                                    wire:click="detailSetoran('{{ encrypt($st->penyetor->id) }}')" class="btn-tx"> <i
+                                        class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <div class="mt-2">
+                {{ $data['setoran']->links('vendor.pagination.bootstrap-5') }}
             </div>
         </div>
         @include('panel.template.mobile-bottombar')
     </div>
 
+    {{-- ======= MOBILE SHEET: DETAIL Setoran ======= --}}
+    <div x-show="$store.sheet.is('detail-setoran')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
+    <div x-show="$store.sheet.is('detail-setoran')" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full"
+        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;
+       background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
+       padding:20px;max-height:90dvh;overflow-y:auto"
+        x-cloak>
+        <div class="sheet-handle"></div>
+        <div
+            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+            margin-bottom:18px;color:var(--text-main)">
+            Detail Setoran
+        </div>
+        <div wire:loading.flex wire:target="detailSetoran" class="justify-content-center align-items-center"
+            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+            <div class="spinner-border text-success"></div>
+        </div>
+        <div class="d-flex flex-column gap-2">
+            @foreach ($detailItems['items'] ?? [] as $index => $di)
+                <div class="list-item fade-up"><span class="list-num">{{ $index + 1 }}</span>
+                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
+                    <div class="list-main">
+                        <div class="list-name">{{ $di['trash']['nama'] }} —
+                            {{ number_format($di['berat'], 0, ',', '.') }} Kg</div>
+                        <div class="list-sub">Rp. {{ number_format($di['harga'], 0, ',', '.') }} - {{ $di['type'] }}
+                        </div>
+                    </div><span class="bs bs-green" style="cursor:pointer">Rp.
+                        {{ number_format($di['sub_total'], 0, ',', '.') }}</span>
+                </div>
+            @endforeach
+        </div>
+        <div class="d-flex justify-content-end mt-4">
+            <b> Total - Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}</b>
+        </div>
+    </div>
+
     {{-- ======= DEKSTOP ======= --}}
     <div class="desktop-wrapper">
-        @include('panel.template.dekstop-navbar')
+        @include('components.⚡dekstop-navbar')
         <div class="w-main">
-            <header class="w-topbar">
-                <div id="w-topbar-info">
-                    <div class="w-title">Dashboard Pengelola</div>
-                    <div class="w-sub">Jumat, 29 Mei 2026 · Bank Sampah Nusantara, Pekanbaru</div>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="w-search"><i class="bi bi-search si"></i><input type="text"
-                            placeholder="Cari nasabah, setoran..."></div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="text-end">
-                            <div class="w-uname">Budi Santoso</div>
-                            <div class="w-urole">Pengelola Bank Sampah</div>
-                        </div>
-                        <div class="avatar avatar-sm">BS</div>
-                    </div>
-                </div>
-            </header>
+            @include('components.⚡dekstop-header')
             <!-- W-PAGE: Setoran -->
             <div id="w-setoran" class="w-content">
                 <div class="d-flex align-items-center justify-content-between mb-1">
@@ -163,8 +187,11 @@ new class extends Component {
                 </div>
                 <div class="w-panel">
                     <div class="d-flex gap-2 mb-3">
-                        <div class="w-search flex-grow-1"><i class="bi bi-search si"></i><input type="text"
-                                placeholder="Cari nasabah, jenis sampah..." style="width:100%"></div>
+                        <div class="w-search flex-grow-1">
+                            <i class="bi bi-search si"></i>
+                            <input type="text" wire:model.live="keyword"
+                                placeholder="Cari rekening atau nama nasabah..." style="width:100%">
+                        </div>
                         <div class="d-flex gap-1">
                             <button class="chip active">Semua</button>
                             <button class="chip">Plastik</button>
@@ -187,9 +214,10 @@ new class extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($data['setoran'] as $st)
+                            @foreach ($data['setoran'] as $index => $st)
                                 <tr>
-                                    <td style="font-size:10px;color:var(--muted)">1</td>
+                                    <td style="font-size:10px;color:var(--muted)">
+                                        {{ $data['setoran']->firstItem() + $index }}</td>
                                     <td>
                                         <div style="font-size:11px;font-weight:600">{{ ucfirst($st->penyetor->name) }}
                                         </div>
@@ -224,6 +252,7 @@ new class extends Component {
                             @endforeach
                         </tbody>
                     </table>
+                    {{ $data['setoran']->links('vendor.pagination.bootstrap-5') }}
                 </div>
             </div>
         </div>
@@ -237,7 +266,8 @@ new class extends Component {
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <div class="w-modal-body">
-                    <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+                    <div wire:loading.flex wire:target="detailSetoran"
+                        class="justify-content-center align-items-center"
                         style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                         <div class="spinner-border text-success"></div>
                     </div>
@@ -291,4 +321,12 @@ new class extends Component {
             </div>
         </div>
     </div>
+
+    @script
+        <script>
+            $wire.on('close-modal', () => {
+                Alpine.store('sheet').hide();
+            });
+        </script>
+    @endscript
 </div>

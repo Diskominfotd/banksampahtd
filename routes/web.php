@@ -13,5 +13,6 @@ Route::middleware(Authenticate::class)->group(function (): void {
     Route::get('/setoran/pencatatan', [PanelController::class, 'catatSetoran'])->name('setoran.catat');
     Route::get('/kategori', [PanelController::class, 'kategori'])->name('kategori');
     Route::get('/harga', [PanelController::class, 'harga'])->name('harga');
+    Route::get('/penarikan', [PanelController::class, 'penarikanSaldo'])->name('penarikan.saldo');
 });
 // });

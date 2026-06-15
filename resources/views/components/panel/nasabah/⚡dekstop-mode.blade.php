@@ -12,25 +12,6 @@ new class extends Component {
     <div class="desktop-wrapper">
         @include('components.⚡dekstop-navbar')
         <div class="w-main">
-            <header class="w-topbar">
-                <div id="w-topbar-info">
-                    <div class="w-title">Dashboard Pengelola</div>
-                    <div class="w-sub">Jumat, 29 Mei 2026 · Bank Sampah Nusantara, Pekanbaru</div>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="w-search"><i class="bi bi-search si"></i>
-                        <input type="text" placeholder="Cari nasabah, setoran...">
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="text-end">
-                            <div class="w-uname">Budi Santoso</div>
-                            <div class="w-urole">Pengelola Bank Sampah</div>
-                        </div>
-                        <div class="avatar avatar-sm">BS</div>
-                    </div>
-                </div>
-            </header>
-
             <div id="w-nasabah" class="w-content">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
