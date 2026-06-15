@@ -38,4 +38,8 @@ class PanelController extends Controller
     {
         return view('panel.pages.penarikan');
     }
+    public function buatPenarikan()
+    {
+        return view('panel.pages.buat-penarikan');
+    }
 }

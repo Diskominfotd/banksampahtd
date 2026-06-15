@@ -100,7 +100,8 @@ new class extends Component {
                     'id' => $price->id,
                     'label' => $price->trash->nama,
                     'value' => $price->harga,
-                    'is_induk' => !Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->exists(),
+                    'is_induk' => !Price::where('trash_id', $price->trash_id)
+                    ->where('bank_id', $bank->id)->exists(),
                 ],
             )
             ->toArray();

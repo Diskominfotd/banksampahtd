@@ -14,5 +14,6 @@ Route::middleware(Authenticate::class)->group(function (): void {
     Route::get('/kategori', [PanelController::class, 'kategori'])->name('kategori');
     Route::get('/harga', [PanelController::class, 'harga'])->name('harga');
     Route::get('/penarikan', [PanelController::class, 'penarikanSaldo'])->name('penarikan.saldo');
+    Route::get('/penarikan/buat-penarikan', [PanelController::class, 'buatPenarikan'])->name('buat.penarikan.saldo');
 });
 // });

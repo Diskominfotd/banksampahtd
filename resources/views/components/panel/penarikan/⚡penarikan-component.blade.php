@@ -16,13 +16,14 @@ new class extends Component {
             <div id="w-harga" class="w-content">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
-                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Kategori</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi</div>
                         <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
                         </div>
                     </div>
-                    <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
-                        data-bs-target="#wm-tambah-kategori"><i class="bi bi-plus-circle me-1"></i>Buat
-                        Penarikan</button>
+                    <a class="w-btn w-btn-primary" href="{{ route('buat.penarikan.saldo') }}" style="font-size:11px"><i
+                            class="bi bi-plus-circle me-1"></i>Buat
+                        Penarikan
+                    </a>
                 </div>
                 <div class="w-panel">
                     <div class="w-search mb-3" style="width:100%">
@@ -35,9 +36,12 @@ new class extends Component {
                             <tr>
                                 <th>No.</th>
                                 <th>Nama</th>
-                                <th>Aksi</th>
+                                <th>No. Rekening</th>
+                                <th>Total Penarikan</th>
+                                <th>Sisa Saldo</th>
+                                <th>Unit</th>
+                                <th>Tanggal</th>
                             </tr>
-
                         </thead>
                         <tbody>
                             {{-- @foreach ($data['categories'] as $index => $category)

@@ -12,7 +12,7 @@ new class extends Component {
     <div class="desktop-wrapper">
         @include('components.⚡dekstop-navbar')
         <div class="w-main">
-              @include('components.⚡dekstop-header')
+            @include('components.⚡dekstop-header')
 
             <div id="w-setoran" class="w-content">
                 <div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start">
@@ -169,8 +169,8 @@ new class extends Component {
                 <div class="w-modal-body" style="overflow-y: auto; max-height: 60vh;">
                     <div class="d-flex flex-column gap-2">
                         @foreach ($this->nasabah as $n)
-                            <div class="w-row" wire:click="pilihNasabah({{ $n->id }})"
-                                style="cursor:pointer" wire:key="nasabah-{{ $n->id }}">
+                            <div class="w-row" wire:click="pilihNasabah({{ $n->id }})" style="cursor:pointer"
+                                wire:key="nasabah-{{ $n->id }}">
                                 <div class="avatar" style="width:28px;height:28px;font-size:10px">
                                     {{ strtoupper($n->initials()) }}
                                 </div>
@@ -178,7 +178,7 @@ new class extends Component {
                                     <div class="w-row-title">{{ ucfirst($n->name) }}</div>
                                     <div class="w-row-meta">
                                         @foreach ($n->bukutabungans as $bk)
-                                           {{  $bk->nomor_rekening }}
+                                            {{ $bk->nomor_rekening }}
                                         @endforeach
                                     </div>
                                 </div>
