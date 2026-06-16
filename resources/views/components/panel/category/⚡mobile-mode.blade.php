@@ -111,6 +111,10 @@ new class extends Component {
             Edit Kategori
         </div>
         <form wire:submit="editCategory">
+            <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                <div class="spinner-border text-success"></div>
+            </div>
             <div class="f-group">
                 <label>Nama</label>
                 <input class="f-input" type="text" wire:model="namaKategori" placeholder="Plastik">

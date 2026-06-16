@@ -65,7 +65,7 @@ new class extends Component {
 
                         </tbody>
                     </table>
-                     {{ $data['categories']->links('vendor.pagination.bootstrap-5') }}
+                    {{ $data['categories']->links('vendor.pagination.bootstrap-5') }}
                 </div>
             </div>
 
@@ -108,6 +108,10 @@ new class extends Component {
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <form wire:submit="editCategory">
+                    <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
+                    </div>
                     <div class="w-modal-body">
                         <label class="w-form-label">Nama Kategori</label>
                         <input class="w-form-input" type="text" wire:model="namaKategori"

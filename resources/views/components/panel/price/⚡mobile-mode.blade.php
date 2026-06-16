@@ -2,15 +2,14 @@
 
 use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     //
 };
 ?>
 
 <div>
     {{-- Do what you can, with what you have, where you are. - Theodore Roosevelt --}}
-      <div id="m-harga">
+    <div id="m-harga">
         <div class="m-page-header">
             <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
@@ -21,7 +20,7 @@ new class extends Component
                     @click="$store.sheet.show('tambah-jenis')">
                     <i class="bi bi-plus-lg"></i>
                 </div>
-                <div class="m-gear"
+                <div wire:click="priceDetail" class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
                     @click="$store.sheet.show('update-harga')"><i class="bi bi-pencil-fill" style="font-size:12px"></i>
                 </div>
@@ -84,6 +83,15 @@ new class extends Component
         <div
             style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
             Update Harga Beli
+
+        </div>
+        <div
+            style="display:flex;align-items:center;gap:8px;background:var(--bg-main,#f5f5f5);border:0.5px solid #e0e0e0;border-radius:12px;padding:0 12px;height:40px;margin-bottom:16px;">
+            <i class="bi bi-search" style="font-size:14px;color:#aaa;flex-shrink:0;"></i>
+            <input wire:model.live.debounce.300ms="searchPrice" type="text" placeholder="Cari jenis sampah..."
+                style="flex:1;border:none;background:transparent;outline:none;font-size:13px;color:var(--text-main);" />
+            <i class="bi bi-x" x-show="$wire.searchPrice" @click="$wire.set('searchPrice', '')"
+                style="font-size:16px;color:#aaa;cursor:pointer;flex-shrink:0;" aria-hidden="true"></i>
         </div>
         @foreach ($prices as $index => $price)
             <div wire:loading.flex wire:target="priceDetail" class="justify-content-center align-items-center"
@@ -147,6 +155,16 @@ new class extends Component
                 @endif
             </div>
         @endforeach
+        @if ($priceLimit)
+            <button type="button" wire:click="loadMorePrices"
+                style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                <span wire:loading.remove wire:target="loadMorePrices">Tampilkan lebih banyak</span>
+                <span wire:loading wire:target="loadMorePrices">
+                    <span class="spinner-border spinner-border-sm"
+                        style="width:12px;height:12px;border-width:1.5px;"></span>
+                </span>
+            </button>
+        @endif
         <div class="d-flex gap-2 mt-2">
 
         </div>

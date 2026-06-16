@@ -13,6 +13,7 @@ new class extends Component {
 
     // new jenis attribut
     public ?int $kategori;
+    public ?int $priceLimit = 10;
     public string $nama = '';
     public string $syarat = '';
     public ?int $harga = null;
@@ -25,6 +26,7 @@ new class extends Component {
 
     //search
     public ?string $keyword = '';
+    public ?string $searchPrice = '';
 
     //Price
     public array $prices = [];
@@ -95,18 +97,31 @@ new class extends Component {
 
         $this->prices = $this->trashService
             ->priceList()
+            ->filter(fn($price) => str_contains(strtolower($price->trash->nama ?? ''), strtolower($this->searchPrice)))
+            ->values()
+            ->take($this->priceLimit) // ← ambil sesuai limit
             ->map(
                 fn($price) => [
                     'id' => $price->id,
                     'label' => $price->trash->nama,
                     'value' => $price->harga,
-                    'is_induk' => !Price::where('trash_id', $price->trash_id)
-                    ->where('bank_id', $bank->id)->exists(),
+                    'is_induk' => !Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->exists(),
                 ],
             )
             ->toArray();
     }
-    // Livewire
+
+    public function loadMorePrices()
+    {
+        $this->priceLimit += 10;
+        $this->priceDetail();
+    }
+
+    public function updatedSearchPrice()
+    {
+        $this->priceLimit = 10; // reset limit saat search berubah
+        $this->priceDetail();
+    }
     public function updatePrice($index)
     {
         $price = $this->prices[$index];

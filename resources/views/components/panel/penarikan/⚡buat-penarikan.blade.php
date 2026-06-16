@@ -2,34 +2,77 @@
 
 use Livewire\Component;
 use App\Services\UserServices;
+use App\Services\TransaksiService;
 use Livewire\WithPagination;
-
+use Livewire\Attributes\Computed;
 new class extends Component {
     use WithPagination;
 
     protected UserServices $userService;
+    protected TransaksiService $transaksiService;
     public array $nasabah = [];
     public array $selectedNasabah = [];
-    public function boot(UserServices $userService)
+    public function boot(UserServices $userService, TransaksiService $transaksiService)
     {
         $this->userService = $userService;
+        $this->transaksiService = $transaksiService;
     }
 
     public function getNasabah()
     {
-        $data = $this->userService->getUserByUnitAndBook()
-        ->latest()->paginate(10);
+        $data = $this->userService->getUserByUnitAndBook()->latest()->paginate(10);
         $this->nasabah = $data->items();
     }
     public function pilihNasabah($id)
     {
-        $item = collect($this->nasabah)->firstWhere('id', $id);
-           dd(json_encode($item));
+        $sudahAda = collect($this->selectedNasabah)->contains('rekening', function ($v) use ($id) {
+            return false;
+        });
+        if (collect($this->selectedNasabah)->contains('user_id', $id)) {
+            $this->dispatch('close-modal');
+            return;
+        }
+        $item = $this->userService->getUserByUnitAndBook()->where('users.id', $id)->first();
+
         $this->selectedNasabah[] = [
+            'user_id' => $id,
             'name' => $item->name,
+            'rekening' => $item->bukutabungans[0]->nomor_rekening,
+            'saldo' => $item->bukutabungans[0]->saldo,
+            'jumlah' => 0,
         ];
-     
+
         $this->dispatch('close-modal');
+    }
+
+    public function simpanPenarikan()
+    {
+        $this->validate(
+            [
+                'selectedNasabah.*.jumlah' => 'required|numeric|min:10000',
+            ],
+            [
+                'selectedNasabah.*.jumlah.min' => 'Jumlah penarikan minimal Rp 10.000.',
+            ],
+        );
+
+        foreach ($this->selectedNasabah as $i => $item) {
+            if ($item['jumlah'] > $item['saldo']) {
+                $this->addError("selectedNasabah.{$i}.jumlah", 'Jumlah penarikan melebihi saldo.');
+                return;
+            }
+        }
+        foreach ($this->selectedNasabah as $item) {
+            $this->transaksiService->createTransaksi($item);
+            $this->transaksiService->reduceSaldo($item['rekening'], $item['jumlah']);
+        }
+
+        $this->selectedNasabah = [];
+        $this->dispatch('notify', message: 'Penarikan berhasil disimpan.');
+    }
+    public function removeCart($i)
+    {
+        array_splice($this->selectedNasabah, $i, 1);
     }
 };
 ?>
@@ -53,8 +96,8 @@ new class extends Component {
                     <div class="w-panel">
                         <div class="d-flex align-items-center justify-content-between mb-3">
                             <div>
-                                <div style="font-size:12px;font-weight:700">Item Setoran</div>
-                                <div style="font-size:10px;color:var(--muted)">Tambahkan jenis sampah yang disetor
+                                <div style="font-size:12px;font-weight:700">Item Penarikan</div>
+                                <div style="font-size:10px;color:var(--muted)">Tambahkan Nasabah untuk penarikan saldo
                                 </div>
                             </div>
                             <button wire:click="getNasabah" data-bs-toggle="modal" data-bs-target="#wm-pilih-nasabah"
@@ -78,12 +121,35 @@ new class extends Component {
                                 @forelse ($selectedNasabah as $i => $c)
                                     <tr wire:key="cart-{{ $i }}">
                                         <td>{{ $i + 1 }}</td>
-                                        <td>{{ $c['name'] }}</td>
+                                        <td>{{ ucfirst($c['name']) }}</td>
+                                        <td>{{ $c['rekening'] }}</td>
+                                        <td>Rp {{ number_format($c['saldo'], 0, ',', '.') }}</td>
                                         <td>
-                                            {{-- <button wire:click="removeCart({{ $i }})"
+                                            <div x-data="{
+                                                value: $wire.entangle('selectedNasabah.{{ $i }}.jumlah'),
+                                                formatted: '',
+                                                format(v) {
+                                                    this.formatted = v ? 'Rp ' + Number(v).toLocaleString('id-ID') : '';
+                                                },
+                                                parse(v) {
+                                                    this.value = v.replace(/[^0-9]/g, '');
+                                                }
+                                            }" x-init="format(value)">
+                                                <input type="text"
+                                                    class="form-control form-control-sm @error("selectedNasabah.{$i}.jumlah") is-invalid @enderror"
+                                                    x-model="formatted"
+                                                    @input="parse($event.target.value); format(value)"
+                                                    @blur="format(value)" placeholder="Rp 0" />
+                                                @error("selectedNasabah.{$i}.jumlah")
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button wire:click="removeCart({{ $i }})"
                                                 class="btn btn-sm btn-link text-danger p-0">
                                                 <i class="bi bi-trash3"></i>
-                                            </button> --}}
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -103,6 +169,21 @@ new class extends Component {
                                 @endif --}}
                             </tbody>
                         </table>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-2">
+                        <button class="w-btn w-btn-ghost">Batal</button>
+                        <button wire:click="simpanPenarikan" wire:loading.attr="disabled" class="w-btn w-btn-primary"
+                            style="width:auto;padding:7px 16px">
+
+                            <span wire:loading.remove wire:target="simpanPenarikan">
+                                <i class="bi bi-check2-circle me-1"></i> Simpan Setoran
+                            </span>
+
+                            <span wire:loading wire:target="simpanPenarikan">
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                                Menyimpan...
+                            </span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -136,7 +217,8 @@ new class extends Component {
                                     <div class="w-row-title">{{ ucfirst($n->name) }}</div>
                                     <div class="w-row-meta">
                                         @foreach ($n->bukutabungans as $bk)
-                                            {{ $bk->nomor_rekening }}
+                                            {{ $bk->nomor_rekening }} - Rp
+                                            {{ number_format($bk['saldo'], 0, ',', '.') }}
                                         @endforeach
                                     </div>
                                 </div>
@@ -150,4 +232,13 @@ new class extends Component {
             </div>
         </div>
     </div>
+
+    @script
+        <script>
+            $wire.on('close-modal', () => {
+                $('#wm-pilih-nasabah').modal('hide');
+                Alpine.store('sheet').hide();
+            });
+        </script>
+    @endscript
 </div>

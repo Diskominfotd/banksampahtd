@@ -234,7 +234,7 @@ new class extends Component {
                 </div>
                 <div class="m-search mb-3 ms-2 me-2">
                     <i class="bi bi-search si"></i>
-                    <input type="text" wire:model.live="keyword" placeholder="Cari nama jenis sampah...">
+                    <input type="text" wire:model.live="searchPrice" placeholder="Cari nama jenis sampah...">
                 </div>
                 <div class="w-modal-body" style="overflow-y: auto; max-height: 60vh;">
                     <div wire:loading.flex wire:target="priceDetail" class="justify-content-center align-items-center"
@@ -304,6 +304,14 @@ new class extends Component {
                             </div>
                         @endforeach
                     </div>
+                    <button type="button" wire:click="loadMorePrices"
+                        style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                        <span wire:loading.remove wire:target="loadMorePrices">Tampilkan lebih banyak</span>
+                        <span wire:loading wire:target="loadMorePrices">
+                            <span class="spinner-border spinner-border-sm"
+                                style="width:12px;height:12px;border-width:1.5px;"></span>
+                        </span>
+                    </button>
                 </div>
                 <div class="w-modal-footer">
 
