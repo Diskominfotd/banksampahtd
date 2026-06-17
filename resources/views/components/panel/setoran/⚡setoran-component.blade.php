@@ -78,14 +78,6 @@ new class extends Component {
             <div class="m-search mb-2"><i class="bi bi-search si">
                 </i><input wire:model.live="keyword" type="text" placeholder="Cari no rekening,nama nasabah...">
             </div>
-            <div class="m-chips mb-3">
-                <button class="chip active">Semua</button>
-                <button class="chip">Plastik</button>
-                <button class="chip">Kertas</button>
-                <button class="chip">Logam</button>
-                <button class="chip">Kaca</button>
-                <button class="chip">Elektronik</button>
-            </div>
             <div class="d-flex flex-column gap-2">
                 @foreach ($data['setoran'] as $st)
                     <div class="tx-card d-flex align-items-start gap-2 fade-up"

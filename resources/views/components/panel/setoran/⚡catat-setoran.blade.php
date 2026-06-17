@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 
 new class extends Component {
     use WithPagination;
+
     protected UserServices $userService;
     protected SetoranService $setoranService;
     public array $nasabah = [];
@@ -16,10 +17,23 @@ new class extends Component {
     public $items = [];
     public array $cart = [];
 
+    public ?int $pageNasabah = 10;
+    public ?int $pageSampah = 10;
+
     public function boot(UserServices $userService, SetoranService $setoranService)
     {
         $this->userService = $userService;
         $this->setoranService = $setoranService;
+    }
+
+    public function loadMoreNasabah()
+    {
+        $this->pageNasabah += 10;
+    }
+    public function loadMoreItemSampah()
+    {
+        $this->pageSampah += 10;
+        $this->getJenisSampah();
     }
     public function pilihNasabah($id)
     {
@@ -45,7 +59,7 @@ new class extends Component {
         // Ambil price unit, kalau tidak ada fallback ke harga induk
         return Price::with(['bank', 'trash'])
             ->where('bank_id', $induk->id) // base dari induk
-            ->paginate(10)
+            ->paginate($this->pageSampah)
             ->map(function ($price) use ($bank) {
                 // Cek apakah unit punya harga sendiri untuk trash ini
                 $unitPrice = Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->first();
@@ -137,8 +151,17 @@ new class extends Component {
 };
 ?>
 
-<div>
+<div x-data x-init="if (!Alpine.store('sheet')) {
+    Alpine.store('sheet', {
+        active: null,
+        show(name) { this.active = name },
+        hide() { this.active = null },
+        is(name) { return this.active === name },
+    })
+}">
 
+    {{-- ======= MOBILE ======= --}}
+    @include('panel.setoran.⚡mobile-mode')
     {{-- ======= DESKTOP ======= --}}
     @include('panel.setoran.⚡dekstop-mode')
     @script
@@ -146,6 +169,7 @@ new class extends Component {
             $wire.on('close-modal', () => {
                 $('#wm-pilih-nasabah').modal('hide');
                 $('#wm-pilih-jenis').modal('hide');
+                Alpine.store('sheet').hide();
             });
         </script>
     @endscript

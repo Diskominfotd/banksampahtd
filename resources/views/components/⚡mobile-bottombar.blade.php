@@ -7,7 +7,7 @@ new class extends Component {
 };
 ?>
 
-<div>
+<div class="mt-5">
     <nav class="m-bottom-nav" x-data="{ path: window.location.pathname }">
         <a href="/" class="m-nav-btn" :class="{ 'active': path === '/' }">
             <i class="bi bi-house-fill"></i><span>Beranda</span>

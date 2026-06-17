@@ -82,21 +82,12 @@ class DatabaseSeeder extends Seeder
 
             $user->assignRole($role2);
         }
-
-        $cat1 = Category::create([
-            'name' => 'Plastik',
-        ]);
-
-        $cat2 = Category::create([
-            'name' => 'Besi',
-        ]);
-
-        $cat3 = Category::create([
-            'name' => 'Botol',
-        ]);
-
-        $categories = [$cat1->id, $cat2->id, $cat3->id];
-
+        for ($i = 1; $i <= 20; $i++) {
+            $cat = Category::create([
+                'name' => 'Kategori' . $i,
+            ]);
+            $categories[] = $cat->id;
+        }
         for ($i = 1; $i <= 20; $i++) {
             $trash = Trash::create([
                 'nama' => "Sampah {$i}",

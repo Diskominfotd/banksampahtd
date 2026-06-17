@@ -77,7 +77,7 @@ class UserServicesImpl implements UserServices
     }
     public function getBukuTabunganByUserId(int $id)
     {
-        return BukuTabungan::where('user_id', $id)->get();
+        return BukuTabungan::with('bank')->where('user_id', $id)->get();
     }
 
     public function doLogout()

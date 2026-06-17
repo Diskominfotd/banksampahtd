@@ -12,6 +12,7 @@ new class extends Component {
     <div class="desktop-wrapper">
         @include('components.⚡dekstop-navbar')
         <div class="w-main">
+            @include('components.⚡dekstop-header')
             <div id="w-nasabah" class="w-content">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
@@ -429,6 +430,7 @@ new class extends Component {
                         </div>
                     </form>
                     @if (!empty($bukuTabungan))
+                        {{-- {{ dd($bukuTabungan) }} --}}
                         <div class="mt-3">
                             <label class="w-form-label mb-2">Daftar Buku Tabungan</label>
                             <div class="d-flex flex-column gap-2">
@@ -436,7 +438,7 @@ new class extends Component {
                                     <div class="d-flex justify-content-between align-items-center px-3 py-2"
                                         style="border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb;">
                                         <span style="font-size: 13px; font-weight: 500; color: #111827;">
-                                            {{ ucfirst($bk['nama']) }}
+                                         {{$bk['bank']['nama']}}
                                         </span>
                                         <span style="font-size: 12px; color: #6b7280; font-family: monospace;">
                                             {{ $bk['nomor_rekening'] }}

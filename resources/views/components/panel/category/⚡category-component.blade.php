@@ -7,6 +7,8 @@ use Livewire\WithPagination;
 new class extends Component {
     use WithPagination;
     protected UserServices $userService;
+
+    public int $perPage = 10;
     public ?string $nama = '';
     public ?string $namaKategori = '';
     public ?string $categoryId = '';
@@ -20,6 +22,11 @@ new class extends Component {
     public function boot(UserServices $userService)
     {
         $this->userService = $userService;
+    }
+
+    public function loadMore()
+    {
+        $this->perPage += 10;
     }
 
     public function createCategory()
@@ -93,7 +100,7 @@ new class extends Component {
             $categoriyBuilder->where('name', 'LIKE', '%' . $this->keyword . '%');
             $this->resetPage();
         }
-        $categories = $categoriyBuilder->latest()->paginate(10);
+        $categories = $categoriyBuilder->latest()->paginate($this->perPage);
         return [
             'categories' => $categories,
         ];

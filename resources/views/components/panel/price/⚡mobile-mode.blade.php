@@ -58,13 +58,18 @@ new class extends Component {
                     </div>
                 @endforeach
             </div>
+            @if ($data['trashs']->count() >= 10)
+                <button type="button" wire:click="loadPerpage"
+                    style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                    <span wire:loading.remove wire:target="loadPerpage">Tampilkan lebih banyak</span>
+                    <span wire:loading wire:target="loadPerpage">
+                        <span class="spinner-border spinner-border-sm"
+                            style="width:12px;height:12px;border-width:1.5px;"></span>
+                    </span>
+                </button>
+            @endif
+
         </div>
-        <nav class="m-bottom-nav">
-            <a class="m-nav-btn" data-page="m-beranda"><i class="bi bi-house-fill"></i><span>Beranda</span></a>
-            <a class="m-nav-btn" data-page="m-setoran"><i class="bi bi-recycle"></i><span>Setoran</span></a>
-            <a class="m-nav-btn" data-page="m-nasabah"><i class="bi bi-people-fill"></i><span>Nasabah</span></a>
-            <a class="m-nav-btn" data-page="m-profil"><i class="bi bi-person-fill"></i><span>Profil</span></a>
-        </nav>
     </div>
     <div x-show="$store.sheet.is('update-harga')" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"

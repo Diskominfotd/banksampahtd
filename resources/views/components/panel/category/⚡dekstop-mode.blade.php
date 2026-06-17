@@ -68,7 +68,6 @@ new class extends Component {
                     {{ $data['categories']->links('vendor.pagination.bootstrap-5') }}
                 </div>
             </div>
-
         </div>
     </div>
     <div wire:ignore.self class="modal fade" id="wm-tambah-kategori" tabindex="-1">

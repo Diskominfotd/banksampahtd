@@ -14,6 +14,7 @@ new class extends Component {
     // new jenis attribut
     public ?int $kategori;
     public ?int $priceLimit = 10;
+    public ?int $perPage = 10;
     public string $nama = '';
     public string $syarat = '';
     public ?int $harga = null;
@@ -40,6 +41,11 @@ new class extends Component {
     public function boot(TrashServices $trashService)
     {
         $this->trashService = $trashService;
+    }
+
+    public function loadPerpage()
+    {
+        $this->perPage += 10;
     }
 
     public function newJenis()
@@ -170,7 +176,7 @@ new class extends Component {
             });
             $this->resetPage();
         }
-        $trashs = $trashsBuilder->latest()->paginate(10);
+        $trashs = $trashsBuilder->latest()->paginate($this->perPage);
         return [
             'categories' => $categories,
             'trashs' => $trashs,
@@ -180,13 +186,13 @@ new class extends Component {
 ?>
 
 <div x-data x-init="if (!Alpine.store('sheet')) {
-    Alpine.store('sheet', {
-        active: null,
-        show(name) { this.active = name },
-        hide() { this.active = null },
-        is(name) { return this.active === name },
-    })
-}">
+        Alpine.store('sheet', {
+            active: null,
+            show(name) { this.active = name },
+            hide() { this.active = null },
+            is(name) { return this.active === name },
+        })
+    }">
     {{-- The only way to do great work is to love what you do. - Steve Jobs --}}
     @php
         $data = $this->getData();
@@ -194,7 +200,6 @@ new class extends Component {
 
     {{-- ======= Mobile ======= --}}
     @include('panel.price.⚡mobile-mode')
-
     {{-- ======= Dekstop ======= --}}
     @include('panel.price.⚡dekstop-mode')
     @script

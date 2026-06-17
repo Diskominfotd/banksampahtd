@@ -12,6 +12,8 @@ new class extends Component {
     use TraitComponent;
     protected UserServices $userService;
 
+    public ?int $perPage = 10;
+
     //Properti untuk search
     public ?string $keyword = '';
 
@@ -42,6 +44,10 @@ new class extends Component {
     public array $bukuTabungan = [];
     public int $unitBukuTabungan;
 
+    public function loadPerpage()
+    {
+        $this->perPage += 10;
+    }
     public function updatedKeyword()
     {
         $this->resetPage();
@@ -180,7 +186,7 @@ new class extends Component {
                 $q->where('nama', 'like', "%{$this->keyword}%");
             });
         }
-        $nasabah = $nasabahQuery->latest()->paginate(10);
+        $nasabah = $nasabahQuery->latest()->paginate($this->perPage);
         return [
             'organisasi' => Organisasi::query()->get(),
             'banksampah' => BankSampah::query()->get(),
@@ -231,7 +237,7 @@ new class extends Component {
     @php $data = $this->getData(); @endphp
 
     {{-- ======= MOBILE ======= --}}
-    @include('components.panel.nasabah.⚡mobile-mode')
+    @include('panel.nasabah.⚡mobile-mode')
 
     {{-- ======= DESKTOP ======= --}}
     @include('panel.nasabah.⚡dekstop-mode')

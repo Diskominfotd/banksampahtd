@@ -37,12 +37,12 @@ new class extends Component {
         <div class="m-body">
             <div class="sec-lbl">Menu Utama</div>
             <div class="row g-2">
-                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-setoran')">
+                <div class="col-3 fade-up"><a class="svc-item" href="{{ route('setoran') }}">
                         <div class="svc-icon ic1"><i class="bi bi-recycle"></i>
                             <div class="notif-dot">5</div>
                         </div><span class="svc-lbl">Setoran</span>
                     </a></div>
-                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-nasabah')">
+                <div class="col-3 fade-up"><a class="svc-item" href="{{ route('nasabah') }}">
                         <div class="svc-icon ic2"><i class="bi bi-people-fill"></i></div><span
                             class="svc-lbl">Nasabah</span>
                     </a></div>
@@ -60,7 +60,7 @@ new class extends Component {
                         <div class="svc-icon ic5"><i class="bi bi-plus-circle-fill"></i></div><span
                             class="svc-lbl">Catat Baru</span>
                     </a></div>
-                <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-harga')">
+                <div class="col-3 fade-up"><a class="svc-item" href="{{ route('harga') }}" >
                         <div class="svc-icon ic3"><i class="bi bi-tags-fill"></i></div><span
                             class="svc-lbl">Harga</span>
                     </a></div>

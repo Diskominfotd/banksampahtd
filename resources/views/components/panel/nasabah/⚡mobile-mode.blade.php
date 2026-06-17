@@ -60,6 +60,16 @@ new class extends Component {
                     </div>
                 @endforeach
             </div>
+            @if ($data['nasabah']->count() >= 10)
+                <button type="button" wire:click="loadPerpage"
+                    style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                    <span wire:loading.remove wire:target="loadPerpage">Tampilkan lebih banyak</span>
+                    <span wire:loading wire:target="loadPerpage">
+                        <span class="spinner-border spinner-border-sm"
+                            style="width:12px;height:12px;border-width:1.5px;"></span>
+                    </span>
+                </button>
+            @endif
         </div>
         @include('components.⚡mobile-bottombar')
     </div>
@@ -354,7 +364,7 @@ new class extends Component {
                                 </div>
                                 <div>
                                     <div style="font-size:13px;font-weight:600;color:var(--text-main)">
-                                        {{ $bk['nama'] }}
+                                        {{ $bk['bank']['nama'] }}
                                     </div>
                                     <div style="font-size:11px;color:var(--text-muted,#6b7280);font-family:monospace">
                                         {{ $bk['nomor_rekening'] }}
