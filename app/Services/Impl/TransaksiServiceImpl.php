@@ -33,9 +33,14 @@ class TransaksiServiceImpl implements TransaksiService
         });
     }
 
-    public function getTransaksis() {
+    public function getTransaksis()
+    {
         $user = $this->checkUser();
 
-        return Transaksi::with('owner.bukutabungans');
+        return Transaksi::with(['owner.bukutabungans'=> function ($q) use ($user) {
+                $q->where('bank_id', $user->unit->id)
+                 ->with('bank');
+            },
+            ]);
     }
 }

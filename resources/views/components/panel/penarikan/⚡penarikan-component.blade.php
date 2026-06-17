@@ -1,14 +1,40 @@
 <?php
 
 use Livewire\Component;
+use App\Services\TransaksiService;
+use Livewire\Attributes\On;
+use Livewire\WithPagination;
+use App\Livewire\TraitComponent;
 
 new class extends Component {
-    //
+    use WithPagination;
+    protected TransaksiService $transaksiService;
+    public function boot(TransaksiService $transaksiService)
+    {
+        $this->transaksiService = $transaksiService;
+    }
+
+    public function getData()
+    {
+        $builder = $this->transaksiService->getTransaksis();
+        $nasabah = $builder->latest()->paginate(10);
+        return [
+            'nasabah' => $nasabah,
+        ];
+    }
 };
 ?>
 
 <div>
     {{-- Very little is needed to make a happy life. - Marcus Aurelius --}}
+    <style>
+        a {
+            text-decoration: none;
+        }
+    </style>
+    @php
+        $data = $this->getData();
+    @endphp
     <div class="desktop-wrapper">
         @include('components.⚡dekstop-navbar')
         <div class="w-main">
@@ -44,30 +70,25 @@ new class extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            {{-- @foreach ($data['categories'] as $index => $category)
+                            @foreach ($data['nasabah'] as $index => $nasabah)
                                 <tr>
                                     <td style="font-size:10px;color:var(--muted)">{{ $index + 1 }}</td>
-                                    <td>
-                                        <span class="bs bs-ok">
-                                            {{ strtoupper($category->name) ?? '-' }}
+                                    <td style="font-weight:600">{{ ucfirst($nasabah->owner->name) }}</td>
+                                    <td><span class="bs bs-ok">
+                                            {{ $nasabah->owner->bukutabungans->first()->nomor_rekening }}
                                         </span>
                                     </td>
-                                    <td>
-                                        <button wire:click="detail('{{ encrypt($category->id) }}')"
-                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                            data-bs-toggle="modal" data-bs-target="#wm-edit-kategori">
-                                            Edit
-                                        </button>
-                                        <button wire:click="alertDelete('{{ encrypt($category->id) }}')"
-                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
-                                            Hapus
-                                        </button>
-                                    </td>
+                                    <td>Rp {{ number_format($nasabah->total_penarikan ?? 0, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($nasabah->sisa_saldo ?? 0, 0, ',', '.') }}</td>
+                                    <td>{{ $nasabah->owner->bukutabungans->first()->bank->nama }}</td>
+                                    <td>{{ $nasabah->tanggal_transaksi }}</td>
+
+
                                 </tr>
-                            @endforeach --}}
+                            @endforeach
                         </tbody>
                     </table>
-                    {{-- {{ $data['categories']->links('vendor.pagination.bootstrap-5') }} --}}
+                    {{ $data['nasabah']->links('vendor.pagination.bootstrap-5') }}
                 </div>
             </div>
         </div>
