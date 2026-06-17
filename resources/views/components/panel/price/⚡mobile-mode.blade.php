@@ -77,99 +77,101 @@ new class extends Component {
         x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
     </div>
-    {{-- ======= BOTTOM SHEET MOBILE — konten + form ======= --}}
     <div x-show="$store.sheet.is('update-harga')" x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
-        x-transition:leave-end="translate-y-full"
-        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--bg-card,#fff);border-radius:20px 20px 0 0;padding:20px;max-height:90dvh;overflow-y:auto"
-        x-cloak>
-        <div class="sheet-handle"></div>
-        <div
-            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
-            Update Harga Beli
+        x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
 
-        </div>
-        <div
-            style="display:flex;align-items:center;gap:8px;background:var(--bg-main,#f5f5f5);border:0.5px solid #e0e0e0;border-radius:12px;padding:0 12px;height:40px;margin-bottom:16px;">
-            <i class="bi bi-search" style="font-size:14px;color:#aaa;flex-shrink:0;"></i>
-            <input wire:model.live.debounce.300ms="searchPrice" type="text" placeholder="Cari jenis sampah..."
-                style="flex:1;border:none;background:transparent;outline:none;font-size:13px;color:var(--text-main);" />
-            <i class="bi bi-x" x-show="$wire.searchPrice" @click="$wire.set('searchPrice', '')"
-                style="font-size:16px;color:#aaa;cursor:pointer;flex-shrink:0;" aria-hidden="true"></i>
-        </div>
-        @foreach ($prices as $index => $price)
-            <div wire:loading.flex wire:target="priceDetail" class="justify-content-center align-items-center"
-                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
-                <div class="spinner-border text-success"></div>
+        {{-- Header sticky --}}
+        <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                Pilih Jenis Sampah
             </div>
-            <div class="col-12">
-                <label class="f-form-label">{{ $price['label'] }} (Rp/kg)</label>
-                <div class="d-flex gap-2 mb-1 align-items-center" x-data="{
-                    formatted: '',
-                    init() {
-                        this.syncFromWire();
-                        $watch(() => $wire.prices[{{ $index }}]?.value, () => {
-                            this.syncFromWire();
-                        });
-                    },
-                    syncFromWire() {
-                        let val = $wire.prices[{{ $index }}]?.value;
-                        if (!val) {
-                            this.formatted = '';
-                            return;
-                        }
-                        this.formatted = 'Rp ' + Number(val).toLocaleString('id-ID');
-                    },
-                    format(val) {
-                        let num = val.replace(/\D/g, '');
-                        if (!num) {
-                            this.formatted = '';
-                            $wire.set('prices.{{ $index }}.value', null);
-                            return;
-                        }
-                        let number = parseInt(num, 10);
-                        this.formatted = 'Rp ' + number.toLocaleString('id-ID');
-                        $wire.set('prices.{{ $index }}.value', number);
-                    }
-                }" x-init="init()">
-                    <input class="f-input"type="text" x-model="formatted" @input="format($event.target.value)"
-                        wire:ignore :disabled="$wire.prices[{{ $index }}]?.is_induk">
-                    <button type="button" title="Ubah"
-                        style="width:28px;height:28px;flex-shrink:0;border-radius:50%;background:none;border:0.5px solid #198754;color:#198754;display:flex;align-items:center;justify-content:center;padding:0;"
-                        wire:click="updatePrice({{ $index }})" wire:loading.attr="disabled"
-                        wire:target="updatePrice({{ $index }})">
-                        <span wire:loading.remove wire:target="updatePrice({{ $index }})">
-                            <i class="bi bi-check2" style="font-size:14px;"></i>
-                        </span>
-                        <span wire:loading wire:target="updatePrice({{ $index }})">
-                            <span class="spinner-border spinner-border-sm" role="status"
-                                style="width:12px;height:12px;border-width:1.5px;"></span>
-                        </span>
-                    </button>
+            <div
+                style="display:flex;align-items:center;gap:8px;background:var(--bg-main,#f5f5f5);border:0.5px solid #e0e0e0;border-radius:12px;padding:0 12px;height:40px;margin-bottom:16px;">
+                <i class="bi bi-search" style="font-size:14px;color:#aaa;flex-shrink:0;"></i>
+                <input wire:model.live.debounce.300ms="searchPrice" type="text" placeholder="Cari jenis sampah..."
+                    style="flex:1;border:none;background:transparent;outline:none;font-size:13px;color:var(--text-main);" />
+                <i class="bi bi-x" x-show="$wire.searchPrice" @click="$wire.set('searchPrice', '')"
+                    style="font-size:16px;color:#aaa;cursor:pointer;flex-shrink:0;" aria-hidden="true"></i>
+            </div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+            @foreach ($prices as $index => $price)
+                <div wire:loading.flex wire:target="priceDetail" class="justify-content-center align-items-center"
+                    style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                    <div class="spinner-border text-success"></div>
                 </div>
-                @if (Auth::user()->unit->parent_id)
-                    <div class="form-check mt-1">
-                        <input class="form-check-input" type="checkbox" id="harga_induk_{{ $index }}"
-                            wire:model="prices.{{ $index }}.is_induk">
-
-                        <label class="form-check-label text-muted small" for="harga_induk_{{ $index }}">
-                            Gunakan harga induk
-                        </label>
+                <div class="col-12">
+                    <label class="f-form-label">{{ $price['label'] }} (Rp/kg)</label>
+                    <div class="d-flex gap-2 mb-1 align-items-center" x-data="{
+                        formatted: '',
+                        init() {
+                            this.syncFromWire();
+                            $watch(() => $wire.prices[{{ $index }}]?.value, () => {
+                                this.syncFromWire();
+                            });
+                        },
+                        syncFromWire() {
+                            let val = $wire.prices[{{ $index }}]?.value;
+                            if (!val) {
+                                this.formatted = '';
+                                return;
+                            }
+                            this.formatted = 'Rp ' + Number(val).toLocaleString('id-ID');
+                        },
+                        format(val) {
+                            let num = val.replace(/\D/g, '');
+                            if (!num) {
+                                this.formatted = '';
+                                $wire.set('prices.{{ $index }}.value', null);
+                                return;
+                            }
+                            let number = parseInt(num, 10);
+                            this.formatted = 'Rp ' + number.toLocaleString('id-ID');
+                            $wire.set('prices.{{ $index }}.value', number);
+                        }
+                    }" x-init="init()">
+                        <input class="f-input"type="text" x-model="formatted" @input="format($event.target.value)"
+                            wire:ignore :disabled="$wire.prices[{{ $index }}]?.is_induk">
+                        <button type="button" title="Ubah"
+                            style="width:28px;height:28px;flex-shrink:0;border-radius:50%;background:none;border:0.5px solid #198754;color:#198754;display:flex;align-items:center;justify-content:center;padding:0;"
+                            wire:click="updatePrice({{ $index }})" wire:loading.attr="disabled"
+                            wire:target="updatePrice({{ $index }})">
+                            <span wire:loading.remove wire:target="updatePrice({{ $index }})">
+                                <i class="bi bi-check2" style="font-size:14px;"></i>
+                            </span>
+                            <span wire:loading wire:target="updatePrice({{ $index }})">
+                                <span class="spinner-border spinner-border-sm" role="status"
+                                    style="width:12px;height:12px;border-width:1.5px;"></span>
+                            </span>
+                        </button>
                     </div>
-                @endif
-            </div>
-        @endforeach
-        @if ($priceLimit)
-            <button type="button" wire:click="loadMorePrices"
-                style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
-                <span wire:loading.remove wire:target="loadMorePrices">Tampilkan lebih banyak</span>
-                <span wire:loading wire:target="loadMorePrices">
-                    <span class="spinner-border spinner-border-sm"
-                        style="width:12px;height:12px;border-width:1.5px;"></span>
-                </span>
-            </button>
-        @endif
+                    @if (Auth::user()->unit->parent_id)
+                        <div class="form-check mt-1">
+                            <input class="form-check-input" type="checkbox" id="harga_induk_{{ $index }}"
+                                wire:model="prices.{{ $index }}.is_induk">
+
+                            <label class="form-check-label text-muted small" for="harga_induk_{{ $index }}">
+                                Gunakan harga induk
+                            </label>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+            @if ($priceLimit)
+                <button type="button" wire:click="loadMorePrices"
+                    style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                    <span wire:loading.remove wire:target="loadMorePrices">Tampilkan lebih banyak</span>
+                    <span wire:loading wire:target="loadMorePrices">
+                        <span class="spinner-border spinner-border-sm"
+                            style="width:12px;height:12px;border-width:1.5px;"></span>
+                    </span>
+                </button>
+            @endif
+        </div>
         <div class="d-flex gap-2 mt-2">
 
         </div>

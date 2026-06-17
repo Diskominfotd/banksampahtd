@@ -74,122 +74,120 @@ new class extends Component {
         @include('components.⚡mobile-bottombar')
     </div>
 
-    {{-- ======= BOTTOM SHEET MOBILE — backdrop ======= --}}
     <div x-show="$store.sheet.is('tambah-nasabah')" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
     </div>
-
-    {{-- ======= BOTTOM SHEET MOBILE — konten + form ======= --}}
     <div x-show="$store.sheet.is('tambah-nasabah')" x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
-        x-transition:leave-end="translate-y-full"
-        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--bg-card,#fff);border-radius:20px 20px 0 0;padding:20px;max-height:90dvh;overflow-y:auto"
-        x-cloak>
-        <div class="sheet-handle"></div>
-
-        <div
-            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
-            Daftarkan Nasabah Baru
+        x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+        <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                Daftarkan Nasabah Baru
+            </div>
         </div>
+        <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+            <form wire:submit="registerNasabah">
+                <div class="f-group">
+                    <label>Nama Lengkap / Nama Usaha</label>
+                    <input class="f-input" type="text" wire:model="nama" placeholder="Nama nasabah atau badan usaha">
+                    @error('nama')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
 
-        <form wire:submit="registerNasabah">
-            <div class="f-group">
-                <label>Nama Lengkap / Nama Usaha</label>
-                <input class="f-input" type="text" wire:model="nama" placeholder="Nama nasabah atau badan usaha">
-                @error('nama')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
+                <div class="f-group">
+                    <label>NIK</label>
+                    <input class="f-input" type="text" wire:model="nik" placeholder="16 digit NIK KTP"
+                        maxlength="16">
+                    @error('nik')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
 
-            <div class="f-group">
-                <label>NIK</label>
-                <input class="f-input" type="text" wire:model="nik" placeholder="16 digit NIK KTP" maxlength="16">
-                @error('nik')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
+                <div class="f-group">
+                    <label>No. HP</label>
+                    <input class="f-input" type="tel" wire:model="nomorHp" placeholder="08xx-xxxx-xxxx">
+                    @error('nomorHp')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
 
-            <div class="f-group">
-                <label>No. HP</label>
-                <input class="f-input" type="tel" wire:model="nomorHp" placeholder="08xx-xxxx-xxxx">
-                @error('nomorHp')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
+                <div class="f-group">
+                    <label>Email</label>
+                    <input class="f-input" type="email" wire:model="email" placeholder="email@gmail.com">
+                    @error('email')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
 
-            <div class="f-group">
-                <label>Email</label>
-                <input class="f-input" type="email" wire:model="email" placeholder="email@gmail.com">
-                @error('email')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
+                <div class="f-group">
+                    <label>Jenis Nasabah</label>
+                    <select class="f-input" wire:model.live="jenis">
+                        <option value="perorangan">Perorangan</option>
+                        <option value="kelompok">Kelompok</option>
+                    </select>
+                    @error('jenis')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
 
-            <div class="f-group">
-                <label>Jenis Nasabah</label>
-                <select class="f-input" wire:model.live="jenis">
-                    <option value="perorangan">Perorangan</option>
-                    <option value="kelompok">Kelompok</option>
-                </select>
-                @error('jenis')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-
-            <div class="f-group">
-                <label>Organisasi</label>
-                <select class="f-input" wire:model="organisasi" @disabled($jenis === 'perorangan')>
-                    <option value="">Pilih Organisasi</option>
-                    @foreach ($data['organisasi'] as $org)
-                        <option value="{{ $org->id }}">{{ $org->nama }}</option>
-                    @endforeach
-                </select>
-                @error('organisasi')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Unit</label>
-                <select class="f-input" wire:model="unit">
-                    <option value="">Pilih Unit</option>
-                    @foreach ($data['banksampah'] as $bank)
-                        <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
-                    @endforeach
-                </select>
-                @error('unit')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group" x-data="{ show: false }">
-                <label>Password</label>
-                <div style="position:relative">
-                    <input class="f-input" :type="show ? 'text' : 'password'" wire:model="password"
-                        placeholder="Password nasabah" style="padding-right:40px">
-                    <button type="button" @click="show = !show"
-                        style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted)">
-                        <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                <div class="f-group">
+                    <label>Organisasi</label>
+                    <select class="f-input" wire:model="organisasi" @disabled($jenis === 'perorangan')>
+                        <option value="">Pilih Organisasi</option>
+                        @foreach ($data['organisasi'] as $org)
+                            <option value="{{ $org->id }}">{{ $org->nama }}</option>
+                        @endforeach
+                    </select>
+                    @error('organisasi')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="f-group">
+                    <label>Unit</label>
+                    <select class="f-input" wire:model="unit">
+                        <option value="">Pilih Unit</option>
+                        @foreach ($data['banksampah'] as $bank)
+                            <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
+                        @endforeach
+                    </select>
+                    @error('unit')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="f-group" x-data="{ show: false }">
+                    <label>Password</label>
+                    <div style="position:relative">
+                        <input class="f-input" :type="show ? 'text' : 'password'" wire:model="password"
+                            placeholder="Password nasabah" style="padding-right:40px">
+                        <button type="button" @click="show = !show"
+                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted)">
+                            <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="d-flex gap-2 mt-2">
+                    <button type="button" class="btn-outline w-100" style="width:100%"
+                        @click="$store.sheet.hide()">Batal</button>
+                    <button type="submit" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
+                        wire:target="registerNasabah">
+                        <span wire:loading.remove wire:target="registerNasabah">
+                            <i class="bi bi-person-plus me-1"></i>Simpan
+                        </span>
+                        <span wire:loading wire:target="registerNasabah">Loading...</span>
                     </button>
                 </div>
-                @error('password')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="d-flex gap-2 mt-2">
-                <button type="button" class="btn-outline w-100" style="width:100%"
-                    @click="$store.sheet.hide()">Batal</button>
-                <button type="submit" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
-                    wire:target="registerNasabah">
-                    <span wire:loading.remove wire:target="registerNasabah">
-                        <i class="bi bi-person-plus me-1"></i>Simpan
-                    </span>
-                    <span wire:loading wire:target="registerNasabah">Loading...</span>
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
     {{-- Backdrop edit --}}
     <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-200"
@@ -200,97 +198,103 @@ new class extends Component {
     </div>
 
     {{-- Sheet edit --}}
+    <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
     <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
-        x-transition:leave-end="translate-y-full"
-        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;
-           background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
-           padding:20px;max-height:90dvh;overflow-y:auto"
-        x-cloak>
-        <div class="sheet-handle"></div>
-        <div
-            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
-                margin-bottom:18px;color:var(--text-main)">
-            Edit Nasabah
+        x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+        <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                Edit Nasabah
+            </div>
         </div>
         <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
             style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
             <div class="spinner-border text-success"></div>
         </div>
-        <form wire:submit="editNasabah">
-            <div class="f-group">
-                <label>Nama Lengkap / Nama Usaha</label>
-                <input class="f-input" type="text" wire:model="namaNasabah">
-                @error('namaNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Nik</label>
-                <input class="f-input" type="text" wire:model="nikNasabah">
-                @error('nikNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>No. HP</label>
-                <input class="f-input" type="tel" wire:model="nomorHpNasabah" placeholder="08xx-xxxx-xxxx">
-                @error('nomorHpNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Email</label>
-                <input class="f-input" type="email" wire:model="emailNasabah">
-                @error('emailNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Jenis Nasabah</label>
-                <select class="f-input" wire:model.live="jenisNasabah">
-                    <option value="perorangan">Perorangan</option>
-                    <option value="kelompok">Kelompok</option>
-                </select>
-            </div>
-            <div class="f-group">
-                <label>Organisasi</label>
-                <select class="f-input" wire:model="organisasiNasabah" @disabled($jenisNasabah === 'perorangan')>
-                    <option value="">Pilih Organisasi</option>
-                    @foreach ($data['organisasi'] as $org)
-                        <option value="{{ $org->id }}">{{ $org->nama }}</option>
-                    @endforeach
-                </select>
-                @error('organisasiNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="f-group">
-                <label>Unit</label>
-                <select class="f-input" wire:model="unitNasabah">
-                    <option value="">Pilih Unit</option>
-                    @foreach ($data['banksampah'] as $bank)
-                        <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
-                    @endforeach
-                </select>
-                @error('unitNasabah')
-                    <small class="text-danger">{{ $message }}</small>
-                @enderror
-            </div>
-            <div class="d-flex gap-2 mt-2">
-                <button type="button" class="btn-outline w-100" @click="$store.sheet.hide()">
-                    Batal
-                </button>
-                <button type="submit" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
-                    wire:target="editNasabah">
-                    <span wire:loading.remove wire:target="editNasabah">
-                        <i class="bi bi-check-lg me-1"></i>Simpan
-                    </span>
-                    <span wire:loading wire:target="editNasabah">Loading...</span>
-                </button>
-            </div>
-        </form>
+        <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+            <form wire:submit="editNasabah">
+                <div class="f-group">
+                    <label>Nama Lengkap / Nama Usaha</label>
+                    <input class="f-input" type="text" wire:model="namaNasabah">
+                    @error('namaNasabah')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="f-group">
+                    <label>Nik</label>
+                    <input class="f-input" type="text" wire:model="nikNasabah">
+                    @error('nikNasabah')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="f-group">
+                    <label>No. HP</label>
+                    <input class="f-input" type="tel" wire:model="nomorHpNasabah" placeholder="08xx-xxxx-xxxx">
+                    @error('nomorHpNasabah')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="f-group">
+                    <label>Email</label>
+                    <input class="f-input" type="email" wire:model="emailNasabah">
+                    @error('emailNasabah')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="f-group">
+                    <label>Jenis Nasabah</label>
+                    <select class="f-input" wire:model.live="jenisNasabah">
+                        <option value="perorangan">Perorangan</option>
+                        <option value="kelompok">Kelompok</option>
+                    </select>
+                </div>
+                <div class="f-group">
+                    <label>Organisasi</label>
+                    <select class="f-input" wire:model="organisasiNasabah" @disabled($jenisNasabah === 'perorangan')>
+                        <option value="">Pilih Organisasi</option>
+                        @foreach ($data['organisasi'] as $org)
+                            <option value="{{ $org->id }}">{{ $org->nama }}</option>
+                        @endforeach
+                    </select>
+                    @error('organisasiNasabah')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="f-group">
+                    <label>Unit</label>
+                    <select class="f-input" wire:model="unitNasabah">
+                        <option value="">Pilih Unit</option>
+                        @foreach ($data['banksampah'] as $bank)
+                            <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
+                        @endforeach
+                    </select>
+                    @error('unitNasabah')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="d-flex gap-2 mt-2">
+                    <button type="button" class="btn-outline w-100" @click="$store.sheet.hide()">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
+                        wire:target="editNasabah">
+                        <span wire:loading.remove wire:target="editNasabah">
+                            <i class="bi bi-check-lg me-1"></i>Simpan
+                        </span>
+                        <span wire:loading wire:target="editNasabah">Loading...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
     {{-- Backdrop Rekening --}}

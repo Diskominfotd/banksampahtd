@@ -4,8 +4,10 @@ use Livewire\Component;
 use App\Services\UserServices;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
+use App\Livewire\TraitComponent;
 new class extends Component {
     use WithPagination;
+    use TraitComponent;
     protected UserServices $userService;
 
     public int $perPage = 10;
@@ -39,6 +41,7 @@ new class extends Component {
         ]);
         $this->reset('nama');
         $this->dispatch('close-modal');
+        $this->alert();
     }
     public function detail(string $id)
     {
@@ -60,6 +63,7 @@ new class extends Component {
         );
         $this->reset('namaKategori');
         $this->dispatch('close-modal');
+        $this->alert();
     }
 
     #[On('doDelete')]
