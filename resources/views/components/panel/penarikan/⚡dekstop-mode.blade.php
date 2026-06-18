@@ -101,14 +101,11 @@ new class extends Component {
                         </table>
                     </div>
                     <div class="d-flex justify-content-end gap-2 mt-2">
-                        <button class="w-btn w-btn-ghost">Batal</button>
                         <button wire:click="simpanPenarikan" wire:loading.attr="disabled" class="w-btn w-btn-primary"
                             style="width:auto;padding:7px 16px">
-
                             <span wire:loading.remove wire:target="simpanPenarikan">
                                 <i class="bi bi-check2-circle me-1"></i> Simpan Setoran
                             </span>
-
                             <span wire:loading wire:target="simpanPenarikan">
                                 <span class="spinner-border spinner-border-sm me-1"></span>
                                 Menyimpan...

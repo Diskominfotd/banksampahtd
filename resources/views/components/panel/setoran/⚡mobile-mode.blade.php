@@ -130,33 +130,50 @@ new class extends Component {
     <div x-show="$store.sheet.is('pilih-nasabah')" x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
-        x-transition:leave-end="translate-y-full"
-        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;background:var(--bg-card,#fff);border-radius:20px 20px 0 0;padding:20px;max-height:90dvh;overflow-y:auto"
-        x-cloak>
-        <div class="sheet-handle"></div>
-        <div
-            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:18px;color:var(--text-main)">
-            Pilih Nasabah
+        x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+        <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                Pilih Nasabah
+            </div>
+            <div class="m-search mb-3">
+                <i class="bi bi-search si"></i>
+                <input type="text" wire:model.live="searchNasabah" placeholder="Cari nama jenis sampah...">
+            </div>
         </div>
-        @foreach ($this->nasabah as $n)
-            <div class="list-item fade-up mb-1"wire:click="pilihNasabah({{ $n->id }})" style="cursor:pointer">
-                <div class="list-ico ic1">
-                    <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)">
-                        <div class="avatar" style="width:36px;height:36px;font-size:12px;flex-shrink:0">
-                            {{ strtoupper($n->initials()) }}
+        <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+            @foreach ($this->nasabah as $n)
+                <div class="list-item fade-up mb-1"wire:click="pilihNasabah({{ $n->id }})"
+                    style="cursor:pointer">
+                    <div class="list-ico ic1">
+                        <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)">
+                            <div class="avatar" style="width:36px;height:36px;font-size:12px;flex-shrink:0">
+                                {{ strtoupper($n->initials()) }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="list-main">
+                        <div class="list-name">{{ ucfirst($n->name) }}</div>
+                        <div class="list-sub">
+                            @foreach ($n->bukutabungans as $bk)
+                                {{ $bk->nomor_rekening }}
+                            @endforeach
                         </div>
                     </div>
                 </div>
-                <div class="list-main">
-                    <div class="list-name">{{ ucfirst($n->name) }}</div>
-                    <div class="list-sub">
-                        @foreach ($n->bukutabungans as $bk)
-                            {{ $bk->nomor_rekening }}
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        @endforeach
+            @endforeach
+        </div>
+        @if (count($this->nasabah) >= 10)
+            <button type="button" wire:click="loadMoreNasabah"
+                style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                <span wire:loading.remove wire:target="loadMoreNasabah">Tampilkan lebih banyak</span>
+                <span wire:loading wire:target="loadMoreNasabah">
+                    <span class="spinner-border spinner-border-sm"
+                        style="width:12px;height:12px;border-width:1.5px;"></span>
+                </span>
+            </button>
+        @endif
     </div>
     <div x-show="$store.sheet.is('pilih-jenis-sampah')" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -164,14 +181,11 @@ new class extends Component {
         x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
     </div>
-
-    {{-- Sheet --}}
     <div x-show="$store.sheet.is('pilih-jenis-sampah')" x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
         x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
 
-        {{-- Header sticky --}}
         <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
             <div class="sheet-handle"></div>
             <div
@@ -180,7 +194,7 @@ new class extends Component {
             </div>
             <div class="m-search mb-3">
                 <i class="bi bi-search si"></i>
-                <input type="text" wire:model.live="keyword" placeholder="Cari nama jenis sampah...">
+                <input type="text" wire:model.live="searchJenis" placeholder="Cari nama jenis sampah...">
             </div>
         </div>
 

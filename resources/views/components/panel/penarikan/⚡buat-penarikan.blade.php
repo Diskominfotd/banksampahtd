@@ -12,16 +12,38 @@ new class extends Component {
     protected TransaksiService $transaksiService;
     public array $nasabah = [];
     public array $selectedNasabah = [];
+
+    public ?int $pageNasabah = 10;
+    public ?string $searchNasabah = '';
+
     public function boot(UserServices $userService, TransaksiService $transaksiService)
     {
         $this->userService = $userService;
         $this->transaksiService = $transaksiService;
     }
 
+    public function loadMoreNasabah()
+    {
+        $this->pageNasabah += 10;
+        $this->getNasabah();
+    }
     public function getNasabah()
     {
-        $data = $this->userService->getUserByUnitAndBook()->latest()->paginate(10);
+        $builder = $this->userService->getUserByUnitAndBook();
+        if ($this->searchNasabah) {
+            $builder->where(function ($q) {
+                $q->where('name', 'like', "%{$this->searchNasabah}%")->orWhereHas('bukutabungans', function ($q) {
+                    $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%");
+                });
+            });
+        }
+        $data = $builder->latest()->paginate($this->pageNasabah);
         $this->nasabah = $data->items();
+    }
+    public function updatedSearchNasabah()
+    {
+        $this->resetPage('pageNasabah');
+        $this->getNasabah();
     }
     public function pilihNasabah($id)
     {

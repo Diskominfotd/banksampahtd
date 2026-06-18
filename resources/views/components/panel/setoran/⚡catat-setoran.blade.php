@@ -18,17 +18,26 @@ new class extends Component {
     public array $cart = [];
 
     public ?int $pageNasabah = 10;
+    public ?string $searchNasabah = '';
     public ?int $pageSampah = 10;
+
+    public ?string $searchJenis = '';
 
     public function boot(UserServices $userService, SetoranService $setoranService)
     {
         $this->userService = $userService;
         $this->setoranService = $setoranService;
     }
+    public function updatedSearchJenis()
+    {
+        $this->pageSampah = 10;
+        $this->getJenisSampah();
+    }
 
     public function loadMoreNasabah()
     {
         $this->pageNasabah += 10;
+        $this->getNasabah();
     }
     public function loadMoreItemSampah()
     {
@@ -42,40 +51,49 @@ new class extends Component {
     }
     public function getNasabah()
     {
-        $data = $this->userService->getUserByUnitAndBook()->latest()->paginate(10);
+        $builder = $this->userService->getUserByUnitAndBook();
+        if ($this->searchNasabah) {
+            $builder->where(function ($q) {
+                $q->where('name', 'like', "%{$this->searchNasabah}%")->orWhereHas('bukutabungans', function ($q) {
+                    $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%");
+                });
+            });
+        }
+
+        $data = $builder->latest()->paginate($this->pageNasabah);
         $this->nasabah = $data->items();
+    }
+    public function updatedSearchNasabah()
+    {
+        $this->resetPage('pageNasabah');
+        $this->getNasabah();
     }
     public function priceAndTrashList()
     {
         $bank = Auth::user()->unit;
         $induk = BankSampah::whereNull('parent_id')->first();
+        $query = Price::with(['bank', 'trash'])->where('bank_id', $induk->id);
+        if ($this->searchJenis) {
+            $query->whereHas('trash', function ($q) {
+                $q->where('nama', 'like', "%{$this->searchJenis}%");
+            });
+        }
+        $prices = $query->paginate($this->pageSampah)->getCollection();
 
         if ($bank->use_parent_price) {
-            return Price::with(['bank', 'trash'])
-                ->where('bank_id', $induk->id)
-                ->get();
+            return $prices;
         }
 
-        // Ambil price unit, kalau tidak ada fallback ke harga induk
-        return Price::with(['bank', 'trash'])
-            ->where('bank_id', $induk->id) // base dari induk
-            ->paginate($this->pageSampah)
-            ->map(function ($price) use ($bank) {
-                // Cek apakah unit punya harga sendiri untuk trash ini
-                $unitPrice = Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->first();
+        return $prices->map(function ($price) use ($bank) {
+            $unitPrice = Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->first();
 
-                // Kalau ada, pakai harga unit — kalau tidak, pakai harga induk
-                if ($unitPrice) {
-                    return $unitPrice->load(['bank', 'trash']);
-                }
-
-                return $price;
-            });
+            return $unitPrice ? $unitPrice->load(['bank', 'trash']) : $price;
+        });
     }
+
     public function getJenisSampah()
     {
-        $data = $this->priceAndTrashList();
-        $this->items = $data;
+        $this->items = $this->priceAndTrashList();
     }
     public function pilihJenisSampah($priceId)
     {
@@ -83,7 +101,6 @@ new class extends Component {
         if (!$item) {
             return;
         }
-        // Cek apakah sudah ada di cart
         $existing = collect($this->cart)->search(fn($c) => $c['price_id'] == $priceId);
         if ($existing !== false) {
             return;

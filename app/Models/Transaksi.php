@@ -16,4 +16,7 @@ class Transaksi extends Model
     {
         return $this->belongsTo(User::class);
     }
+    protected $casts = [
+        'tanggal_transaksi' => 'datetime',
+    ];
 }
