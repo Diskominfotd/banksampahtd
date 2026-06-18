@@ -19,4 +19,5 @@ interface UserServices
     public function deleteUser(int $id);
     public function getBukuTabunganByUserId(int $id);
     public function getUserByUnitAndBook();
+    public function totalNasabah();
 }

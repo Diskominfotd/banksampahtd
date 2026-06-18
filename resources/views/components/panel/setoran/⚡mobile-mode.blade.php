@@ -11,7 +11,7 @@ new class extends Component {
     {{-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger --}}
     <div id="m-setoran">
         <div class="m-page-header">
-            <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
+            <div class="m-back" wire:click="movePage('setoran')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
             <div class="ph-title">Buat Setoran</div>
         </div>

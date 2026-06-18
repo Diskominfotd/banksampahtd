@@ -80,4 +80,53 @@ class SetoranServiceImpl implements SetoranService
             ->where('penyetor_id', $nasabahId)
             ->first();
     }
+
+    public function totalBeratSetoran()
+    {
+        $today = $this->getSetoranByUnit()->whereDate('created_at', today())->sum('total_berat');
+
+        $yesterday = $this->getSetoranByUnit()
+            ->whereDate('created_at', today()->subDay())
+            ->sum('total_berat');
+
+        if ($yesterday > 0) {
+            $persentase = round((($today - $yesterday) / $yesterday) * 100, 2);
+        } elseif ($today > 0) {
+            $persentase = 100;
+        } else {
+            $persentase = 0;
+        }
+
+        return [
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $persentase,
+        ];
+    }
+    public function totalSaldoSetoran()
+    {
+        $today = $this->getSetoranByUnit()->whereDate('created_at', today())->sum('total_saldo');
+
+        $yesterday = $this->getSetoranByUnit()
+            ->whereDate('created_at', today()->subDay())
+            ->sum('total_saldo');
+
+        if ($yesterday > 0) {
+            $persentase = round((($today - $yesterday) / $yesterday) * 100, 2);
+        } elseif ($today > 0) {
+            $persentase = 100;
+        } else {
+            $persentase = 0;
+        }
+
+        return [
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $persentase,
+        ];
+    }
+    public function setoranToday()
+    {
+        return $this->getSetoranByUnit()->whereDate('created_at', today())->limit(5)->get();
+    }
 }

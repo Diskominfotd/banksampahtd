@@ -18,41 +18,153 @@ new class extends Component {
                     <div class="col-3 fade-up">
                         <div class="w-metric">
                             <div class="w-m-lbl">Total Sampah Hari Ini</div>
-                            <div class="w-m-val" style="color:var(--cyan)">342 kg</div>
-                            <div class="w-m-delta up"><i class="bi bi-arrow-up-short"></i>+18% kemarin</div>
+                            <div class="w-m-val" style="color:var(--cyan)">
+                                {{ number_format($data['totalBeratSetoran']['today'], 0, ',', '.') }} kg
+                            </div>
+                            @php
+                                $persentase = $data['totalBeratSetoran']['persentase'];
+                                $arah = match (true) {
+                                    $persentase > 0 => 'up',
+                                    $persentase < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+
+                            <div class="w-m-delta {{ $arah }}">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                @else
+                                    <i class="bi bi-dash"></i> Sama seperti kemarin
+                                @endif
+                            </div>
+                            @php
+                                $persen = $data['totalBeratSetoran']['persentase'];
+                                $barColor = match (true) {
+                                    $persen < 50 => 'var(--red)',
+                                    $persen < 75 => 'var(--orange)',
+                                    default => 'var(--green)',
+                                };
+                            @endphp
                             <div class="w-bar">
-                                <div class="w-bar-fill" style="width:78%"></div>
+                                <div class="w-bar-fill"
+                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-3 fade-up">
                         <div class="w-metric">
                             <div class="w-m-lbl">Nilai Setoran</div>
-                            <div class="w-m-val" style="color:var(--blue)">Rp1,8 Jt</div>
-                            <div class="w-m-delta up"><i class="bi bi-arrow-up-short"></i>+12% kemarin</div>
+                            <div class="w-m-val" style="color:var(--blue)">Rp
+                                {{ convertRupiahToString($data['totalSaldoSetoran']['today']) }}
+                            </div>
+                            @php
+                                $persentase = $data['totalBeratSetoran']['persentase'];
+                                $arah = match (true) {
+                                    $persentase > 0 => 'up',
+                                    $persentase < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+
+                            <div class="w-m-delta {{ $arah }}">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                @else
+                                    <i class="bi bi-dash"></i> Sama seperti kemarin
+                                @endif
+                            </div>
+                            @php
+                                $persen = $data['totalBeratSetoran']['persentase'];
+                                $barColor = match (true) {
+                                    $persen < 50 => 'var(--red)',
+                                    $persen < 75 => 'var(--orange)',
+                                    default => 'var(--green)',
+                                };
+                            @endphp
+
                             <div class="w-bar">
-                                <div class="w-bar-fill" style="width:65%;background:var(--blue)"></div>
+                                <div class="w-bar-fill"
+                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-3 fade-up">
                         <div class="w-metric">
                             <div class="w-m-lbl">Nasabah Aktif</div>
-                            <div class="w-m-val">128</div>
-                            <div class="w-m-delta up"><i class="bi bi-arrow-up-short"></i>+3 nasabah baru</div>
+                            <div class="w-m-val">{{ $data['totalNasabah']['today'] }}</div>
+                            @php
+                                $diff = $data['totalNasabah']['difference'];
+                            @endphp
+
+                            <div class="w-m-delta {{ $diff >= 0 ? 'up' : 'down' }}">
+                                <i class="bi bi-arrow-{{ $diff >= 0 ? 'up' : 'down' }}-short"></i>
+
+                                @if ($diff == 0)
+                                    Tidak ada perubahan
+                                @else
+                                    {{ $diff >= 0 ? '+' : '' }}{{ $diff }} nasabah
+                                    {{ $diff >= 0 ? 'baru' : 'lebih sedikit' }}
+                                @endif
+                            </div>
+                            @php
+                                $persen = $data['totalBeratSetoran']['persentase'];
+                                $barColor = match (true) {
+                                    $persen < 50 => 'var(--red)',
+                                    $persen < 75 => 'var(--orange)',
+                                    default => 'var(--green)',
+                                };
+                            @endphp
+
                             <div class="w-bar">
-                                <div class="w-bar-fill" style="width:82%"></div>
+                                <div class="w-bar-fill"
+                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-3 fade-up">
                         <div class="w-metric">
-                            <div class="w-m-lbl">Setoran Pending</div>
-                            <div class="w-m-val">5</div>
-                            <div class="w-m-delta" style="color:var(--yellow)"><i
-                                    class="bi bi-exclamation-circle"></i>Perlu verifikasi</div>
+                            <div class="w-m-lbl">Nilai Penarikan Nasabah</div>
+                            <div class="w-m-val">
+                                {{ convertRupiahToString($data['totalPenarikanSaldoNasabah']['today']) }}
+                            </div>
+                            @php
+                                $persentase = $data['totalPenarikanSaldoNasabah']['persentase'];
+                                $arah = match (true) {
+                                    $persentase > 0 => 'up',
+                                    $persentase < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+
+                            <div class="w-m-delta {{ $arah }}">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                @else
+                                    <i class="bi bi-dash"></i> Sama seperti kemarin
+                                @endif
+                            </div>
+                            @php
+                                $persen = $data['totalPenarikanSaldoNasabah']['persentase'];
+                                $barColor = match (true) {
+                                    $persen < 50 => 'var(--red)',
+                                    $persen < 75 => 'var(--orange)',
+                                    default => 'var(--green)',
+                                };
+                            @endphp
+
                             <div class="w-bar">
-                                <div class="w-bar-fill" style="width:12%;background:var(--yellow)"></div>
+                                <div class="w-bar-fill"
+                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -79,47 +191,17 @@ new class extends Component {
                                             class="w-svc-lbl">Laporan</span>
                                     </a></div>
                             </div>
-                            <div class="w-panel-title mt-3">Komposisi Sampah</div>
+                            <div class="w-panel-title mt-3">Transaksi Penarikan Terbaru</div>
                             <div class="d-flex flex-column gap-2">
-                                <div
-                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
-                                    <div class="d-flex justify-content-between align-items-center mb-1"><span
-                                            style="font-size:11px;font-weight:600">Plastik</span><span
-                                            style="font-size:10px;color:var(--cyan);font-weight:700">42% · 143
-                                            kg</span></div>
-                                    <div class="prog-wrap">
-                                        <div class="prog-fill" style="width:42%;background:var(--cyan)"></div>
+                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
+                                    <div class="w-row-ico ic2">
+                                        <div class="avatar" style="width:36px;height:36px;font-size:12px;flex-shrink:0">
+                                            SR</div>
                                     </div>
-                                </div>
-                                <div
-                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
-                                    <div class="d-flex justify-content-between align-items-center mb-1"><span
-                                            style="font-size:11px;font-weight:600">Kertas</span><span
-                                            style="font-size:10px;color:var(--blue);font-weight:700">28% · 96
-                                            kg</span></div>
-                                    <div class="prog-wrap">
-                                        <div class="prog-fill" style="width:28%;background:var(--blue)"></div>
-                                    </div>
-                                </div>
-                                <div
-                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
-                                    <div class="d-flex justify-content-between align-items-center mb-1"><span
-                                            style="font-size:11px;font-weight:600">Logam</span><span
-                                            style="font-size:10px;color:var(--purple);font-weight:700">18% · 62
-                                            kg</span></div>
-                                    <div class="prog-wrap">
-                                        <div class="prog-fill" style="width:18%;background:var(--purple)"></div>
-                                    </div>
-                                </div>
-                                <div
-                                    style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:8px 12px">
-                                    <div class="d-flex justify-content-between align-items-center mb-1"><span
-                                            style="font-size:11px;font-weight:600">Elektronik</span><span
-                                            style="font-size:10px;color:var(--orange);font-weight:700">7% · 24
-                                            kg</span></div>
-                                    <div class="prog-wrap">
-                                        <div class="prog-fill" style="width:7%;background:var(--orange)"></div>
-                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="w-row-title">Hendra Wijaya — 8 kg Kertas</div>
+                                        <div class="w-row-meta">Unit Tampan · 30 mnt lalu · Rp24.000</div>
+                                    </div><span class="bs bs-green">Lunas</span>
                                 </div>
                             </div>
                         </div>
@@ -128,46 +210,28 @@ new class extends Component {
                         <div class="w-panel h-100">
                             <div class="w-panel-title">Setoran Masuk Terbaru</div>
                             <div class="d-flex flex-column gap-2">
-                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
-                                    <div class="w-row-ico ic1"><i class="bi bi-recycle" style="font-size:13px"></i>
+                                @foreach ($data['setoranTerbaru'] as $stb)
+                                    <div class="w-row" onclick="openWModal('wm-detail-setoran')">
+                                        <div class="w-row-ico ic1"><i class="bi bi-recycle" style="font-size:13px"></i>
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <div class="w-row-title">{{ ucfirst($stb->penyetor->name) }} —
+                                                {{ number_format($stb->total_berat, 0, ',', '.') }} kg</div>
+                                            <div class="w-row-meta">
+                                                @foreach ($stb->penyetor->bukutabungans as $buku)
+                                                    {{ $buku->bank->nama }}
+                                                @endforeach ·
+                                                {{ $stb->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
+                                                <b>
+                                                    @foreach ($stb->penyetor->bukutabungans as $buku)
+                                                        {{ $buku->nomor_rekening }}
+                                                    @endforeach
+                                                </b>
+                                            </div>
+                                        </div><span class="bs bs-green">Rp
+                                            {{ number_format($stb->total_saldo, 0, ',', '.') }}</span>
                                     </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="w-row-title">Siti Rahayu — 12,5 kg Plastik HDPE</div>
-                                        <div class="w-row-meta">Unit Sukajadi · 15 mnt lalu · Rp62.500</div>
-                                    </div><span class="bs bs-green">Lunas</span>
-                                </div>
-                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
-                                    <div class="w-row-ico ic2"><i class="bi bi-newspaper" style="font-size:13px"></i>
-                                    </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="w-row-title">Hendra Wijaya — 8 kg Kertas</div>
-                                        <div class="w-row-meta">Unit Tampan · 30 mnt lalu · Rp24.000</div>
-                                    </div><span class="bs bs-green">Lunas</span>
-                                </div>
-                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
-                                    <div class="w-row-ico ic4"><i class="bi bi-cpu-fill" style="font-size:13px"></i>
-                                    </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="w-row-title">CV Maju Bersama — 45 kg Logam Campuran</div>
-                                        <div class="w-row-meta">Unit Payung Sekaki · 1 jam lalu · Rp270.000</div>
-                                    </div><span class="bs bs-warn">Pending</span>
-                                </div>
-                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
-                                    <div class="w-row-ico ic5"><i class="bi bi-box-fill" style="font-size:13px"></i>
-                                    </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="w-row-title">Dewi Kartika — 5,2 kg Kaca</div>
-                                        <div class="w-row-meta">Unit Marpoyan · 2 jam lalu · Rp15.600</div>
-                                    </div><span class="bs bs-new">Ditimbang</span>
-                                </div>
-                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
-                                    <div class="w-row-ico ic3"><i class="bi bi-lightning-fill"
-                                            style="font-size:13px"></i></div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="w-row-title">Agus Santoso — 3,1 kg Elektronik</div>
-                                        <div class="w-row-meta">Unit Bukit Raya · 3 jam lalu · Rp62.000</div>
-                                    </div><span class="bs bs-ok">Lunas</span>
-                                </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>

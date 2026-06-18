@@ -10,6 +10,7 @@ new class extends Component {
 
     protected UserServices $userService;
     protected TransaksiService $transaksiService;
+
     public array $nasabah = [];
     public array $selectedNasabah = [];
 
@@ -21,7 +22,10 @@ new class extends Component {
         $this->userService = $userService;
         $this->transaksiService = $transaksiService;
     }
-
+    public function movePage(string $route)
+    {
+        return redirect()->route($route);
+    }
     public function loadMoreNasabah()
     {
         $this->pageNasabah += 10;
@@ -32,7 +36,8 @@ new class extends Component {
         $builder = $this->userService->getUserByUnitAndBook();
         if ($this->searchNasabah) {
             $builder->where(function ($q) {
-                $q->where('name', 'like', "%{$this->searchNasabah}%")->orWhereHas('bukutabungans', function ($q) {
+                $q->where('name', 'like', "%{$this->searchNasabah}%")
+                ->orWhereHas('bukutabungans', function ($q) {
                     $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%");
                 });
             });

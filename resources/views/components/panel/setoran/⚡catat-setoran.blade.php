@@ -28,6 +28,12 @@ new class extends Component {
         $this->userService = $userService;
         $this->setoranService = $setoranService;
     }
+
+    public function movePage(string $route)
+    {
+        return redirect()->route($route);
+    }
+
     public function updatedSearchJenis()
     {
         $this->pageSampah = 10;

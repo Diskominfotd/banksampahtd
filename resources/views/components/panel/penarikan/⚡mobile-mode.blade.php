@@ -11,7 +11,8 @@ new class extends Component {
     {{-- Always remember that you are absolutely unique. Just like everyone else. - Margaret Mead --}}
     <div id="m-setoran">
         <div class="m-page-header">
-            <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
+            <div class="m-back" wire:click="movePage('penarikan.saldo')"><i class="bi bi-chevron-left"
+                    style="font-size:12px"></i>
             </div>
             <div class="ph-title">Buat Penarikan</div>
         </div>

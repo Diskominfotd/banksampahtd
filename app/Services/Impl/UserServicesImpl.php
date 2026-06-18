@@ -204,4 +204,30 @@ class UserServicesImpl implements UserServices
             $q->where('bank_id', $user->unit->id);
         });
     }
+
+    public function totalNasabah()
+    {
+        $today = $this->getUserByUnitAndBook()->whereDate('created_at', today())->count();
+
+        $yesterday = $this->getUserByUnitAndBook()
+            ->whereDate('created_at', today()->subDay())
+            ->count();
+
+        $difference = $today - $yesterday;
+
+        if ($yesterday > 0) {
+            $persentase = round(($difference / $yesterday) * 100, 2);
+        } elseif ($today > 0) {
+            $persentase = 100;
+        } else {
+            $persentase = 0;
+        }
+
+        return [
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'difference' => $difference,
+            'persentase' => $persentase,
+        ];
+    }
 }

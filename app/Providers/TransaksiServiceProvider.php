@@ -13,6 +13,10 @@ class TransaksiServiceProvider extends ServiceProvider implements DeferrableProv
         TransaksiService::class => TransaksiServiceImpl::class,
     ];
 
+    public function provides(): array
+    {
+        return [TransaksiService::class];
+    }
     /**
      * Register services.
      */
