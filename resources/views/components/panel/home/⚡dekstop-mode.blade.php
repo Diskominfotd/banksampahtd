@@ -174,45 +174,68 @@ new class extends Component {
                         <div class="w-panel h-100">
                             <div class="w-panel-title">Menu Cepat</div>
                             <div class="row g-2">
-                                <div class="col-3"><a class="w-svc" onclick="wNav('w-setoran')">
+                                <div class="col-3"><a class="w-svc" href="{{ route('setoran') }}">
                                         <div class="w-svc-icon ic1"><i class="bi bi-recycle"></i></div><span
                                             class="w-svc-lbl">Setoran</span>
                                     </a></div>
-                                <div class="col-3"><a class="w-svc" onclick="wNav('w-nasabah')">
+                                <div class="col-3"><a class="w-svc" href="{{ route('nasabah') }}">
                                         <div class="w-svc-icon ic2"><i class="bi bi-people-fill"></i></div><span
                                             class="w-svc-lbl">Nasabah</span>
                                     </a></div>
-                                <div class="col-3"><a class="w-svc" onclick="wNav('w-harga')">
+                                <div class="col-3"><a class="w-svc" href="{{ route('harga') }}">
                                         <div class="w-svc-icon ic3"><i class="bi bi-tags-fill"></i></div><span
                                             class="w-svc-lbl">Harga</span>
                                     </a></div>
-                                <div class="col-3"><a class="w-svc" onclick="wNav('w-laporan')">
-                                        <div class="w-svc-icon ic4"><i class="bi bi-graph-up-arrow"></i></div><span
-                                            class="w-svc-lbl">Laporan</span>
+                                <div class="col-3"><a class="w-svc" href="{{ route('buat.penarikan.saldo') }}">
+                                        <div class="w-svc-icon ic4"><i class="bi bi-cash-coin"></i></div><span
+                                            class="w-svc-lbl">Buat Penarikan</span>
                                     </a></div>
                             </div>
-                            <div class="w-panel-title mt-3">Transaksi Penarikan Terbaru</div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="w-panel-title mt-3">Transaksi Penarikan Terbaru</div>
+                                <span wire:click="movePage('penarikan.saldo')" class="bs bs-green"
+                                    style="font-size: 12px; cursor: pointer;">Semua</span>
+                            </div>
                             <div class="d-flex flex-column gap-2">
-                                <div class="w-row" onclick="openWModal('wm-detail-setoran')">
-                                    <div class="w-row-ico ic2">
-                                        <div class="avatar" style="width:36px;height:36px;font-size:12px;flex-shrink:0">
-                                            SR</div>
+                                @foreach ($data['transaksiTerbaru'] as $tb)
+                                    <div class="w-row">
+                                        <div class="w-row-ico ic2">
+                                            <div class="avatar"
+                                                style="width:36px;height:36px;font-size:12px;flex-shrink:0">
+                                                {{ strtoupper(substr($tb->owner->name, 0, 1) . substr(strrchr(' ' . $tb->owner->name, ' '), 1, 1)) }}
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <div class="w-row-title">{{ ucfirst($tb->owner->name) }} —
+                                                {{ $tb->owner->bukutabungans->first()->nomor_rekening }}
+                                            </div>
+                                            <div class="w-row-meta">
+                                                {{ $tb->owner->bukutabungans->first()->bank->nama }} ·
+                                                {{ $tb->tanggal_transaksi->diffForHumans() }}
+                                            </div>
+                                            <div class="w-row-meta">
+                                                <b> Sisa - Rp
+                                                    {{ number_format($tb->sisa_saldo ?? 0, 0, ',', '.') }}</b>
+                                            </div>
+                                        </div><span class="bs bs-green">Rp
+                                            {{ number_format($tb->total_penarikan ?? 0, 0, ',', '.') }} </span>
                                     </div>
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="w-row-title">Hendra Wijaya — 8 kg Kertas</div>
-                                        <div class="w-row-meta">Unit Tampan · 30 mnt lalu · Rp24.000</div>
-                                    </div><span class="bs bs-green">Lunas</span>
-                                </div>
+                                @endforeach
                             </div>
                         </div>
                     </div>
                     <div class="col-7">
                         <div class="w-panel h-100">
-                            <div class="w-panel-title">Setoran Masuk Terbaru</div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="w-panel-title">Setoran Masuk Terbaru</div>
+                                <span wire:click="movePage('setoran')" class="bs bs-green"
+                                    style="font-size: 12px; cursor: pointer;">Semua</span>
+                            </div>
                             <div class="d-flex flex-column gap-2">
                                 @foreach ($data['setoranTerbaru'] as $stb)
                                     <div class="w-row" onclick="openWModal('wm-detail-setoran')">
-                                        <div class="w-row-ico ic1"><i class="bi bi-recycle" style="font-size:13px"></i>
+                                        <div class="w-row-ico ic1"><i class="bi bi-recycle"
+                                                style="font-size:13px"></i>
                                         </div>
                                         <div class="flex-grow-1 overflow-hidden">
                                             <div class="w-row-title">{{ ucfirst($stb->penyetor->name) }} —

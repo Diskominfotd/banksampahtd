@@ -44,6 +44,11 @@ class TransaksiServiceImpl implements TransaksiService
         ]);
     }
 
+    public function penarikanTerbaru()
+    {
+        return $this->getTransaksis()->limit(5)->get();
+    }
+
     public function totalPenarikanSaldoNasabah()
     {
         $today = $this->getTransaksis()->whereDate('created_at', today())->sum('total_penarikan');

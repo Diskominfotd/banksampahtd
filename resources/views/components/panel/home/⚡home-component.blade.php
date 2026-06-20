@@ -19,7 +19,10 @@ new class extends Component {
         $this->userService = $userService;
         $this->transaksiService = $transaksiService;
     }
-
+    public function movePage(string $route)
+    {
+        return redirect()->route($route);
+    }
     public function getData()
     {
         $totalBeratSetoran = $this->setoranService->totalBeratSetoran();
@@ -27,6 +30,7 @@ new class extends Component {
         $totalNasabah = $this->userService->totalNasabah();
         $totalPenarikanSaldoNasabah = $this->transaksiService->totalPenarikanSaldoNasabah();
         $setoranTerbaru = $this->setoranService->setoranToday();
+        $transaksiTerbaru = $this->transaksiService->penarikanTerbaru();
 
         return [
             'totalBeratSetoran' => $totalBeratSetoran,
@@ -34,6 +38,7 @@ new class extends Component {
             'totalNasabah' => $totalNasabah,
             'totalPenarikanSaldoNasabah' => $totalPenarikanSaldoNasabah,
             'setoranTerbaru' => $setoranTerbaru,
+            'transaksiTerbaru' => $transaksiTerbaru,
         ];
     }
 };

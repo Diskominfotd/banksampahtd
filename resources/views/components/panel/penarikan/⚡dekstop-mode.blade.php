@@ -132,6 +132,10 @@ new class extends Component {
                     style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                     <div class="spinner-border text-success"></div>
                 </div>
+                <div wire:loading.flex wire:target="getNasabah" class="justify-content-center align-items-center"
+                    style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                    <div class="spinner-border text-success"></div>
+                </div>
                 <div class="w-modal-body" style="overflow-y: auto; max-height: 60vh;">
                     <div class="d-flex flex-column gap-2">
                         @foreach ($this->nasabah as $n)

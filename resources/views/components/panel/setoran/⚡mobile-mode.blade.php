@@ -142,6 +142,10 @@ new class extends Component {
                 <input type="text" wire:model.live="searchNasabah" placeholder="Cari nama jenis sampah...">
             </div>
         </div>
+        <div wire:loading.flex wire:target="getNasabah" class="justify-content-center align-items-center"
+            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+            <div class="spinner-border text-success"></div>
+        </div>
         <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
             @foreach ($this->nasabah as $n)
                 <div class="list-item fade-up mb-1"wire:click="pilihNasabah({{ $n->id }})"
@@ -199,6 +203,10 @@ new class extends Component {
         </div>
 
         {{-- List scroll --}}
+        <div wire:loading.flex wire:target="getJenisSampah" class="justify-content-center align-items-center"
+            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+            <div class="spinner-border text-success"></div>
+        </div>
         <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
             @foreach ($this->items as $item)
                 <div class="list-item fade-up mb-1" wire:click="pilihJenisSampah({{ $item->id }})"

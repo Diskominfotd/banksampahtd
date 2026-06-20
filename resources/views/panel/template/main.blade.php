@@ -1935,6 +1935,11 @@
             flex-direction: column;
         }
     </style>
+      <style>
+        a {
+            text-decoration: none;
+        }
+    </style>
 </head>
 
 <body class="is-mobile-layout">
