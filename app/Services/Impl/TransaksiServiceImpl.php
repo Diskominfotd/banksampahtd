@@ -15,12 +15,25 @@ class TransaksiServiceImpl implements TransaksiService
     {
         return Auth::user();
     }
+
+    private function hitungPersentase(float $today, float $yesterday): float
+    {
+        if ($yesterday > 0) {
+            return round((($today - $yesterday) / $yesterday) * 100, 2);
+        }
+        if ($today > 0) {
+            return 100;
+        }
+        return 0;
+    }
+
     public function reduceSaldo(string $rekening, float $jumlah)
     {
         return DB::transaction(function () use ($rekening, $jumlah) {
             BukuTabungan::where('nomor_rekening', $rekening)->decrement('saldo', $jumlah);
         });
     }
+
     public function createTransaksi(array $data)
     {
         return DB::transaction(function () use ($data) {
@@ -44,57 +57,58 @@ class TransaksiServiceImpl implements TransaksiService
             $q->where('bank_id', $unitId);
         });
     }
+
     public function penarikanTerbaru()
     {
-        return $this->getTransaksis()->limit(5)->get();
+        return $this->getTransaksis()->latest()->limit(5)->get();
     }
 
     public function totalPenarikanSaldoNasabah()
     {
-        $today = $this->getTransaksis()->whereDate('created_at', today())->sum('total_penarikan');
-        $yesterday = $this->getTransaksis()
-            ->whereDate('created_at', today()->subDay())
-            ->sum('total_penarikan');
+        $todayDate = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
 
-        if ($yesterday > 0) {
-            $persentase = round((($today - $yesterday) / $yesterday) * 100, 2);
-        } elseif ($today > 0) {
-            $persentase = 100;
-        } else {
-            $persentase = 0;
-        }
+        $today = $this->getTransaksis()->whereDate('created_at', $todayDate)->sum('total_penarikan');
+        $yesterday = $this->getTransaksis()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
 
         return [
             'today' => $today,
             'yesterday' => $yesterday,
-            'persentase' => $persentase,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
-
     public function transaksiByAuthUser()
     {
         $auth = $this->checkUser();
-        return Transaksi::where('id', $auth->id)
-            ->first();
+        return Transaksi::where('owner_id', $auth->id);
     }
+
     public function totalTransaksiNasabah()
     {
-        $today = $this->transaksiByAuthUser()->whereDate('created_at', today())
-        ->sum('total_penarikan');
-        $yesterday = $this->transaksiByAuthUser()
-            ->whereDate('created_at', today()->subDay())
-            ->sum('total_penarikan');
-        if ($yesterday > 0) {
-            $persentase = round((($today - $yesterday) / $yesterday) * 100, 2);
-        } elseif ($today > 0) {
-            $persentase = 100;
-        } else {
-            $persentase = 0;
-        }
+        $todayDate = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
+
+        $today = $this->transaksiByAuthUser()->whereDate('created_at', $todayDate)->sum('total_penarikan');
+        $yesterday = $this->transaksiByAuthUser()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+
         return [
             'today' => $today,
             'yesterday' => $yesterday,
-            'persentase' => $persentase,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
+    }
+
+    public function getTrxByAuthUser()
+    {
+        return Transaksi::with(['bukutabungan.bank'])
+        ->where('owner_id', $this->checkUser()->id);
+    }
+    public function getTrxByUserByLimit()
+    {
+        return Transaksi::with(['bukutabungan.bank'])
+            ->where('owner_id', $this->checkUser()->id)
+            ->latest()
+            ->limit(5)
+            ->get();
     }
 }

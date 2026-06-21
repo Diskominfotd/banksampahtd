@@ -3,6 +3,7 @@
 namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Carbon::setLocale('id');
         $this->configureDefaults();
         Paginator::defaultView('vendor.pagination.bootstrap-5');
     }

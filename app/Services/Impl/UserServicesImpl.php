@@ -19,6 +19,18 @@ class UserServicesImpl implements UserServices
         return Auth::user();
     }
 
+    private function hitungPersentase(float $today, float $yesterday): float
+    {
+        if ($yesterday > 0) return round((($today - $yesterday) / $yesterday) * 100, 2);
+        if ($today > 0) return 100;
+        return 0;
+    }
+
+    public function getBanks()
+    {
+        return BankSampah::query();
+    }
+
     public function doLogin(array $data)
     {
         $nik = $data['nik'];
@@ -38,29 +50,30 @@ class UserServicesImpl implements UserServices
         Auth::login($user);
         return redirect()->route('home');
     }
+
     public function register(array $data)
     {
         return DB::transaction(function () use ($data) {
             try {
                 $hashedNik = hash('sha256', $data['nik']);
                 User::create([
-                    'nik' => $data['nik'],
-                    'nik_hash' => $hashedNik,
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    'nomor_hp' => $data['nomor_hp'],
-                    'mewakili' => $data['mewakili'],
+                    'nik'           => $data['nik'],
+                    'nik_hash'      => $hashedNik,
+                    'name'          => $data['name'],
+                    'email'         => $data['email'],
+                    'nomor_hp'      => $data['nomor_hp'],
+                    'mewakili'      => $data['mewakili'],
                     'organisasi_id' => $data['organisasi_id'] ?? null,
-                    'bank_sampah_id' => $data['bank_sampah_id'],
-                    'password' => Hash::make($data['password']),
+                    'bank_sampah_id'=> $data['bank_sampah_id'],
+                    'password'      => Hash::make($data['password']),
                 ]);
                 session()->flash('success', 'Berhasil');
             } catch (Throwable $th) {
-                //throw $th;
                 session()->flash('error', 'Terjadi Kesalahan');
             }
         });
     }
+
     public function updateUser(int $id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
@@ -68,18 +81,17 @@ class UserServicesImpl implements UserServices
                 $user = User::findOrFail($id);
                 $hashedNik = hash('sha256', $data['nik']);
                 $user->update([
-                    'nik' => $data['nik'],
-                    'nik_hash' => $hashedNik,
-                    'name' => $data['name'],
-                    'email' => $data['email'],
-                    'nomor_hp' => $data['nomor_hp'],
-                    'mewakili' => $data['mewakili'],
+                    'nik'           => $data['nik'],
+                    'nik_hash'      => $hashedNik,
+                    'name'          => $data['name'],
+                    'email'         => $data['email'],
+                    'nomor_hp'      => $data['nomor_hp'],
+                    'mewakili'      => $data['mewakili'],
                     'organisasi_id' => $data['organisasi_id'] ?? null,
-                    'bank_sampah_id' => $data['bank_sampah_id'],
+                    'bank_sampah_id'=> $data['bank_sampah_id'],
                 ]);
                 session()->flash('success', 'Berhasil');
             } catch (Throwable $th) {
-                //throw $th;
                 session()->flash('error', 'Terjadi Kesalahan');
             }
         });
@@ -89,6 +101,7 @@ class UserServicesImpl implements UserServices
     {
         return User::query()->find($id);
     }
+
     public function getBukuTabunganByUserId(int $id)
     {
         return BukuTabungan::with('bank')->where('user_id', $id)->get();
@@ -109,12 +122,9 @@ class UserServicesImpl implements UserServices
     {
         return DB::transaction(function () use ($data) {
             try {
-                Category::create([
-                    'name' => $data['name'],
-                ]);
+                Category::create(['name' => $data['name']]);
                 session()->flash('success', 'Berhasil');
             } catch (Throwable $th) {
-                //throw $th;
                 session()->flash('error', 'Terjadi Kesalahan');
             }
         });
@@ -125,12 +135,9 @@ class UserServicesImpl implements UserServices
         return DB::transaction(function () use ($data, $id) {
             try {
                 $category = Category::findOrFail($id);
-                $category->update([
-                    'name' => $data['name'],
-                ]);
+                $category->update(['name' => $data['name']]);
                 session()->flash('success', 'Berhasil');
             } catch (Throwable $th) {
-                //throw $th;
                 session()->flash('error', 'Terjadi Kesalahan');
             }
         });
@@ -169,25 +176,28 @@ class UserServicesImpl implements UserServices
             try {
                 $user = $this->getUserById($userId);
 
-                $exists = BukuTabungan::where('user_id', $user->id)->where('bank_id', $bankId)->exists();
+                $exists = BukuTabungan::where('user_id', $user->id)
+                    ->where('bank_id', $bankId)
+                    ->exists();
+
                 if ($exists) {
                     session()->flash('failed', 'Nasabah sudah punya rekening di unit ini');
                     return null;
                 }
+
                 $bank = BankSampah::findOrFail($bankId);
                 do {
                     $nomorRekening = $bank->kode_bank . str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
                 } while (BukuTabungan::where('nomor_rekening', $nomorRekening)->exists());
 
                 BukuTabungan::create([
-                    'nama' => $user->name,
+                    'nama'           => $user->name,
                     'nomor_rekening' => $nomorRekening,
-                    'user_id' => $user->id,
-                    'bank_id' => $bankId,
+                    'user_id'        => $user->id,
+                    'bank_id'        => $bankId,
                 ]);
-                return session()->flash('success', 'Berhasil');
+                session()->flash('success', 'Berhasil');
             } catch (Throwable $th) {
-                //throw $th;
                 session()->flash('error', 'Terjadi Kesalahan');
             }
         });
@@ -208,27 +218,17 @@ class UserServicesImpl implements UserServices
 
     public function totalNasabah()
     {
-        $today = $this->getUserByUnitAndBook()->whereDate('created_at', today())->count();
+        $todayDate     = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
 
-        $yesterday = $this->getUserByUnitAndBook()
-            ->whereDate('created_at', today()->subDay())
-            ->count();
-
-        $difference = $today - $yesterday;
-
-        if ($yesterday > 0) {
-            $persentase = round(($difference / $yesterday) * 100, 2);
-        } elseif ($today > 0) {
-            $persentase = 100;
-        } else {
-            $persentase = 0;
-        }
+        $today     = $this->getUserByUnitAndBook()->whereDate('created_at', $todayDate)->count();
+        $yesterday = $this->getUserByUnitAndBook()->whereDate('created_at', $yesterdayDate)->count();
 
         return [
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'difference' => $difference,
-            'persentase' => $persentase,
+            'today'      => $today,
+            'yesterday'  => $yesterday,
+            'difference' => $today - $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
 
@@ -240,25 +240,16 @@ class UserServicesImpl implements UserServices
 
     public function totalSaldoNasbah()
     {
-        $today = $this->bukuTabunganByAuthUser()->whereDate('created_at', today())->sum('saldo');
-        $yesterday = $this->bukuTabunganByAuthUser()
-            ->whereDate('created_at', today()->subDay())
-            ->sum('saldo');
-
-        if ($yesterday > 0) {
-            $persentase = round((($today - $yesterday) / $yesterday) * 100, 2);
-        } elseif ($today > 0) {
-            $persentase = 100;
-        } else {
-            $persentase = 0;
-        }
+        // Total saldo semua rekening (current balance, bukan by created_at)
+        $totalSaldo = $this->bukuTabunganByAuthUser()->sum('saldo');
 
         return [
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'persentase' => $persentase,
+            'today'      => $totalSaldo,
+            'yesterday'  => 0,
+            'persentase' => 0,
         ];
     }
+
     public function totalBukuTabunganNasabah()
     {
         $user = $this->checkUser();

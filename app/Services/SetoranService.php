@@ -13,4 +13,6 @@ interface SetoranService
     public function totalBeratSetoran();
     public function setoranToday();
     public function totalSaldoSetoranNasbah();
+    public function getSetoranByAuthUser();
+    public function getSetoranByUserByLimit();
 }

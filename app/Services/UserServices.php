@@ -22,4 +22,5 @@ interface UserServices
     public function totalNasabah();
     public function totalSaldoNasbah();
     public function totalBukuTabunganNasabah();
+    public function getBanks();
 }

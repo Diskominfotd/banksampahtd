@@ -9,4 +9,6 @@ interface TransaksiService
     public function totalPenarikanSaldoNasabah();
     public function penarikanTerbaru();
     public function totalTransaksiNasabah();
+    public function getTrxByAuthUser();
+    public function getTrxByUserByLimit();
 }
