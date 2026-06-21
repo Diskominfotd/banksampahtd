@@ -52,7 +52,16 @@ class DatabaseSeeder extends Seeder
 
         $role1 = Role::create(['name' => 'supervisor']);
         $role2 = Role::create(['name' => 'admin']);
-        $supervisor = Permission::create(['name' => 'view admin dashboard']);
+        $role3 = Role::create(['name' => 'nasabah']);
+
+        $supervisordashboard = Permission::create(['name' => 'view supervisor dashboard']);
+        $admindashboard = Permission::create(['name' => 'view admin dashboard']);
+        $nasabahdashboard = Permission::create(['name' => 'view dashboard nasabah']);
+
+        $role1->givePermissionTo($supervisordashboard);
+        $role2->givePermissionTo($admindashboard);
+        $role3->givePermissionTo($nasabahdashboard);
+
         $user1 = User::factory()->create([
             'name' => 'user induk',
             'email' => 'induk@example.com',
@@ -65,9 +74,8 @@ class DatabaseSeeder extends Seeder
             'bank_sampah_id' => $induk->id,
         ]);
         $user1->assignRole($role1);
-        $role1->givePermissionTo($supervisor);
 
-        for ($i = 2; $i <= 20; $i++) {
+        for ($i = 2; $i <= 10; $i++) {
             $user = User::factory()->create([
                 'name' => "user unit{$i}",
                 'email' => "unit{$i}@example.com",
@@ -75,13 +83,28 @@ class DatabaseSeeder extends Seeder
                 'nik' => '13010730059600' . str_pad($i, 2, '0', STR_PAD_LEFT),
                 'nik_hash' => hash('sha256', '13010730059600' . str_pad($i, 2, '0', STR_PAD_LEFT)),
                 'nomor_hp' => '0899999999' . str_pad($i, 2, '0', STR_PAD_LEFT),
-                'mewakili' => true,
                 'organisasi_id' => $org->id,
                 'bank_sampah_id' => fake()->randomElement([2, 3]),
             ]);
 
             $user->assignRole($role2);
         }
+
+        for ($i = 1; $i <= 20; $i++) {
+            $user = User::factory()->create([
+                'name' => "nasabah{$i}",
+                'email' => "nasabah{$i}@example.com",
+                'password' => bcrypt('rahasia'),
+                'nik' => '13010730059601' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                'nik_hash' => hash('sha256', '13010730059601' . str_pad($i, 2, '0', STR_PAD_LEFT)),
+                'nomor_hp' => '0899999998' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                'organisasi_id' => $org->id,
+                'bank_sampah_id' => fake()->randomElement([2, 3]),
+            ]);
+
+            $user->assignRole($role3);
+        }
+
         for ($i = 1; $i <= 20; $i++) {
             $cat = Category::create([
                 'name' => 'Kategori' . $i,

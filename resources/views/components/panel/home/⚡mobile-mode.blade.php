@@ -9,11 +9,11 @@ new class extends Component {
 
 <div>
     {{-- Simplicity is an acquired taste. - Katharine Gerould --}}
-    <div id="m-beranda">
+    {{-- <div id="m-beranda">
         <div class="m-header">
             <div class="m-topbar">
                 <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
-                    <div class="avatar avatar-md">{{ Auth::user()->initials()  }}</div>
+                    <div class="avatar avatar-md">{{ Auth::user()->initials() }}</div>
                     <div>
                         <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat datang</div>
                         <div style="font-size:14px;font-weight:600;color:#fff">{{ Auth::user()->unit->nama }}</div>
@@ -115,7 +115,8 @@ new class extends Component {
                             $textClass = $arah === 'down' ? 'text-danger' : '';
                         @endphp
 
-                        <span class="m-pill-l{{ $textClass }}" style="display:inline-flex; align-items:center; gap:1px;">
+                        <span class="m-pill-l{{ $textClass }}"
+                            style="display:inline-flex; align-items:center; gap:1px;">
                             <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
                             @if ($arah === 'neutral')
                                 Sama
@@ -167,5 +168,136 @@ new class extends Component {
             </div>
         </div>
         @include('panel.template.mobile-bottombar')
+    </div> --}}
+
+    <div id="m-beranda">
+        <div class="m-header">
+            <div class="m-topbar">
+                <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
+                    <div class="avatar avatar-md">{{ Auth::user()->initials() }}</div>
+                    <div>
+                        <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat datang</div>
+                        <div style="font-size:14px;font-weight:600;color:#fff">{{ Auth::user()->unit->nama }}</div>
+                    </div>
+                </div>
+                <div class="m-gear" onclick="mNav('m-notifikasi')"><i class="bi bi-bell-fill"></i><span
+                        style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid rgba(255,255,255,.4);font-size:7px;display:flex;align-items:center;justify-content:center;font-weight:700">3</span>
+                </div>
+            </div>
+            <div class="m-summary fade-up">
+                <div class="m-summary-lbl">Total Saldo Anda</div>
+                <div class="m-summary-num">
+                    Rp {{ convertRupiahToString($data['totalSaldoNasabah']['today']) }}
+                    @php
+                        $persentase = $data['totalSaldoNasabah']['persentase'];
+                        $arah = match (true) {
+                            $persentase > 0 => 'up',
+                            $persentase < 0 => 'down',
+                            default => 'neutral',
+                        };
+                        $iconClass = match ($arah) {
+                            'up' => 'bi-arrow-up-short',
+                            'down' => 'bi-arrow-down-short text-danger',
+                            default => 'bi-dash',
+                        };
+                        $textClass = match ($arah) {
+                            'down' => 'text-danger',
+                            default => '',
+                        };
+                    @endphp
+
+                    <i class="bi {{ $iconClass }}" style="font-size: 0.6em;"></i>
+                    <span class="m-summary-percent {{ $textClass }}" style="font-size: 0.5em;">
+                        @if ($arah === 'neutral')
+                            Sama
+                        @else
+                            {{ number_format(abs($persentase), 1, ',', '.') }}%
+                        @endif
+                    </span>
+                </div>
+
+                <div class="m-pills">
+                    <div class="m-pill c">
+                        <span class="m-pill-n">{{ $data['totalRekeningNasabah'] }}</span>
+                        <span class="m-pill-l">Rekening</span>
+                    </div>
+                    <div class="m-pill c">
+                        <span class="m-pill-n">{{ convertRupiahToString($data['totalSetoranNasabah']['today']) }}</span>
+                        <span class="m-pill-l">Setoran</span>
+                        @php
+                            $persentase = $data['totalSetoranNasabah']['persentase'];
+                            $arah = match (true) {
+                                $persentase > 0 => 'up',
+                                $persentase < 0 => 'down',
+                                default => 'neutral',
+                            };
+                            $textClass = $arah === 'down' ? 'text-danger' : '';
+                        @endphp
+
+                        <span class="m-pill-l{{ $textClass }}"
+                            style="display:inline-flex; align-items:center; gap:1px;">
+                            <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
+                            @if ($arah === 'neutral')
+                                Sama
+                            @else
+                                {{ $arah === 'up' ? '+' : '' }}{{ $persentase }}%
+                            @endif
+                        </span>
+                    </div>
+                    <div class="m-pill">
+                        <span
+                            class="m-pill-n">{{ convertRupiahToString($data['totalPenarikanNasabah']['today']) }}</span>
+                        <span class="m-pill-l">Tarik</span>
+
+                        @php
+                            $persentase = $data['totalPenarikanNasabah']['persentase'];
+                            $arah = match (true) {
+                                $persentase > 0 => 'up',
+                                $persentase < 0 => 'down',
+                                default => 'neutral',
+                            };
+                            $textClass = $arah === 'down' ? 'text-danger' : '';
+                        @endphp
+
+                        <span class="m-pill-l{{ $textClass }}"
+                            style="display:inline-flex; align-items:center; gap:1px;">
+                            <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
+                            @if ($arah === 'neutral')
+                                Sama
+                            @else
+                                {{ $arah === 'up' ? '+' : '' }}{{ $persentase }}%
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+
+    <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
+
+    <div x-show="$store.sheet.is('edit-nasabah')" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+        <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                Edit Nasabah
+            </div>
+        </div>
+        <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+            <div class="spinner-border text-success"></div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+
+        </div>
+
+    </div>

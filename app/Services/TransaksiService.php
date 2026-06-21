@@ -8,4 +8,5 @@ interface TransaksiService
     public function getTransaksis();
     public function totalPenarikanSaldoNasabah();
     public function penarikanTerbaru();
+    public function totalTransaksiNasabah();
 }

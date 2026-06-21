@@ -15,18 +15,23 @@ class SetoranServiceImpl implements SetoranService
     {
         return Auth::user();
     }
-    public function createSetoran(User $nasabah, array $cart): Setoran
+    public function createSetoran(User $nasabah, array $cart, int $bankId): Setoran
     {
-        return DB::transaction(function () use ($nasabah, $cart) {
+        return DB::transaction(function () use ($nasabah, $cart, $bankId) {
             try {
                 $totalSaldoSetoran = collect($cart)->sum(fn($c) => $c['harga'] * $c['berat']);
-                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])->lockForUpdate()->firstOrFail();
+
+                // ✅ filter berdasarkan bank_id yang sesuai
+                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
+
                 $setoran = Setoran::create([
                     'penyetor_id' => $nasabah['id'],
                     'total_berat' => collect($cart)->sum('berat'),
                     'total_saldo' => $totalSaldoSetoran,
                     'tanggal' => now(),
+                    'buku_tabungan_id' => $bukutabungan->id,
                 ]);
+
                 foreach ($cart as $item) {
                     $setoran->items()->create([
                         'price_id' => $item['price_id'],
@@ -37,16 +42,13 @@ class SetoranServiceImpl implements SetoranService
                         'sub_total' => $item['harga'] * $item['berat'],
                     ]);
                 }
+
                 $bukutabungan->increment('saldo', $totalSaldoSetoran);
                 return $setoran;
             } catch (\Throwable $e) {
                 Log::error('createSetoran failed', [
                     'nasabah_id' => $nasabah['id'],
-                    'cart' => $cart,
                     'error' => $e->getMessage(),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'trace' => $e->getTraceAsString(),
                 ]);
                 throw $e;
             }
@@ -57,23 +59,11 @@ class SetoranServiceImpl implements SetoranService
     {
         $auth = $this->checkUser();
         $unitId = $auth->unit->id;
-        return Setoran::with([
-            'penyetor',
-            'penyetor.bukutabungans' => function ($q) use ($unitId) {
-                $q->where('bank_id', $unitId)->with([
-                    'bank' => function ($q2) use ($unitId) {
-                        $q2->where('id', $unitId);
-                    },
-                ]);
-            },
-            'items',
-        ])->whereHas('penyetor', function ($q) use ($unitId) {
-            $q->whereHas('bukutabungans', function ($q2) use ($unitId) {
-                $q2->where('bank_id', $unitId);
-            });
+
+        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+            $q->where('bank_id', $unitId);
         });
     }
-
     public function getSetoranByIdNasabah(int $nasabahId)
     {
         return Setoran::with(['penyetor', 'items.trash'])
@@ -128,5 +118,31 @@ class SetoranServiceImpl implements SetoranService
     public function setoranToday()
     {
         return $this->getSetoranByUnit()->whereDate('created_at', today())->limit(5)->get();
+    }
+
+    public function setoranByAuthUser()
+    {
+        $user = $this->checkUser();
+        return Setoran::where('penyetor_id', $user->id);
+    }
+
+    public function totalSaldoSetoranNasbah()
+    {
+        $today = $this->setoranByAuthUser()->whereDate('created_at', today())->sum('total_saldo');
+        $yesterday = $this->setoranByAuthUser()
+            ->whereDate('created_at', today()->subDay())
+            ->sum('total_saldo');
+        if ($yesterday > 0) {
+            $persentase = round((($today - $yesterday) / $yesterday) * 100, 2);
+        } elseif ($today > 0) {
+            $persentase = 100;
+        } else {
+            $persentase = 0;
+        }
+        return [
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $persentase,
+        ];
     }
 }

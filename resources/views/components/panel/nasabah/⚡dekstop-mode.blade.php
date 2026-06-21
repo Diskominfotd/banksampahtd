@@ -46,6 +46,7 @@ new class extends Component {
                                 <th>Unit Pendaftaran</th>
                                 <th>Total Setoran</th>
                                 <th>Saldo</th>
+                                <th>Level</th>
                                 <th>Status</th>
                                 <th></th>
                             </tr>
@@ -74,6 +75,9 @@ new class extends Component {
                                     </td>
                                     <td style="font-weight:600">0 kg / 0 trx</td>
                                     <td style="font-weight:700;color:var(--cyan)">Rp 0</td>
+                                    <td><span
+                                            class="bs bs-green">{{ ucfirst($nasabah->getRoleNames()->first()) }}</span>
+                                    </td>
                                     <td><span class="bs bs-green">Aktif</span></td>
                                     <td>
                                         <button wire:click="detail('{{ encrypt($nasabah->id) }}')"
@@ -438,7 +442,7 @@ new class extends Component {
                                     <div class="d-flex justify-content-between align-items-center px-3 py-2"
                                         style="border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb;">
                                         <span style="font-size: 13px; font-weight: 500; color: #111827;">
-                                         {{$bk['bank']['nama']}}
+                                            {{ $bk['bank']['nama'] }}
                                         </span>
                                         <span style="font-size: 12px; color: #6b7280; font-family: monospace;">
                                             {{ $bk['nomor_rekening'] }}

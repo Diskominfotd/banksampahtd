@@ -7,9 +7,10 @@ use App\Models\User;
 
 interface SetoranService
 {
-    public function createSetoran(User $nasabah, array $cart): Setoran;
+    public function createSetoran(User $nasabah, array $cart, int $bankId): Setoran;
     public function getSetoranByUnit();
     public function getSetoranByIdNasabah(int $nasabahId);
     public function totalBeratSetoran();
     public function setoranToday();
+    public function totalSaldoSetoranNasbah();
 }

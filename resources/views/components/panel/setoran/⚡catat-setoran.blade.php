@@ -163,7 +163,8 @@ new class extends Component {
                 return;
             }
         }
-        $this->setoranService->createSetoran($this->selectedNasabah, $this->cart);
+          $bankId = Auth::user()->unit->id; // ✅ ambil dari auth user
+        $this->setoranService->createSetoran($this->selectedNasabah, $this->cart, $bankId);
 
         $this->cart = [];
         $this->selectedNasabah = null;

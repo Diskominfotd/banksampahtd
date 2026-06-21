@@ -31,6 +31,10 @@ new class extends Component {
         $totalPenarikanSaldoNasabah = $this->transaksiService->totalPenarikanSaldoNasabah();
         $setoranTerbaru = $this->setoranService->setoranToday();
         $transaksiTerbaru = $this->transaksiService->penarikanTerbaru();
+        $totalSaldoNasabah = $this->userService->totalSaldoNasbah();
+        $totalRekeningNasabah = $this->userService->totalBukuTabunganNasabah();
+        $totalSetoranNasabah = $this->setoranService->totalSaldoSetoranNasbah();
+        $totalPenarikanNasabah = $this->transaksiService->totalTransaksiNasabah();
 
         return [
             'totalBeratSetoran' => $totalBeratSetoran,
@@ -39,6 +43,10 @@ new class extends Component {
             'totalPenarikanSaldoNasabah' => $totalPenarikanSaldoNasabah,
             'setoranTerbaru' => $setoranTerbaru,
             'transaksiTerbaru' => $transaksiTerbaru,
+            'totalSaldoNasabah' => $totalSaldoNasabah,
+            'totalRekeningNasabah' => $totalRekeningNasabah,
+            'totalSetoranNasabah' => $totalSetoranNasabah,
+            'totalPenarikanNasabah' => $totalPenarikanNasabah,
         ];
     }
 };

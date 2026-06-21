@@ -198,27 +198,42 @@ new class extends Component {
                             </div>
                             <div class="d-flex flex-column gap-2">
                                 @foreach ($data['transaksiTerbaru'] as $tb)
+                                    @php
+                                        $owner = $tb->owner ?? null;
+                                        $ownerName = $owner->name ?? '-';
+                                        $bukutabungan = $owner?->bukutabungans?->first();
+                                        $nomorRekening = $bukutabungan->nomor_rekening ?? '-';
+                                        $bankNama = $bukutabungan?->bank?->nama ?? '-';
+                                        $initials =
+                                            $ownerName !== '-'
+                                                ? strtoupper(
+                                                    substr($ownerName, 0, 1) .
+                                                        substr(strrchr(' ' . $ownerName, ' '), 1, 1),
+                                                )
+                                                : '?';
+                                    @endphp
                                     <div class="w-row">
                                         <div class="w-row-ico ic2">
                                             <div class="avatar"
                                                 style="width:36px;height:36px;font-size:12px;flex-shrink:0">
-                                                {{ strtoupper(substr($tb->owner->name, 0, 1) . substr(strrchr(' ' . $tb->owner->name, ' '), 1, 1)) }}
+                                                {{ $initials }}
                                             </div>
                                         </div>
                                         <div class="flex-grow-1 overflow-hidden">
-                                            <div class="w-row-title">{{ ucfirst($tb->owner->name) }} —
-                                                {{ $tb->owner->bukutabungans->first()->nomor_rekening }}
+                                            <div class="w-row-title">
+                                                {{ ucfirst($ownerName) }} — {{ $nomorRekening }}
                                             </div>
                                             <div class="w-row-meta">
-                                                {{ $tb->owner->bukutabungans->first()->bank->nama }} ·
-                                                {{ $tb->tanggal_transaksi->diffForHumans() }}
+                                                {{ $bankNama }} ·
+                                                {{ $tb->tanggal_transaksi?->diffForHumans() ?? '-' }}
                                             </div>
                                             <div class="w-row-meta">
-                                                <b> Sisa - Rp
-                                                    {{ number_format($tb->sisa_saldo ?? 0, 0, ',', '.') }}</b>
+                                                <b>Sisa - Rp {{ number_format($tb->sisa_saldo ?? 0, 0, ',', '.') }}</b>
                                             </div>
-                                        </div><span class="bs bs-green">Rp
-                                            {{ number_format($tb->total_penarikan ?? 0, 0, ',', '.') }} </span>
+                                        </div>
+                                        <span class="bs bs-green">
+                                            Rp {{ number_format($tb->total_penarikan ?? 0, 0, ',', '.') }}
+                                        </span>
                                     </div>
                                 @endforeach
                             </div>

@@ -36,8 +36,7 @@ new class extends Component {
         $builder = $this->userService->getUserByUnitAndBook();
         if ($this->searchNasabah) {
             $builder->where(function ($q) {
-                $q->where('name', 'like', "%{$this->searchNasabah}%")
-                ->orWhereHas('bukutabungans', function ($q) {
+                $q->where('name', 'like', "%{$this->searchNasabah}%")->orWhereHas('bukutabungans', function ($q) {
                     $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%");
                 });
             });
@@ -52,20 +51,20 @@ new class extends Component {
     }
     public function pilihNasabah($id)
     {
-        $sudahAda = collect($this->selectedNasabah)->contains('rekening', function ($v) use ($id) {
-            return false;
-        });
         if (collect($this->selectedNasabah)->contains('user_id', $id)) {
             $this->dispatch('close-modal');
             return;
         }
         $item = $this->userService->getUserByUnitAndBook()->where('users.id', $id)->first();
+        $unitId = Auth::user()->unit->id;
+        $buku = $item->bukutabungans->firstWhere('bank_id', $unitId);
 
         $this->selectedNasabah[] = [
             'user_id' => $id,
             'name' => $item->name,
-            'rekening' => $item->bukutabungans[0]->nomor_rekening,
-            'saldo' => $item->bukutabungans[0]->saldo,
+            'buku_tabungan_id' => $buku->id,
+            'rekening' => $buku->nomor_rekening,
+            'saldo' => $buku->saldo,
             'jumlah' => 0,
         ];
 

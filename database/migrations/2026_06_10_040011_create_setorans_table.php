@@ -9,10 +9,11 @@ return new class extends Migration {
     {
         Schema::create('setorans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('penyetor_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->decimal('total_berat', 12, 2)->default(0);
             $table->decimal('total_saldo', 12, 2)->default(0);
             $table->date('tanggal')->useCurrent();
+            $table->foreignId('penyetor_id')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('buku_tabungan_id')->nullable()->constrained('buku_tabungans')->cascadeOnDelete();
             $table->timestamps();
         });
     }

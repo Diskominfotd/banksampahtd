@@ -3,6 +3,7 @@ namespace App\Services\Impl;
 
 use App\Models\BukuTabungan;
 use App\Models\Transaksi;
+use App\Models\User;
 use App\Services\TransaksiService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -29,6 +30,7 @@ class TransaksiServiceImpl implements TransaksiService
                 'tanggal_transaksi' => Carbon::now(),
                 'owner_id' => $data['user_id'],
                 'admin_id' => $this->checkUser()->id,
+                'buku_tabungan_id' => $data['buku_tabungan_id'],
             ]);
         });
     }
@@ -36,14 +38,12 @@ class TransaksiServiceImpl implements TransaksiService
     public function getTransaksis()
     {
         $user = $this->checkUser();
+        $unitId = $user->unit->id;
 
-        return Transaksi::with([
-            'owner.bukutabungans' => function ($q) use ($user) {
-                $q->where('bank_id', $user->unit->id)->with('bank');
-            },
-        ]);
+        return Transaksi::with(['owner', 'bukutabungan.bank'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+            $q->where('bank_id', $unitId);
+        });
     }
-
     public function penarikanTerbaru()
     {
         return $this->getTransaksis()->limit(5)->get();
@@ -64,6 +64,33 @@ class TransaksiServiceImpl implements TransaksiService
             $persentase = 0;
         }
 
+        return [
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $persentase,
+        ];
+    }
+
+    public function transaksiByAuthUser()
+    {
+        $auth = $this->checkUser();
+        return Transaksi::where('id', $auth->id)
+            ->first();
+    }
+    public function totalTransaksiNasabah()
+    {
+        $today = $this->transaksiByAuthUser()->whereDate('created_at', today())
+        ->sum('total_penarikan');
+        $yesterday = $this->transaksiByAuthUser()
+            ->whereDate('created_at', today()->subDay())
+            ->sum('total_penarikan');
+        if ($yesterday > 0) {
+            $persentase = round((($today - $yesterday) / $yesterday) * 100, 2);
+        } elseif ($today > 0) {
+            $persentase = 100;
+        } else {
+            $persentase = 0;
+        }
         return [
             'today' => $today,
             'yesterday' => $yesterday,

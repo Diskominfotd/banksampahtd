@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaksi extends Model
 {
-    protected $fillable = ['total_penarikan', 'sisa_saldo', 'tanggal_transaksi', 'owner_id', 'admin_id'];
+    protected $fillable = ['total_penarikan', 'sisa_saldo', 'tanggal_transaksi', 'owner_id', 'admin_id','buku_tabungan_id'];
 
     public function owner()
     {
@@ -19,4 +19,8 @@ class Transaksi extends Model
     protected $casts = [
         'tanggal_transaksi' => 'datetime',
     ];
+    public function bukutabungan()
+    {
+        return $this->belongsTo(BukuTabungan::class, 'buku_tabungan_id');
+    }
 }

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setoran extends Model
 {
-    protected $fillable = ['penyetor_id', 'total_berat', 'tanggal','total_saldo'];
+    protected $fillable = ['penyetor_id', 'total_berat', 'tanggal', 'total_saldo', 'buku_tabungan_id'];
 
     public function penyetor()
     {
@@ -21,5 +21,9 @@ class Setoran extends Model
     public function items()
     {
         return $this->hasMany(SetoranItem::class);
+    }
+    public function bukutabungan()
+    {
+        return $this->belongsTo(BukuTabungan::class, 'buku_tabungan_id');
     }
 }

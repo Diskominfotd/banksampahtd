@@ -29,6 +29,7 @@ new class extends Component {
     public function getData()
     {
         $builder = $this->setoranService->getSetoranByUnit();
+        // return dd(json_encode($builder->get(), JSON_PRETTY_PRINT));
         if ($this->keyword) {
             $builder->where(function ($q) {
                 $q->whereHas('penyetor.bukutabungans', function ($q) {
@@ -80,17 +81,15 @@ new class extends Component {
             </div>
             <div class="d-flex flex-column gap-2">
                 @foreach ($data['setoran'] as $st)
-                    <div class="tx-card d-flex align-items-start gap-2 fade-up"
-                        onclick="openDetail('m-detail-setoran')">
+                    <div class="tx-card d-flex align-items-start gap-2 fade-up">
                         <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)"><i
                                 class="bi bi-recycle" style="font-size:14px"></i></div>
                         <div class="flex-grow-1 overflow-hidden">
                             <div class="tx-name text-truncate">{{ ucfirst($st->penyetor->name) }} —
                                 {{ number_format($st->total_berat, 0, ',', '.') }} Kg</div>
                             <div class="tx-date"><i class="bi bi-clock me-1"></i>
-                                {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }} · @foreach ($st->penyetor->bukutabungans as $buku)
-                                    {{ $buku->bank->nama }}
-                                @endforeach ·
+                                {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
+                                {{ $st->bukutabungan->bank->nama }}
                                 <b>Rp {{ number_format($st->total_saldo, 0, ',', '.') }}</b>
                             </div>
                             <div class="d-flex gap-1 mt-2">
@@ -215,9 +214,7 @@ new class extends Component {
                                         </div>
                                     </td>
                                     <td><span class="bs bs-ok">
-                                            @foreach ($st->penyetor->bukutabungans as $buku)
-                                                {{ $buku->nomor_rekening }}
-                                            @endforeach
+                                            {{ $st->bukutabungan->nomor_rekening }}
                                         </span>
                                     </td>
                                     <td style="font-weight:600"> {{ number_format($st->total_berat, 0, ',', '.') }} kg
@@ -226,9 +223,7 @@ new class extends Component {
                                         {{ number_format($st->total_saldo, 0, ',', '.') }}
                                     </td>
                                     <td style="font-size:10px;color:var(--muted)">
-                                        @foreach ($st->penyetor->bukutabungans as $buku)
-                                            {{ $buku->bank->nama }}
-                                        @endforeach
+                                      {{ $st->bukutabungan->bank->nama }}
                                     </td>
                                     <td style="font-size:10px;color:var(--muted)">
                                         {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }}

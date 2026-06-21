@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->dateTime('tanggal_transaksi');
             $table->foreignId('owner_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('buku_tabungan_id')->nullable()->constrained('buku_tabungans')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Services\Impl;
 use App\Models\BankSampah;
 use App\Models\BukuTabungan;
 use App\Models\Category;
+use App\Models\Setoran;
 use App\Models\User;
 use App\Services\UserServices;
 use Illuminate\Support\Facades\Auth;
@@ -229,5 +230,38 @@ class UserServicesImpl implements UserServices
             'difference' => $difference,
             'persentase' => $persentase,
         ];
+    }
+
+    public function bukuTabunganByAuthUser()
+    {
+        $user = $this->checkUser();
+        return BukuTabungan::where('user_id', $user->id);
+    }
+
+    public function totalSaldoNasbah()
+    {
+        $today = $this->bukuTabunganByAuthUser()->whereDate('created_at', today())->sum('saldo');
+        $yesterday = $this->bukuTabunganByAuthUser()
+            ->whereDate('created_at', today()->subDay())
+            ->sum('saldo');
+
+        if ($yesterday > 0) {
+            $persentase = round((($today - $yesterday) / $yesterday) * 100, 2);
+        } elseif ($today > 0) {
+            $persentase = 100;
+        } else {
+            $persentase = 0;
+        }
+
+        return [
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $persentase,
+        ];
+    }
+    public function totalBukuTabunganNasabah()
+    {
+        $user = $this->checkUser();
+        return BukuTabungan::where('user_id', $user->id)->count();
     }
 }
