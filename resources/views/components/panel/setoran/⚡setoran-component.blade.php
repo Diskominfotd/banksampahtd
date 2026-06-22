@@ -19,10 +19,10 @@ new class extends Component {
     {
         return redirect()->route($route);
     }
-    public function detailSetoran(string $nasabahId)
+    public function detailSetoran(string $setoranId)
     {
-        $nasabahId = decrypt($nasabahId);
-        $item = $this->setoranService->getSetoranByIdNasabah($nasabahId);
+        $setoranId = decrypt($setoranId);
+        $item = $this->setoranService->getSetoranByIdNasabah($setoranId);
         $this->detailItems = $item->toArray();
     }
 
@@ -94,7 +94,7 @@ new class extends Component {
                             </div>
                             <div class="d-flex gap-1 mt-2">
                                 <button @click="$store.sheet.show('detail-setoran')"
-                                    wire:click="detailSetoran('{{ encrypt($st->penyetor->id) }}')" class="btn-tx"> <i
+                                    wire:click="detailSetoran('{{ encrypt($st->id) }}')" class="btn-tx"> <i
                                         class="bi bi-eye"></i>
                                 </button>
                             </div>
@@ -223,13 +223,13 @@ new class extends Component {
                                         {{ number_format($st->total_saldo, 0, ',', '.') }}
                                     </td>
                                     <td style="font-size:10px;color:var(--muted)">
-                                      {{ $st->bukutabungan->bank->nama }}
+                                        {{ $st->bukutabungan->bank->nama }}
                                     </td>
                                     <td style="font-size:10px;color:var(--muted)">
                                         {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
                                     </td>
                                     <td>
-                                        <button wire:click="detailSetoran('{{ encrypt($st->penyetor->id) }}')"
+                                        <button wire:click="detailSetoran('{{ encrypt($st->id) }}')"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
                                             data-bs-toggle="modal" data-bs-target="#wm-detail-setoran">
                                             <i class="bi bi-eye-fill"></i>
@@ -298,12 +298,6 @@ new class extends Component {
                     </table>
                 </div>
                 <div class="w-modal-footer">
-                    {{-- <button class="w-btn w-btn-ghost" data-bs-dismiss="modal">Tutup</button>
-                    <button class="w-btn w-btn-ghost" data-bs-dismiss="modal"
-                        onclick="setTimeout(()=> new bootstrap.Modal(document.getElementById('wm-tambah-setoran')).show(), 300)">
-                        Catat Setoran
-                    </button>
-                    <button class="w-btn w-btn-danger">Proses Penarikan</button> --}}
                 </div>
             </div>
         </div>

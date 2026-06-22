@@ -51,7 +51,7 @@ new class extends Component {
         $data = $this->userService->getBukuTabunganByUserId($this->nasabahId);
         $this->bukuTabungan = $data->toArray();
         $this->alertNotAlowed();
-        $this->alert();
+        $this->alertPopUp();
     }
 
     public function getBukuTabungan()
@@ -90,7 +90,7 @@ new class extends Component {
         $totalPenarikanSaldoNasabah = $this->transaksiService->totalPenarikanSaldoNasabah();
         $setoranTerbaru = $this->setoranService->setoranToday();
         $transaksiTerbaru = $this->transaksiService->penarikanTerbaru();
-        $totalSaldoNasabah = $this->userService->totalSaldoNasbah();
+        $totalSaldoNasabah = $this->userService->totalSaldoNasabah();
         $totalRekeningNasabah = $this->userService->totalBukuTabunganNasabah();
         $totalSetoranNasabah = $this->setoranService->totalSaldoSetoranNasbah();
         $totalPenarikanNasabah = $this->transaksiService->totalTransaksiNasabah();
@@ -109,7 +109,7 @@ new class extends Component {
             'totalPenarikanNasabah' => $totalPenarikanNasabah,
             'banksampah' => $this->userService->getBanks()->get(),
             'setoranNasabahByLimit' => $setoranNasabahByLimit,
-            'trxNasabahByLimit' => $trxNasabahByLimit
+            'trxNasabahByLimit' => $trxNasabahByLimit,
         ];
     }
 };

@@ -9,7 +9,7 @@ interface SetoranService
 {
     public function createSetoran(User $nasabah, array $cart, int $bankId): Setoran;
     public function getSetoranByUnit();
-    public function getSetoranByIdNasabah(int $nasabahId);
+    public function getSetoranByIdNasabah(int $setoranId);
     public function totalBeratSetoran();
     public function setoranToday();
     public function totalSaldoSetoranNasbah();

@@ -71,15 +71,16 @@ class SetoranServiceImpl implements SetoranService
         $auth = $this->checkUser();
         $unitId = $auth->unit->id;
 
-        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])
+        ->whereHas('bukutabungan', function ($q) use ($unitId) {
             $q->where('bank_id', $unitId);
         });
     }
 
-    public function getSetoranByIdNasabah(int $nasabahId)
+    public function getSetoranByIdNasabah(int $setoranId)
     {
         return Setoran::with(['penyetor', 'items.trash'])
-            ->where('penyetor_id', $nasabahId)
+            ->where('id', $setoranId)
             ->first();
     }
 

@@ -1696,6 +1696,7 @@
             margin-top: 1px;
         }
 
+
         .btn-sm-green {
             display: inline-flex;
             align-items: center;

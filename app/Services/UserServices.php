@@ -20,7 +20,7 @@ interface UserServices
     public function getBukuTabunganByUserId(int $id);
     public function getUserByUnitAndBook();
     public function totalNasabah();
-    public function totalSaldoNasbah();
+    public function totalSaldoNasabah();
     public function totalBukuTabunganNasabah();
     public function getBanks();
 }

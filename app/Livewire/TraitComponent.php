@@ -21,6 +21,37 @@ trait TraitComponent
             );
         }
     }
+    public function alertPopUp()
+    {
+        if (session()->has('success')) {
+            $message = json_encode(session('success'));
+            $this->js(
+                <<<JS
+                  let message = $message;
+                    Swal.fire({
+                    icon: "success",
+                    title: "Berhasil",
+                    text: message,
+                });
+                JS
+                ,
+            );
+        }
+        if (session()->has('error')) {
+            $message = json_encode(session('error'));
+            $this->js(
+                <<<JS
+                let message = $message;
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: message,
+                });
+                JS
+                ,
+            );
+        }
+    }
     public function alert()
     {
         if (session()->has('success')) {
