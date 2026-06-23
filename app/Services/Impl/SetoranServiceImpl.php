@@ -33,14 +33,15 @@ class SetoranServiceImpl implements SetoranService
             try {
                 $totalSaldoSetoran = collect($cart)->sum(fn($c) => $c['harga'] * $c['berat']);
 
-                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
-
+                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])
+                ->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
                 $setoran = Setoran::create([
                     'penyetor_id' => $nasabah['id'],
                     'total_berat' => collect($cart)->sum('berat'),
                     'total_saldo' => $totalSaldoSetoran,
                     'tanggal' => now(),
                     'buku_tabungan_id' => $bukutabungan->id,
+                    'admin_id' => Auth::user()->id,
                 ]);
 
                 foreach ($cart as $item) {
@@ -71,8 +72,7 @@ class SetoranServiceImpl implements SetoranService
         $auth = $this->checkUser();
         $unitId = $auth->unit->id;
 
-        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])
-        ->whereHas('bukutabungan', function ($q) use ($unitId) {
+        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])->whereHas('bukutabungan', function ($q) use ($unitId) {
             $q->where('bank_id', $unitId);
         });
     }
@@ -86,6 +86,7 @@ class SetoranServiceImpl implements SetoranService
 
     public function totalBeratSetoran()
     {
+        $total = $this->getSetoranByUnit()->sum('total_berat');
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
@@ -93,6 +94,7 @@ class SetoranServiceImpl implements SetoranService
         $yesterday = $this->getSetoranByUnit()->whereDate('created_at', $yesterdayDate)->sum('total_berat');
 
         return [
+            'total' => $total,
             'today' => $today,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
@@ -101,6 +103,7 @@ class SetoranServiceImpl implements SetoranService
 
     public function totalSaldoSetoran()
     {
+        $total = $this->getSetoranByUnit()->sum('total_saldo');
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
@@ -108,6 +111,7 @@ class SetoranServiceImpl implements SetoranService
         $yesterday = $this->getSetoranByUnit()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
 
         return [
+            'total' => $total,
             'today' => $today,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),

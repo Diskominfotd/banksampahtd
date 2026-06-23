@@ -12,6 +12,7 @@ return new class extends Migration {
     {
         Schema::create('transaksis', function (Blueprint $table) {
             $table->id();
+            $table->string('kode')->unique();
             $table->decimal('total_penarikan', 12, 2);
             $table->decimal('sisa_saldo', 12, 2);
             $table->dateTime('tanggal_transaksi');

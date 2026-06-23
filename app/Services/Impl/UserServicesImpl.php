@@ -220,6 +220,7 @@ class UserServicesImpl implements UserServices
 
     public function totalNasabah()
     {
+        $total = $this->getUserByUnitAndBook()->count();
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
@@ -227,6 +228,7 @@ class UserServicesImpl implements UserServices
         $yesterday = $this->getUserByUnitAndBook()->whereDate('created_at', $yesterdayDate)->count();
 
         return [
+            'total' => $total,
             'today' => $today,
             'yesterday' => $yesterday,
             'difference' => $today - $yesterday,

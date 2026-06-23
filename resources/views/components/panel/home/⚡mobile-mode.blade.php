@@ -9,6 +9,46 @@ new class extends Component {
 
 <div>
     {{-- Simplicity is an acquired taste. - Katharine Gerould --}}
+    <style>
+        .chevron-btn {
+            background: none;
+            border: none;
+            padding: 2px 4px;
+            cursor: pointer;
+            color: var(--text-muted, #9ca3af);
+            display: flex;
+            align-items: center;
+        }
+
+        .chevron-btn i {
+            transition: transform 0.2s ease;
+        }
+
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        .detail-table th {
+            text-align: left;
+            font-weight: 500;
+            color: #6b7280;
+            padding: 5px 8px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-table td {
+            padding: 5px 8px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 12px;
+        }
+    </style>
     @if (Auth::user()->hasRole(['admin', 'supervisor']))
         {{-- AdminSupervisor --}}
         <div id="m-beranda">
@@ -29,7 +69,7 @@ new class extends Component {
                 <div class="m-summary fade-up">
                     <div class="m-summary-lbl">Total Berat Sampah</div>
                     <div class="m-summary-num">
-                        {{ number_format($data['totalBeratSetoran']['today'], 0, ',', '.') }} Kg
+                        {{ number_format($data['totalBeratSetoran']['total'], 0, ',', '.') }} Kg
 
                         @php
                             $persentase = $data['totalBeratSetoran']['persentase'];
@@ -61,7 +101,7 @@ new class extends Component {
 
                     <div class="m-pills">
                         <div class="m-pill c">
-                            <span class="m-pill-n">{{ $data['totalNasabah']['today'] }}</span>
+                            <span class="m-pill-n">{{ $data['totalNasabah']['total'] }}</span>
                             <span class="m-pill-l">Nasabah</span>
 
                             @php
@@ -106,7 +146,7 @@ new class extends Component {
                         </div>
                         <div class="m-pill">
                             <span
-                                class="m-pill-n">{{ convertRupiahToString($data['totalPenarikanSaldoNasabah']['today']) }}</span>
+                                class="m-pill-n">{{ convertRupiahToString($data['totalPenarikanSaldoNasabah']['total']) }}</span>
                             <span class="m-pill-l">Tarik</span>
 
                             @php
@@ -313,7 +353,9 @@ new class extends Component {
                 <div class="row g-2">
                     @if ($data['setoranNasabahByLimit']->isNotEmpty())
                         @foreach ($data['setoranNasabahByLimit'] as $snbl)
-                            <div class="list-item fade-up"><span class="list-num">{{ $loop->iteration }}</span>
+                            <div class="list-item fade-up" wire:click="setoranDetail('{{ encrypt($snbl->id) }}')"
+                                @click="$store.sheet.show('detail-setoran-id')">
+                                <span class="list-num">{{ $loop->iteration }}</span>
                                 <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
                                 <div class="list-main">
                                     <div class="list-name">{{ $snbl->created_at->format('d M Y') }} —
@@ -322,9 +364,8 @@ new class extends Component {
                                     <div class="list-sub">{{ $snbl->bukutabungan->bank->nama }} ·
                                         {{ $snbl->created_at->diffForHumans() }}
                                     </div>
-                                </div><span class="bs bs-green" style="cursor:pointer"
-                                    onclick="openDetail('m-detail-setoran')">
-                                    Rp
+                                </div><span class="bs bs-green">
+                                    + Rp
                                     {{ number_format($snbl->total_saldo, 0, ',', '.') }}</span>
                             </div>
                         @endforeach
@@ -339,18 +380,21 @@ new class extends Component {
                 <div class="row g-2">
                     @if ($data['trxNasabahByLimit']->isNotEmpty())
                         @foreach ($data['trxNasabahByLimit'] as $trxbl)
-                            <div class="list-item fade-up"><span class="list-num">{{ $loop->iteration }}</span>
+                            <div class="list-item fade-up" wire:click="trxDetail('{{ encrypt($trxbl->id) }}')"
+                                @click="$store.sheet.show('detail-trx-id')">
+                                <span class="list-num">{{ $loop->iteration }}</span>
                                 <div class="list-ico ic2"><i class="bi bi-cash-coin" style="font-size:12px"></i>
                                 </div>
                                 <div class="list-main">
                                     <div class="list-name">{{ $trxbl->created_at->format('d M Y') }} —
-                                        {{ $trxbl->bukutabungan->nomor_rekening }}</div>
+                                        {{ $trxbl->bukutabungan->nomor_rekening }}
+                                    </div>
                                     <div class="list-sub">{{ $trxbl->bukutabungan->bank->nama }} ·
                                         {{ $trxbl->created_at->diffForHumans() }} · Rp
                                         <b> Sisa - {{ number_format($trxbl->sisa_saldo, 0, ',', '.') }}</b>
                                     </div>
-                                </div><span class="bs bs-green" style="cursor:pointer">
-                                    Rp {{ number_format($trxbl->total_penarikan, 0, ',', '.') }}
+                                </div><span class="bs bs-err" style="cursor:pointer">
+                                   - Rp {{ number_format($trxbl->total_penarikan, 0, ',', '.') }}
                                 </span>
                             </div>
                         @endforeach
@@ -376,8 +420,8 @@ new class extends Component {
             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
             x-transition:leave-end="translate-y-full"
             style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;
-       background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
-       padding:20px;max-height:90dvh;overflow-y:auto"
+            background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
+            padding:20px;max-height:90dvh;overflow-y:auto"
             x-cloak>
             <div class="sheet-handle"></div>
             <div
@@ -456,7 +500,6 @@ new class extends Component {
             </div>
 
         </div>
-
         {{-- Detail Saldo --}}
         <div x-show="$store.sheet.is('detail-saldo')" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -470,8 +513,8 @@ new class extends Component {
             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
             x-transition:leave-end="translate-y-full"
             style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;
-       background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
-       padding:20px;max-height:90dvh;overflow-y:auto"
+            background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
+            padding:20px;max-height:90dvh;overflow-y:auto"
             x-cloak>
             <div class="sheet-handle"></div>
             <div
@@ -564,17 +607,65 @@ new class extends Component {
                 <div class="row g-2">
                     @if (!empty($setoranNasabah))
                         @foreach ($setoranNasabah as $stn)
-                            <div class="list-item fade-up"><span class="list-num">{{ $loop->iteration }}</span>
-                                <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
-                                <div class="list-main">
-                                    <div class="list-name">{{ $snbl->created_at->format('d M Y') }} —
-                                        {{ number_format($stn->total_berat, 0, ',', '.') }} Kg
+                            <div class="list-item"
+                                x-data="{ open: false }"style="display: flex;flex-direction: column;
+                                    padding: 10px 12px;border-radius: 10px;background: var(--color-background-primary, #fff);border: 0.5px solid #e5e7eb;margin-bottom: 6px;">
+                                {{-- Baris atas --}}
+                                <div style="display:flex;align-items:center;gap:10px;width:100%">
+                                    <span class="list-num">{{ $loop->iteration }}</span>
+                                    <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i>
                                     </div>
-                                    <div class="list-sub">{{ $stn->bukutabungan->bank->nama }} ·
-                                        {{ $stn->created_at->diffForHumans() }}
+                                    <div class="list-main">
+                                        <div class="list-name">{{ $stn->created_at->format('d M Y') }} —
+                                            {{ number_format($stn->total_berat, 0, ',', '.') }} Kg
+                                        </div>
+                                        <div class="list-sub">{{ $stn->bukutabungan->bank->nama }} ·
+                                            {{ $stn->created_at->diffForHumans() }}
+                                        </div>
                                     </div>
-                                </div><span class="bs bs-green" style="cursor:pointer""> Rp
-                                    {{ number_format($stn->total_saldo, 0, ',', '.') }}</span>
+                                    <span class="bs bs-green">Rp
+                                        {{ number_format($stn->total_saldo, 0, ',', '.') }}</span>
+                                    <button @click="open = !open" class="chevron-btn" :aria-expanded="open">
+                                        <i class="bi bi-chevron-down" :class="{ 'rotate-180': open }"></i>
+                                    </button>
+                                </div>
+
+                                {{-- Baris bawah: tabel detail --}}
+                                <div x-show="open" x-collapse
+                                    style="width:100%;margin-top:8px;padding-top:8px;border-top:0.5px solid #e5e7eb;">
+                                    <table class="detail-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Jenis</th>
+                                                <th>Berat</th>
+                                                <th>Harga</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($stn->items as $detail)
+                                                <tr>
+                                                    <td>{{ $detail->trash->nama }}</td>
+                                                    <td>{{ number_format($detail->berat, 1, ',', '.') }} kg</td>
+                                                    <td>Rp {{ number_format($detail->harga, 0, ',', '.') }}</td>
+                                                    <td>Rp {{ number_format($detail->sub_total, 0, ',', '.') }}</td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="2"
+                                                    style="padding-top:6px;border-top:0.5px solid #e5e7eb;font-size:12px;color:#6b7280;">
+                                                    Total: {{ number_format($stn->total_berat, 1, ',', '.') }} kg
+                                                </td>
+                                                <td colspan="2"
+                                                    style="padding-top:6px;border-top:0.5px solid #e5e7eb;text-align:right;font-weight:500;color:#198754;font-size:12px;">
+                                                    Rp {{ number_format($stn->total_saldo, 0, ',', '.') }}
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
                             </div>
                         @endforeach
                     @else
@@ -596,7 +687,6 @@ new class extends Component {
                 @endif
             </div>
         </div>
-
         {{-- Detail transaksi --}}
         <div x-show="$store.sheet.is('detail-trx')" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -614,7 +704,7 @@ new class extends Component {
                 <div class="sheet-handle"></div>
                 <div
                     style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
-                    Penarikan
+                    Penarikan Anda
                 </div>
                 {{-- <div class="m-search mb-3">
                 <i class="bi bi-search si"></i>
@@ -630,12 +720,19 @@ new class extends Component {
                 <div class="row g-2">
                     @if (!empty($trxNasabah))
                         @foreach ($trxNasabah as $trx)
-                            <div class="list-item fade-up"><span class="list-num">{{ $loop->iteration }}</span>
+                            <div class="list-item fade-up"><span class="list-num">
+                                    {{ $loop->iteration }}
+                                </span>
                                 <div class="list-ico ic2"><i class="bi bi-cash-coin" style="font-size:12px"></i>
                                 </div>
                                 <div class="list-main">
-                                    <div class="list-name">{{ $trx->created_at->format('d M Y') }} —
-                                        {{ $trx->bukutabungan->nomor_rekening }}</div>
+                                    <div class="list-name">
+                                        {{ $trx->created_at->format('d M Y') }} —
+                                        {{ $trx->bukutabungan->nomor_rekening }}
+                                    </div>
+                                    <div class="list-name">
+                                        Petugas - {{ ucfirst($trx->admin->name) }}
+                                    </div>
                                     <div class="list-sub">{{ $trx->bukutabungan->bank->nama }} ·
                                         {{ $trx->created_at->diffForHumans() }} · Rp
                                         <b> Sisa - {{ number_format($trx->sisa_saldo, 0, ',', '.') }}</b>
@@ -663,6 +760,155 @@ new class extends Component {
                     </button>
                 @endif
 
+            </div>
+        </div>
+        {{-- Detail setoran id --}}
+        <div x-show="$store.sheet.is('detail-setoran-id')" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+            style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+        </div>
+        {{-- Sheet Detail setoran id  --}}
+        <div x-show="$store.sheet.is('detail-setoran-id')" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+            <div
+                style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+                <div class="sheet-handle"></div>
+                <div
+                    style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                    Detail Setoran - {{ $itemSetoranDetail->kode ?? 'STR-XXX-XXX-XXX' }}
+                </div>
+            </div>
+            <div wire:loading.flex wire:target="setoranDetail" class="justify-content-center align-items-center"
+                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                <div class="spinner-border text-success"></div>
+            </div>
+            @if ($itemSetoranDetail)
+                <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+                    <div
+                        style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+                        <div
+                            style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                            Nilai Setoran</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">
+                            Rp. {{ number_format($itemSetoranDetail->total_saldo, 0, ',', '.') ?? 0 }}
+                        </div>
+                        <div style="font-size:11px;color:var(--muted);margin-top:2px">
+                            <b> Petugas - {{ ucfirst($itemSetoranDetail->admin->name) }} </b>
+                        </div>
+                    </div>
+                    <div style="border:1px solid var(--cyan-bd);border-radius:12px;overflow:hidden;font-size:12px">
+                        <table style="width:100%;border-collapse:collapse">
+                            <thead>
+                                <tr style="background:var(--cyan-10);border-bottom:1px solid var(--cyan-bd)">
+                                    <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:600">#
+                                    </th>
+                                    <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:600">
+                                        Jenis
+                                        Sampah</th>
+                                    <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600">
+                                        Harga
+                                    </th>
+                                    <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600">
+                                        Berat
+                                    </th>
+                                    <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600">
+                                        Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($itemSetoranDetail['items'] ?? [] as $index => $di)
+                                    <tr style="border-bottom:1px solid var(--cyan-bd)">
+                                        <td style="padding:8px 10px;color:var(--muted)">{{ $loop->iteration }}</td>
+                                        <td style="padding:8px 10px;font-weight:600">{{ $di['trash']['nama'] }}</td>
+                                        <td style="padding:8px 10px;text-align:right">Rp.
+                                            {{ number_format($di['harga'], 0, ',', '.') }}</td>
+                                        <td style="padding:8px 10px;text-align:right">
+                                            {{ number_format($di['berat'], 0, ',', '.') }} Kg</td>
+                                        <td
+                                            style="padding:8px 10px;text-align:right;color:var(--cyan);font-weight:600">
+                                            Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr style="background:var(--cyan-10);border-top:1px solid var(--cyan-bd)">
+                                    <td colspan="3" style="padding:8px 10px;font-weight:700">Total</td>
+                                    <td style="padding:8px 10px;text-align:right;font-weight:700">
+                                        {{ number_format($itemSetoranDetail['total_berat'] ?? 0, 0, ',', '.') }}
+                                        Kg
+                                    </td>
+                                    <td style="padding:8px 10px;text-align:right;font-weight:700;color:var(--cyan)">
+                                        Rp.
+                                        {{ number_format($itemSetoranDetail['total_saldo'] ?? 0, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            @endif
+        </div>
+        {{-- Detail setoran --}}
+        <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+            style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+        </div>
+        {{-- Sheet Detail setoran --}}
+        <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+            <div
+                style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+                <div class="sheet-handle"></div>
+                <div
+                    style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                    Detail Penarikan {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XX' }}
+                </div>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+                <div wire:loading.flex wire:target="trxDetail" class="justify-content-center align-items-center"
+                    style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                    <div class="spinner-border text-success"></div>
+                </div>
+                @if ($itemTrxDetail)
+                    <div
+                        style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+                        <div
+                            style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                            Nilai Penarikan</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">Rp
+                            {{ number_format($itemTrxDetail->total_penarikan, 0, ',', '.') ?? 0 }}</div>
+                    </div>
+                    <div class="detail-field"><span class="df-key">No. Transaksi</span><span
+                            class="df-val">{{ $itemTrxDetail->kode ?? '-' }}</span></div>
+                    <div class="detail-field"><span class="df-key">Nasabah</span>
+                        <span class="df-val">{{ ucfirst($itemTrxDetail->owner->name) }}</span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Sisa Saldo</span><span class="df-val">
+                            Rp {{ number_format($itemTrxDetail->sisa_saldo, 0, ',', '.') ?? 0 }}
+                        </span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Tanggal</span><span class="df-val">
+                            {{ $itemTrxDetail->created_at->format('Y-m-d') }}
+                        </span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Unit</span>
+                        <span class="df-val">
+                            {{ $itemTrxDetail->bukutabungan->bank->nama }}</span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Petugas</span>
+                        <span class="df-val">
+                            {{ ucfirst($itemTrxDetail->admin->name) }}
+                        </span>
+                    </div>
+                @endif
             </div>
         </div>
     @endif

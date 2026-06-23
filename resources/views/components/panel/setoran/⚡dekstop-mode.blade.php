@@ -13,7 +13,6 @@ new class extends Component {
         @include('components.⚡dekstop-navbar')
         <div class="w-main">
             @include('components.⚡dekstop-header')
-
             <div id="w-setoran" class="w-content">
                 <div style="display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start">
 

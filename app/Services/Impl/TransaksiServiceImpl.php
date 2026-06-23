@@ -58,13 +58,15 @@ class TransaksiServiceImpl implements TransaksiService
         });
     }
 
-    public function penarikanTerbaru()
+    public function penarikanToday()
     {
-        return $this->getTransaksis()->latest()->limit(5)->get();
+        $todayDate = now()->startOfDay();
+        return $this->getTransaksis()->whereDate('created_at', $todayDate)->latest()->limit(5)->get();
     }
 
     public function totalPenarikanSaldoNasabah()
     {
+        $total = $this->getTransaksis()->sum('total_penarikan');
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
@@ -72,11 +74,19 @@ class TransaksiServiceImpl implements TransaksiService
         $yesterday = $this->getTransaksis()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
 
         return [
+            'total' => $total,
             'today' => $today,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
+    public function transaksiById(int $id)
+    {
+        return Transaksi::with(['owner', 'admin','bukutabungan'])
+            ->where('id', $id)
+            ->first();
+    }
+
     public function transaksiByAuthUser()
     {
         $auth = $this->checkUser();
@@ -100,8 +110,7 @@ class TransaksiServiceImpl implements TransaksiService
 
     public function getTrxByAuthUser()
     {
-        return Transaksi::with(['bukutabungan.bank'])
-        ->where('owner_id', $this->checkUser()->id);
+        return Transaksi::with(['bukutabungan.bank'])->where('owner_id', $this->checkUser()->id);
     }
     public function getTrxByUserByLimit()
     {

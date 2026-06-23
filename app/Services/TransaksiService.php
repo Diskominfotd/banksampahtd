@@ -7,8 +7,9 @@ interface TransaksiService
     public function reduceSaldo(string $rekening, float $jumlah);
     public function getTransaksis();
     public function totalPenarikanSaldoNasabah();
-    public function penarikanTerbaru();
+    public function penarikanToday();
     public function totalTransaksiNasabah();
     public function getTrxByAuthUser();
     public function getTrxByUserByLimit();
+    public function transaksiById(int $id);
 }

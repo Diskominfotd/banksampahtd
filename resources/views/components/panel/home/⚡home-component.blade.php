@@ -14,6 +14,7 @@ new class extends Component {
     protected SetoranService $setoranService;
     protected UserServices $userService;
     protected TransaksiService $transaksiService;
+
     public array $bukuTabungan = [];
     public ?int $unitBukuTabungan = null;
     public ?int $nasabahId = null;
@@ -25,6 +26,9 @@ new class extends Component {
     public array $trxNasabah = [];
     public $pageTrx = 10;
     public ?string $searchTrx = '';
+
+    public $itemSetoranDetail = null;
+    public $itemTrxDetail = null;
 
     public function mount()
     {
@@ -52,6 +56,19 @@ new class extends Component {
         $this->bukuTabungan = $data->toArray();
         $this->alertNotAlowed();
         $this->alertPopUp();
+    }
+
+    public function setoranDetail($id)
+    {
+        $id = decrypt($id);
+        $item = $this->setoranService->getSetoranByIdNasabah($id);
+        $this->itemSetoranDetail = $item;
+    }
+    public function trxDetail($id)
+    {
+        $id = decrypt($id);
+        $item = $this->transaksiService->transaksiById($id);
+        $this->itemTrxDetail = $item;
     }
 
     public function getBukuTabungan()
@@ -89,7 +106,7 @@ new class extends Component {
         $totalNasabah = $this->userService->totalNasabah();
         $totalPenarikanSaldoNasabah = $this->transaksiService->totalPenarikanSaldoNasabah();
         $setoranTerbaru = $this->setoranService->setoranToday();
-        $transaksiTerbaru = $this->transaksiService->penarikanTerbaru();
+        $transaksiTerbaru = $this->transaksiService->penarikanToday();
         $totalSaldoNasabah = $this->userService->totalSaldoNasabah();
         $totalRekeningNasabah = $this->userService->totalBukuTabunganNasabah();
         $totalSetoranNasabah = $this->setoranService->totalSaldoSetoranNasbah();
