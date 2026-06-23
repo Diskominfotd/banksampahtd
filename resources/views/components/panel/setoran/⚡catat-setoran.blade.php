@@ -6,10 +6,11 @@ use App\Services\SetoranService;
 use App\Models\Price;
 use App\Models\BankSampah;
 use Livewire\WithPagination;
+use App\Livewire\TraitComponent;
 
 new class extends Component {
     use WithPagination;
-
+    use TraitComponent;
     protected UserServices $userService;
     protected SetoranService $setoranService;
     public array $nasabah = [];
@@ -163,14 +164,13 @@ new class extends Component {
                 return;
             }
         }
-        $bankId = Auth::user()->unit->id; // ✅ ambil dari auth user
+        $bankId = Auth::user()->unit->id;
         $this->setoranService->createSetoran($this->selectedNasabah, $this->cart, $bankId);
-
         $this->cart = [];
         $this->selectedNasabah = null;
         $this->resetErrorBag();
-
         session()->flash('success', 'Setoran berhasil disimpan.');
+        $this->alertPopUp();
     }
 };
 ?>

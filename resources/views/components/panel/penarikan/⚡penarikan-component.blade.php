@@ -11,6 +11,7 @@ new class extends Component {
     protected TransaksiService $transaksiService;
     public ?string $keyword = '';
     public ?int $perPage = 10;
+    public ?string $date = '';
 
     public function boot(TransaksiService $transaksiService)
     {
@@ -39,6 +40,9 @@ new class extends Component {
                 });
             });
             $this->resetPage();
+        }
+        if ($this->date) {
+            $builder->whereDate('created_at', $this->date);
         }
         $nasabah = $builder->latest()->paginate($this->perPage);
         return [
@@ -123,10 +127,15 @@ new class extends Component {
                     </a>
                 </div>
                 <div class="w-panel">
-                    <div class="w-search mb-3" style="width:100%">
-                        <i class="bi bi-search si"></i>
-                        <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit..."
-                            style="width:100%">
+                    <div class="d-flex gap-2 mb-3">
+                        <div class="w-search flex-grow-1">
+                            <i class="bi bi-search si"></i>
+                            <input type="text" wire:model.live="keyword"
+                                placeholder="Cari rekening atau nama nasabah..." style="width:100%">
+                        </div>
+                        <div class="d-flex gap-1">
+                            <input class="w-form-input" type="date" wire:model.live='date' />
+                        </div>
                     </div>
                     <table class="w-tbl">
                         <thead>
@@ -141,22 +150,33 @@ new class extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($data['nasabah'] as $index => $nasabah)
+                            @if (count($data['nasabah']) > 0)
+                                @foreach ($data['nasabah'] as $index => $nasabah)
+                                    <tr>
+                                        <td style="font-size:10px;color:var(--muted)">{{ $index + 1 }}</td>
+                                        <td style="font-weight:600">{{ ucfirst($nasabah->owner->name) }}</td>
+                                        <td><span class="bs bs-ok">
+                                                {{ $nasabah->owner->bukutabungans->first()->nomor_rekening }}
+                                            </span>
+                                        </td>
+                                        <td>Rp {{ number_format($nasabah->total_penarikan ?? 0, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($nasabah->sisa_saldo ?? 0, 0, ',', '.') }}</td>
+                                        <td>{{ $nasabah->owner->bukutabungans->first()->bank->nama }}</td>
+                                        <td>{{ $nasabah->tanggal_transaksi->diffForHumans() }}</td>
+
+
+                                    </tr>
+                                @endforeach
+                            @else
                                 <tr>
-                                    <td style="font-size:10px;color:var(--muted)">{{ $index + 1 }}</td>
-                                    <td style="font-weight:600">{{ ucfirst($nasabah->owner->name) }}</td>
-                                    <td><span class="bs bs-ok">
-                                            {{ $nasabah->owner->bukutabungans->first()->nomor_rekening }}
-                                        </span>
+                                    <td colspan="8"
+                                        style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
+                                        <i class="bi bi-inbox"
+                                            style="font-size:24px;display:block;margin-bottom:6px"></i>
+                                        Tidak Ada Data
                                     </td>
-                                    <td>Rp {{ number_format($nasabah->total_penarikan ?? 0, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($nasabah->sisa_saldo ?? 0, 0, ',', '.') }}</td>
-                                    <td>{{ $nasabah->owner->bukutabungans->first()->bank->nama }}</td>
-                                    <td>{{ $nasabah->tanggal_transaksi->diffForHumans() }}</td>
-
-
                                 </tr>
-                            @endforeach
+                            @endif
                         </tbody>
                     </table>
                     {{ $data['nasabah']->links('vendor.pagination.bootstrap-5') }}

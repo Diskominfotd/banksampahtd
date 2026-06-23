@@ -3,11 +3,14 @@
 use Livewire\Component;
 use App\Services\SetoranService;
 use Livewire\WithPagination;
+
 new class extends Component {
     use WithPagination;
+
     protected SetoranService $setoranService;
 
     public ?string $keyword = '';
+    public ?string $date = '';
 
     public array $detailItems = [];
 
@@ -29,7 +32,6 @@ new class extends Component {
     public function getData()
     {
         $builder = $this->setoranService->getSetoranByUnit();
-        // return dd(json_encode($builder->get(), JSON_PRETTY_PRINT));
         if ($this->keyword) {
             $builder->where(function ($q) {
                 $q->whereHas('penyetor.bukutabungans', function ($q) {
@@ -39,6 +41,9 @@ new class extends Component {
                 });
             });
             $this->resetPage();
+        }
+        if ($this->date) {
+            $builder->whereDate('created_at', $this->date);
         }
         $setoran = $builder->latest()->paginate(10);
         return [
@@ -67,40 +72,52 @@ new class extends Component {
             <div class="ph-title">Daftar Setoran</div>
             <div class="ms-auto d-flex gap-2">
                 <div class="m-gear"
-                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)">
-                    <i class="bi bi-funnel-fill"></i>
-                </div>
-                <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
-                    wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i></div>
+                    wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i>
+                </div>
             </div>
         </div>
         <div class="m-body mb-5" style="padding-top:16px">
-            <div class="m-search mb-2"><i class="bi bi-search si">
-                </i><input wire:model.live="keyword" type="text" placeholder="Cari no rekening,nama nasabah...">
+            <div class="d-flex gap-2 align-items-center mb-2">
+                <div class="m-search flex-grow-1">
+                    <i class="bi bi-search si"></i>
+                    <input wire:model.live="keyword" type="text" placeholder="Cari no rekening, nama nasabah...">
+                </div>
+                <div class="col-md-3">
+                    <input class="f-input" type="date" wire:model.live="date" />
+                </div>
+
             </div>
             <div class="d-flex flex-column gap-2">
-                @foreach ($data['setoran'] as $st)
-                    <div class="tx-card d-flex align-items-start gap-2 fade-up">
-                        <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)"><i
-                                class="bi bi-recycle" style="font-size:14px"></i></div>
-                        <div class="flex-grow-1 overflow-hidden">
-                            <div class="tx-name text-truncate">{{ ucfirst($st->penyetor->name) }} —
-                                {{ number_format($st->total_berat, 0, ',', '.') }} Kg</div>
-                            <div class="tx-date"><i class="bi bi-clock me-1"></i>
-                                {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
-                                {{ $st->bukutabungan->bank->nama }}
-                                <b>Rp {{ number_format($st->total_saldo, 0, ',', '.') }}</b>
-                            </div>
-                            <div class="d-flex gap-1 mt-2">
-                                <button @click="$store.sheet.show('detail-setoran')"
-                                    wire:click="detailSetoran('{{ encrypt($st->id) }}')" class="btn-tx"> <i
-                                        class="bi bi-eye"></i>
-                                </button>
+                @if (count($data['setoran']) > 0)
+                    @foreach ($data['setoran'] as $st)
+                        <div class="tx-card d-flex align-items-start gap-2 fade-up">
+                            <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)"><i
+                                    class="bi bi-recycle" style="font-size:14px"></i></div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="tx-name text-truncate">{{ ucfirst($st->penyetor->name) }} —
+                                    {{ number_format($st->total_berat, 0, ',', '.') }} Kg</div>
+                                <div class="tx-date"><i class="bi bi-clock me-1"></i>
+                                    {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
+                                    {{ $st->bukutabungan->bank->nama }}
+                                    <b>Rp {{ number_format($st->total_saldo, 0, ',', '.') }}</b>
+                                </div>
+                                <div class="d-flex gap-1 mt-2">
+                                    <button @click="$store.sheet.show('detail-setoran')"
+                                        wire:click="detailSetoran('{{ encrypt($st->id) }}')" class="btn-tx"> <i
+                                            class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                    @endforeach
+                @else
+                    <div class="item-empty">
+                        <i class="bi bi-inbox"></i>
+                       Tidak Ada Data
                     </div>
-                @endforeach
+                @endif
+                </tbody>
             </div>
             <div class="mt-2">
                 {{ $data['setoran']->links('vendor.pagination.bootstrap-5') }}
@@ -167,13 +184,11 @@ new class extends Component {
                         <div style="font-size:11px;color:var(--muted)">342 kg masuk hari ini — 5 setoran pending</div>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="w-btn w-btn-ghost" style="font-size:11px"><i
-                                class="bi bi-download me-1"></i>Export</button>
-                        <button class="w-btn w-btn-ghost" style="font-size:11px" onclick="openWModal('wm-filter')"><i
-                                class="bi bi-funnel me-1"></i>Filter</button>
                         <button class="w-btn w-btn-primary" style="font-size:11px"
-                            wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg me-1"></i>Catat
-                            Setoran</button>
+                            wire:click="movePage('setoran.catat')">
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Catat Setoran
+                        </button>
                     </div>
                 </div>
                 <div class="w-panel">
@@ -184,11 +199,7 @@ new class extends Component {
                                 placeholder="Cari rekening atau nama nasabah..." style="width:100%">
                         </div>
                         <div class="d-flex gap-1">
-                            <button class="chip active">Semua</button>
-                            <button class="chip">Plastik</button>
-                            <button class="chip">Kertas</button>
-                            <button class="chip">Logam</button>
-                            <button class="chip">Elektronik</button>
+                            <input class="w-form-input" type="date" wire:model.live='date' />
                         </div>
                     </div>
                     <table class="w-tbl">
@@ -205,38 +216,51 @@ new class extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($data['setoran'] as $index => $st)
+                            @if (count($data['setoran']) > 0)
+                                @foreach ($data['setoran'] as $index => $st)
+                                    <tr>
+                                        <td style="font-size:10px;color:var(--muted)">
+                                            {{ $data['setoran']->firstItem() + $index }}</td>
+                                        <td>
+                                            <div style="font-size:11px;font-weight:600">
+                                                {{ ucfirst($st->penyetor->name) }}
+                                            </div>
+                                        </td>
+                                        <td><span class="bs bs-ok">
+                                                {{ $st->bukutabungan->nomor_rekening }}
+                                            </span>
+                                        </td>
+                                        <td style="font-weight:600">
+                                            {{ number_format($st->total_berat, 0, ',', '.') }} kg
+                                        </td>
+                                        <td style="font-weight:700;color:var(--cyan)">Rp
+                                            {{ number_format($st->total_saldo, 0, ',', '.') }}
+                                        </td>
+                                        <td style="font-size:10px;color:var(--muted)">
+                                            {{ $st->bukutabungan->bank->nama }}
+                                        </td>
+                                        <td style="font-size:10px;color:var(--muted)">
+                                            {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
+                                        </td>
+                                        <td>
+                                            <button wire:click="detailSetoran('{{ encrypt($st->id) }}')"
+                                                class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                                data-bs-toggle="modal" data-bs-target="#wm-detail-setoran">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @else
                                 <tr>
-                                    <td style="font-size:10px;color:var(--muted)">
-                                        {{ $data['setoran']->firstItem() + $index }}</td>
-                                    <td>
-                                        <div style="font-size:11px;font-weight:600">{{ ucfirst($st->penyetor->name) }}
-                                        </div>
-                                    </td>
-                                    <td><span class="bs bs-ok">
-                                            {{ $st->bukutabungan->nomor_rekening }}
-                                        </span>
-                                    </td>
-                                    <td style="font-weight:600"> {{ number_format($st->total_berat, 0, ',', '.') }} kg
-                                    </td>
-                                    <td style="font-weight:700;color:var(--cyan)">Rp
-                                        {{ number_format($st->total_saldo, 0, ',', '.') }}
-                                    </td>
-                                    <td style="font-size:10px;color:var(--muted)">
-                                        {{ $st->bukutabungan->bank->nama }}
-                                    </td>
-                                    <td style="font-size:10px;color:var(--muted)">
-                                        {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
-                                    </td>
-                                    <td>
-                                        <button wire:click="detailSetoran('{{ encrypt($st->id) }}')"
-                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                            data-bs-toggle="modal" data-bs-target="#wm-detail-setoran">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </button>
+                                    <td colspan="8"
+                                        style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
+                                        <i class="bi bi-inbox"
+                                            style="font-size:24px;display:block;margin-bottom:6px"></i>
+                                        Tidak Ada Data
                                     </td>
                                 </tr>
-                            @endforeach
+                            @endif
                         </tbody>
                     </table>
                     {{ $data['setoran']->links('vendor.pagination.bootstrap-5') }}

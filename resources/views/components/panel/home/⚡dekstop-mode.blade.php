@@ -298,11 +298,15 @@ new class extends Component {
         <div wire:ignore.self class="modal fade" id="wm-detail-setoran-id" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content w-modal">
+                    <div class="w-modal-header">
+                        <div class="w-modal-title">Detail Setoran - {{ $itemSetoranDetail->kode ?? '-' }}</div>
+                        <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                    </div>
+                    <div wire:loading.flex wire:target="setoranDetail" class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
+                    </div>
                     @if ($itemSetoranDetail)
-                        <div class="w-modal-header">
-                            <div class="w-modal-title">Detail Setoran - {{ $itemSetoranDetail->kode ?? '-' }}</div>
-                            <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
-                        </div>
                         <div class="w-modal-body">
                             <div
                                 style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:18px;text-align:center;margin-bottom:20px">
@@ -359,9 +363,9 @@ new class extends Component {
                                 </tfoot>
                             </table>
                         </div>
-                        <div class="w-modal-footer">
-                        </div>
                     @endif
+                    <div class="w-modal-footer">
+                    </div>
                 </div>
             </div>
         </div>
@@ -369,8 +373,12 @@ new class extends Component {
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content w-modal">
                     <div class="w-modal-header">
-                        <div class="w-modal-title">Detail Penarikan - {{ $itemTrxDetail->kode ?? '-' }}</div>
+                        <div class="w-modal-title">Detail Penarikan - {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XXX' }}</div>
                         <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                    </div>
+                    <div wire:loading.flex wire:target="trxDetail" class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
                     </div>
                     @if ($itemTrxDetail)
                         <div class="w-modal-body">
@@ -733,8 +741,13 @@ new class extends Component {
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content w-modal">
                     <div class="w-modal-header">
-                        <div class="w-modal-title">Detail Penarikan - {{ $itemTrxDetail->kode ?? '-' }}</div>
+                        <div class="w-modal-title">Detail Penarikan - {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XXX' }}
+                        </div>
                         <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                    </div>
+                    <div wire:loading.flex wire:target="trxDetail" class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
                     </div>
                     @if ($itemTrxDetail)
                         <div class="w-modal-body">
@@ -789,11 +802,17 @@ new class extends Component {
         <div wire:ignore.self class="modal fade" id="wm-detail-setoran-id" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content w-modal">
+                    <div class="w-modal-header">
+                        <div class="w-modal-title">Detail Setoran -
+                            {{ $itemSetoranDetail->kode ?? 'STR-XXX-XXX-XX' }}</div>
+                        <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                    </div>
+                    <div wire:loading.flex wire:target="setoranDetail"
+                        class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
+                    </div>
                     @if ($itemSetoranDetail)
-                        <div class="w-modal-header">
-                            <div class="w-modal-title">Detail Setoran - {{ $itemSetoranDetail->kode ?? '-' }}</div>
-                            <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
-                        </div>
                         <div class="w-modal-body">
                             <div
                                 style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:18px;text-align:center;margin-bottom:20px">
@@ -851,9 +870,9 @@ new class extends Component {
                                 </tfoot>
                             </table>
                         </div>
-                        <div class="w-modal-footer">
-                        </div>
                     @endif
+                    <div class="w-modal-footer">
+                    </div>
                 </div>
             </div>
         </div>

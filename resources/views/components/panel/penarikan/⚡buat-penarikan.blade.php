@@ -5,9 +5,10 @@ use App\Services\UserServices;
 use App\Services\TransaksiService;
 use Livewire\WithPagination;
 use Livewire\Attributes\Computed;
+use App\Livewire\TraitComponent;
 new class extends Component {
     use WithPagination;
-
+    use TraitComponent;
     protected UserServices $userService;
     protected TransaksiService $transaksiService;
 
@@ -17,7 +18,10 @@ new class extends Component {
     public ?int $pageNasabah = 10;
     public ?string $searchNasabah = '';
 
-    public function boot(UserServices $userService, TransaksiService $transaksiService)
+    public function boot(
+        UserServices $userService, 
+        TransaksiService $transaksiService
+    )
     {
         $this->userService = $userService;
         $this->transaksiService = $transaksiService;
@@ -67,7 +71,6 @@ new class extends Component {
             'saldo' => $buku->saldo,
             'jumlah' => 0,
         ];
-
         $this->dispatch('close-modal');
     }
 
@@ -95,6 +98,7 @@ new class extends Component {
 
         $this->selectedNasabah = [];
         $this->dispatch('notify', message: 'Penarikan berhasil disimpan.');
+        $this->alertPopUp();
     }
     public function removeCart($i)
     {

@@ -45,6 +45,7 @@ class TransaksiServiceImpl implements TransaksiService
                 'admin_id' => $this->checkUser()->id,
                 'buku_tabungan_id' => $data['buku_tabungan_id'],
             ]);
+            session()->flash('success', 'Berhasil');
         });
     }
 
@@ -53,7 +54,8 @@ class TransaksiServiceImpl implements TransaksiService
         $user = $this->checkUser();
         $unitId = $user->unit->id;
 
-        return Transaksi::with(['owner', 'bukutabungan.bank'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+        return Transaksi::with(['owner', 'bukutabungan.bank'])
+        ->whereHas('bukutabungan', function ($q) use ($unitId) {
             $q->where('bank_id', $unitId);
         });
     }
@@ -61,7 +63,8 @@ class TransaksiServiceImpl implements TransaksiService
     public function penarikanToday()
     {
         $todayDate = now()->startOfDay();
-        return $this->getTransaksis()->whereDate('created_at', $todayDate)->latest()->limit(5)->get();
+        return $this->getTransaksis()->whereDate('created_at', $todayDate)
+        ->latest()->limit(5)->get();
     }
 
     public function totalPenarikanSaldoNasabah()
@@ -70,8 +73,10 @@ class TransaksiServiceImpl implements TransaksiService
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
-        $today = $this->getTransaksis()->whereDate('created_at', $todayDate)->sum('total_penarikan');
-        $yesterday = $this->getTransaksis()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+        $today = $this->getTransaksis()->whereDate('created_at', $todayDate)
+        ->sum('total_penarikan');
+        $yesterday = $this->getTransaksis()->whereDate('created_at', $yesterdayDate)
+        ->sum('total_penarikan');
 
         return [
             'total' => $total,
@@ -82,7 +87,7 @@ class TransaksiServiceImpl implements TransaksiService
     }
     public function transaksiById(int $id)
     {
-        return Transaksi::with(['owner', 'admin','bukutabungan'])
+        return Transaksi::with(['owner', 'admin', 'bukutabungan'])
             ->where('id', $id)
             ->first();
     }

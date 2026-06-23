@@ -327,7 +327,7 @@ new class extends Component {
                             @click="$store.sheet.show('rekening-nasabah')">
                             <div class="svc-icon ic1"><i class="bi bi-bank"></i>
                                 <div class="notif-dot">{{ $data['totalRekeningNasabah'] }}</div>
-                            </div><span class="svc-lbl">Buka Rekening</span>
+                            </div><span class="svc-lbl">Rekening</span>
                         </a>
                     </div>
                     <div class="col-3 fade-up"><a class="svc-item" wire:click="getBukuTabungan"
@@ -394,7 +394,7 @@ new class extends Component {
                                         <b> Sisa - {{ number_format($trxbl->sisa_saldo, 0, ',', '.') }}</b>
                                     </div>
                                 </div><span class="bs bs-err" style="cursor:pointer">
-                                   - Rp {{ number_format($trxbl->total_penarikan, 0, ',', '.') }}
+                                    - Rp {{ number_format($trxbl->total_penarikan, 0, ',', '.') }}
                                 </span>
                             </div>
                         @endforeach
