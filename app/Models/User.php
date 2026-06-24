@@ -54,6 +54,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Setoran::class, 'penyetor_id');
     }
+    public function transaksis()
+    {
+        return $this->hasMany(Transaksi::class, 'owner_id');
+    }
     public function bukutabungans()
     {
         return $this->hasMany(BukuTabungan::class);

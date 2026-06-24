@@ -12,6 +12,7 @@ new class extends Component {
     public ?string $keyword = '';
     public ?int $perPage = 10;
     public ?string $date = '';
+    public $itemTrxDetail = null;
 
     public function boot(TransaksiService $transaksiService)
     {
@@ -26,6 +27,12 @@ new class extends Component {
     public function loadMore()
     {
         $this->perPage += 10;
+    }
+    public function trxDetail($id)
+    {
+        $id = decrypt($id);
+        $item = $this->transaksiService->transaksiById($id);
+        $this->itemTrxDetail = $item;
     }
 
     public function getData()
@@ -52,7 +59,14 @@ new class extends Component {
 };
 ?>
 
-<div>
+<div x-data x-init="if (!Alpine.store('sheet')) {
+    Alpine.store('sheet', {
+        active: null,
+        show(name) { this.active = name },
+        hide() { this.active = null },
+        is(name) { return this.active === name },
+    })
+}">
     {{-- Very little is needed to make a happy life. - Marcus Aurelius --}}
     <style>
         a {
@@ -67,7 +81,12 @@ new class extends Component {
             <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
             <div class="ph-title">Daftar Transaksi</div>
-            <div class="ms-auto">
+            <div class="ms-auto d-flex gap-2 mb-2">
+                <div class="m-gear"
+                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
+                    @click="$store.sheet.show('pencarian')">
+                    <i class="bi bi-search"></i>
+                </div>
                 <div wire:click="movePage('buat.penarikan.saldo')" class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)">
                     <i class="bi bi-plus-lg"></i>
@@ -75,13 +94,11 @@ new class extends Component {
             </div>
         </div>
         <div class="m-body">
-            <div class="m-search mb-3 mt-3">
-                <i class="bi bi-search si"></i>
-                <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit...">
-            </div>
             <div class="d-flex flex-column gap-2 mt-2">
                 @foreach ($data['nasabah'] as $index => $nasabah)
-                    <div class="list-item fade-up"><span class="list-num">{{ $index + 1 }}</span>
+                    <div class="list-item fade-up" wire:click="trxDetail('{{ encrypt($nasabah->id) }}')"
+                        @click="$store.sheet.show('detail-trx-id')">
+                        <span class="list-num">{{ $index + 1 }}</span>
                         <div class="list-ico ic1"><i class="bi bi-cash" style="font-size:12px"></i></div>
                         <div class="list-main">
                             <div class="list-name">{{ ucfirst($nasabah->owner->name) }} —
@@ -110,6 +127,94 @@ new class extends Component {
             @endif
         </div>
     </div>
+    <div x-show="$store.sheet.is('pencarian')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
+    <div x-show="$store.sheet.is('pencarian')" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full"
+        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;
+       background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
+       padding:20px;max-height:90dvh;overflow-y:auto"
+        x-cloak>
+        <div class="sheet-handle"></div>
+        <div
+            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+            margin-bottom:18px;color:var(--text-main)">
+            Pencarian
+        </div>
+        <div class="f-group"><label>Keyword</label>
+            <input class="f-input" type="text" wire:model.live="keyword"
+                placeholder="Cari no rekening, nama nasabah..."P>
+        </div>
+        <div class="f-group"><label>Tanggal</label>
+            <input class="f-input" type="date" wire:model.live="date">
+        </div>
+    </div>
+    {{-- Detail trx id --}}
+    <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
+    {{-- Sheet Detail trx id --}}
+    <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+        <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                Detail Penarikan {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XX' }}
+            </div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+            <div wire:loading.flex wire:target="trxDetail" class="justify-content-center align-items-center"
+                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                <div class="spinner-border text-success"></div>
+            </div>
+            @if ($itemTrxDetail)
+                <div
+                    style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+                    <div
+                        style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                        Nilai Penarikan</div>
+                    <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">Rp
+                        {{ number_format($itemTrxDetail->total_penarikan, 0, ',', '.') ?? 0 }}</div>
+                </div>
+                <div class="detail-field"><span class="df-key">No. Transaksi</span><span
+                        class="df-val">{{ $itemTrxDetail->kode ?? '-' }}</span></div>
+                <div class="detail-field"><span class="df-key">Nasabah</span>
+                    <span class="df-val">{{ ucfirst($itemTrxDetail->owner->name) }}</span>
+                </div>
+                <div class="detail-field"><span class="df-key">Sisa Saldo</span><span class="df-val">
+                        Rp {{ number_format($itemTrxDetail->sisa_saldo, 0, ',', '.') ?? 0 }}
+                    </span>
+                </div>
+                <div class="detail-field"><span class="df-key">Tanggal</span><span class="df-val">
+                        {{ $itemTrxDetail->created_at->format('Y-m-d') }}
+                    </span>
+                </div>
+                <div class="detail-field"><span class="df-key">Unit</span>
+                    <span class="df-val">
+                        {{ $itemTrxDetail->bukutabungan->bank->nama }}</span>
+                </div>
+                <div class="detail-field"><span class="df-key">Petugas</span>
+                    <span class="df-val">
+                        {{ ucfirst($itemTrxDetail->admin->name) }}
+                    </span>
+                </div>
+            @endif
+        </div>
+    </div>
+
+
     <div class="desktop-wrapper">
         @include('components.⚡dekstop-navbar')
         <div class="w-main">
@@ -117,12 +222,13 @@ new class extends Component {
             <div id="w-harga" class="w-content">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
-                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi
+                        </div>
                         <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
                         </div>
                     </div>
-                    <a class="w-btn w-btn-primary" href="{{ route('buat.penarikan.saldo') }}" style="font-size:11px"><i
-                            class="bi bi-plus-circle me-1"></i>Buat
+                    <a class="w-btn w-btn-primary" href="{{ route('buat.penarikan.saldo') }}"
+                        style="font-size:11px"><i class="bi bi-plus-circle me-1"></i>Buat
                         Penarikan
                     </a>
                 </div>
@@ -141,12 +247,14 @@ new class extends Component {
                         <thead>
                             <tr>
                                 <th>No.</th>
+                                <th>Kode</th>
                                 <th>Nama</th>
                                 <th>No. Rekening</th>
                                 <th>Total Penarikan</th>
                                 <th>Sisa Saldo</th>
                                 <th>Unit</th>
                                 <th>Tanggal</th>
+                                <th>Petugas</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,6 +262,7 @@ new class extends Component {
                                 @foreach ($data['nasabah'] as $index => $nasabah)
                                     <tr>
                                         <td style="font-size:10px;color:var(--muted)">{{ $index + 1 }}</td>
+                                        <td style="font-size:10px;color:var(--muted)">{{ $nasabah->kode }}</td>
                                         <td style="font-weight:600">{{ ucfirst($nasabah->owner->name) }}</td>
                                         <td><span class="bs bs-ok">
                                                 {{ $nasabah->owner->bukutabungans->first()->nomor_rekening }}
@@ -161,10 +270,15 @@ new class extends Component {
                                         </td>
                                         <td>Rp {{ number_format($nasabah->total_penarikan ?? 0, 0, ',', '.') }}</td>
                                         <td>Rp {{ number_format($nasabah->sisa_saldo ?? 0, 0, ',', '.') }}</td>
-                                        <td>{{ $nasabah->owner->bukutabungans->first()->bank->nama }}</td>
-                                        <td>{{ $nasabah->tanggal_transaksi->diffForHumans() }}</td>
-
-
+                                        <td style="font-size:10px;color:var(--muted)">
+                                            {{ $nasabah->owner->bukutabungans->first()->bank->nama }}
+                                        </td>
+                                        <td style="font-size:10px;color:var(--muted)">
+                                            {{ $nasabah->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
+                                        </td>
+                                        <td style="font-size:10px;color:var(--muted)">
+                                            {{ ucfirst($nasabah->admin->name) ?? '-' }}
+                                        </td>
                                     </tr>
                                 @endforeach
                             @else

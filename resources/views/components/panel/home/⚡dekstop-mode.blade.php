@@ -265,15 +265,11 @@ new class extends Component {
                                                     <div class="w-row-title">{{ ucfirst($stb->penyetor->name) }} —
                                                         {{ number_format($stb->total_berat, 0, ',', '.') }} kg</div>
                                                     <div class="w-row-meta">
-                                                        @foreach ($stb->penyetor->bukutabungans as $buku)
-                                                            {{ $buku->bank->nama }}
-                                                        @endforeach ·
+                                                        {{ $stb->bukutabungan->bank->nama }} ·
                                                         {{ $stb->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
                                                         ·
                                                         <b>
-                                                            @foreach ($stb->penyetor->bukutabungans as $buku)
-                                                                {{ $buku->nomor_rekening }}
-                                                            @endforeach
+                                                            {{ $stb->bukutabungan->nomor_rekening }}
                                                         </b>
                                                     </div>
                                                 </div><span class="bs bs-green">Rp
@@ -302,7 +298,8 @@ new class extends Component {
                         <div class="w-modal-title">Detail Setoran - {{ $itemSetoranDetail->kode ?? '-' }}</div>
                         <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                     </div>
-                    <div wire:loading.flex wire:target="setoranDetail" class="justify-content-center align-items-center"
+                    <div wire:loading.flex wire:target="setoranDetail"
+                        class="justify-content-center align-items-center"
                         style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                         <div class="spinner-border text-success"></div>
                     </div>
@@ -373,7 +370,8 @@ new class extends Component {
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content w-modal">
                     <div class="w-modal-header">
-                        <div class="w-modal-title">Detail Penarikan - {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XXX' }}</div>
+                        <div class="w-modal-title">Detail Penarikan - {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XXX' }}
+                        </div>
                         <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                     </div>
                     <div wire:loading.flex wire:target="trxDetail" class="justify-content-center align-items-center"

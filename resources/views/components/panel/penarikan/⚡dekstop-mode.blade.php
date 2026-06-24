@@ -92,11 +92,6 @@ new class extends Component {
                                         </td>
                                     </tr>
                                 @endforelse
-                                {{-- @if (count($selectedNasabah) > 0)
-                                    <tr style="font-weight:700;font-size:12px">
-                                        <td colspan="4" style="text-align:right">Total</td>
-                                    </tr>
-                                @endif --}}
                             </tbody>
                         </table>
                     </div>
@@ -138,7 +133,7 @@ new class extends Component {
                 </div>
                 <div class="w-modal-body" style="overflow-y: auto; max-height: 60vh;">
                     <div class="d-flex flex-column gap-2">
-                        @foreach ($this->nasabah as $n)
+                        @forelse ($this->nasabah as $n)
                             <div class="w-row" wire:click="pilihNasabah({{ $n->id }})" style="cursor:pointer"
                                 wire:key="nasabah-{{ $n->id }}">
                                 <div class="avatar" style="width:28px;height:28px;font-size:10px">
@@ -157,7 +152,13 @@ new class extends Component {
                                     {{ ucfirst($n->status) }}
                                 </span>
                             </div>
-                        @endforeach
+                        @empty
+                            <div
+                                style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
+                                <i class="bi bi-inbox" style="font-size:24px;display:block;margin-bottom:6px"></i>
+                                Belum ada data
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

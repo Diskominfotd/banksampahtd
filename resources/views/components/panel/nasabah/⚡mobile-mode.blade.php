@@ -27,7 +27,7 @@ new class extends Component {
         <div class="m-body" style="padding-top:16px">
             <div class="m-search mb-3">
                 <i class="bi bi-search si"></i>
-                <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit...">
+                <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, rekening...">
             </div>
             <div class="d-flex flex-column gap-2">
                 @foreach ($data['nasabah'] as $index => $nasabah)
@@ -40,7 +40,7 @@ new class extends Component {
                         <div class="flex-grow-1 overflow-hidden">
                             <div class="tx-name text-truncate">{{ ucfirst($nasabah->name) }}</div>
                             <div class="tx-date"><i class="bi bi-cash me-1"></i>
-                                Saldo - Rp. 0
+                                Saldo - Rp. {{ number_format($nasabah->bukuTabungans->sum('saldo'), 0, ',', '.') }}
                             </div>
                             <div class="d-flex gap-1 mt-2">
                                 <button @click="$store.sheet.show('edit-nasabah')"

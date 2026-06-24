@@ -100,79 +100,63 @@ new class extends Component {
                     </div>
 
                     <div class="m-pills">
+                        @php
+                            $summaryArah = fn($p) => match (true) {
+                                $p > 0 => 'up',
+                                $p < 0 => 'down',
+                                default => 'neutral',
+                            };
+                        @endphp
+
+                        {{-- Nasabah --}}
+                        @php
+                            $diff = $data['totalNasabah']['difference'];
+                        @endphp
                         <div class="m-pill c">
                             <span class="m-pill-n">{{ $data['totalNasabah']['total'] }}</span>
                             <span class="m-pill-l">Nasabah</span>
-
-                            @php
-                                $diff = $data['totalNasabah']['difference'];
-                                $textClass = $diff < 0 ? 'text-danger' : '';
-                            @endphp
-
-                            <span class="m-pill-l{{ $textClass }}"
+                            <span class="m-pill-l {{ $diff < 0 ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
                                 <i class="bi bi-arrow-{{ $diff >= 0 ? 'up' : 'down' }}-short"></i>
-                                @if ($diff == 0)
-                                    Sama
-                                @else
-                                    {{ $diff > 0 ? '+' : '' }}{{ $diff }}
-                                @endif
+                                {{ $diff == 0 ? 'Sama' : ($diff > 0 ? '+' : '') . $diff }}
                             </span>
                         </div>
+
+                        {{-- Setoran --}}
+                        @php
+                            $arah = $summaryArah($data['totalSaldoSetoran']['persentase']);
+                            $persen = $data['totalSaldoSetoran']['persentase'];
+                        @endphp
                         <div class="m-pill c">
                             <span
                                 class="m-pill-n">{{ convertRupiahToString($data['totalSaldoSetoran']['today']) }}</span>
                             <span class="m-pill-l">Setoran</span>
-
-                            @php
-                                $persentase = $data['totalSaldoSetoran']['persentase'];
-                                $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
-                                    default => 'neutral',
-                                };
-                                $textClass = $arah === 'down' ? 'text-danger' : '';
-                            @endphp
-
-                            <span class="m-pill-l{{ $textClass }}"
+                            <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
                                 <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
-                                @if ($arah === 'neutral')
-                                    Sama
-                                @else
-                                    {{ $arah === 'up' ? '+' : '' }}{{ $persentase }}%
-                                @endif
+                                {{ $arah === 'neutral' ? 'Sama' : ($arah === 'up' ? '+' : '') . $persen . '%' }}
                             </span>
                         </div>
+
+                        {{-- Tarik --}}
+                        @php
+                            $arah = $summaryArah($data['totalPenarikanSaldoNasabah']['persentase']);
+                            $persen = $data['totalPenarikanSaldoNasabah']['persentase'];
+                        @endphp
                         <div class="m-pill">
                             <span
                                 class="m-pill-n">{{ convertRupiahToString($data['totalPenarikanSaldoNasabah']['total']) }}</span>
                             <span class="m-pill-l">Tarik</span>
-
-                            @php
-                                $persentase = $data['totalPenarikanSaldoNasabah']['persentase'];
-                                $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
-                                    default => 'neutral',
-                                };
-                                $textClass = $arah === 'down' ? 'text-danger' : '';
-                            @endphp
-
-                            <span class="m-pill-l{{ $textClass }}"
+                            <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
                                 <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
-                                @if ($arah === 'neutral')
-                                    Sama
-                                @else
-                                    {{ $arah === 'up' ? '+' : '' }}{{ $persentase }}%
-                                @endif
+                                {{ $arah === 'neutral' ? 'Sama' : ($arah === 'up' ? '+' : '') . $persen . '%' }}
                             </span>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="m-body">
+            <div class="m-body mb-4">
                 <div class="sec-lbl">Menu Utama</div>
                 <div class="row g-2">
                     <div class="col-3 fade-up"><a class="svc-item" href="{{ route('setoran') }}">
@@ -211,8 +195,217 @@ new class extends Component {
                                 class="svc-lbl">Saldo</span>
                         </a></div>
                 </div>
+                <div class="sec-lbl">Setoran Hari Ini</div>
+                <div class="row g-2">
+                    @forelse ($this->getData()['setoranTerbaru'] ?? [] as $stl)
+                        <div class="tx-card d-flex align-items-start gap-2 fade-up"
+                            wire:click="setoranDetail('{{ encrypt($stl->id) }}')"
+                            @click="$store.sheet.show('detail-setoran-id')">
+                            <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)">
+                                <i class="bi bi-recycle" style="font-size:14px"></i>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="tx-name text-truncate">{{ ucfirst($stl->penyetor->name) }} —
+                                    {{ number_format($stl->total_berat, 0, ',', '.') }} Kg</div>
+                                <div class="tx-date">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ $stl->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
+                                    {{ $stl->bukutabungan->bank->nama }}
+                                </div>
+                            </div>
+                            <span class="bs bs-green flex-shrink-0">
+                                Rp {{ number_format($stl->total_saldo, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @empty
+                        <div style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
+                            <i class="bi bi-inbox" style="font-size:24px;display:block;margin-bottom:6px"></i>
+                            Belum ada Data
+                        </div>
+                    @endforelse
+                </div>
+                <div class="sec-lbl">Penarikan Hari Ini</div>
+                <div class="row g-2 mb-3">
+                    @forelse ($this->getData()['transaksiTerbaru'] ?? [] as $trxl)
+                        <div class="tx-card d-flex align-items-start gap-2 fade-up"
+                            wire:click="trxDetail('{{ encrypt($trxl->id) }}')"
+                            @click="$store.sheet.show('detail-trx-id')">
+                            <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)">
+                                <i class="bi bi-cash-coin" style="font-size:14px"></i>
+                            </div>
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="tx-name text-truncate">{{ ucfirst($trxl->owner->name) }} —
+                                    {{ $trxl->bukutabungan->nomor_rekening }}</div>
+                                <div class="tx-date">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ $trxl->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
+                                    {{ $trxl->bukutabungan->bank->nama }}<br>
+                                    <strong>Sisa - Rp {{ number_format($trxl->sisa_saldo, 0, ',', '.') }}</strong>
+                                </div>
+                            </div>
+                            <span class="bs bs-green flex-shrink-0">
+                                Rp {{ number_format($trxl->total_penarikan, 0, ',', '.') }}
+                            </span>
+                        </div>
+                    @empty
+                        <div style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
+                            <i class="bi bi-inbox" style="font-size:24px;display:block;margin-bottom:6px"></i>
+                            Belum ada Data
+                        </div>
+                    @endforelse
+                </div>
+
             </div>
             @include('panel.template.mobile-bottombar')
+        </div>
+        {{-- Detail setoran id --}}
+        <div x-show="$store.sheet.is('detail-setoran-id')" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+            style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+        </div>
+        {{-- Sheet Detail setoran id  --}}
+        <div x-show="$store.sheet.is('detail-setoran-id')" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+            <div
+                style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+                <div class="sheet-handle"></div>
+                <div
+                    style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                    Detail Setoran - {{ $itemSetoranDetail->kode ?? 'STR-XXX-XXX-XXX' }}
+                </div>
+            </div>
+            <div wire:loading.flex wire:target="setoranDetail" class="justify-content-center align-items-center"
+                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                <div class="spinner-border text-success"></div>
+            </div>
+            @if ($itemSetoranDetail)
+                <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+                    <div
+                        style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+                        <div
+                            style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                            Nilai Setoran</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">
+                            Rp. {{ number_format($itemSetoranDetail->total_saldo, 0, ',', '.') ?? 0 }}
+                        </div>
+                        <div style="font-size:11px;color:var(--muted);margin-top:2px">
+                            <b> Petugas - {{ ucfirst($itemSetoranDetail->admin->name) }} </b>
+                        </div>
+                    </div>
+                    <div style="border:1px solid var(--cyan-bd);border-radius:12px;overflow:hidden;font-size:12px">
+                        <table style="width:100%;border-collapse:collapse">
+                            <thead>
+                                <tr style="background:var(--cyan-10);border-bottom:1px solid var(--cyan-bd)">
+                                    <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:600">#
+                                    </th>
+                                    <th style="padding:8px 10px;text-align:left;color:var(--muted);font-weight:600">
+                                        Jenis
+                                        Sampah</th>
+                                    <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600">
+                                        Harga
+                                    </th>
+                                    <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600">
+                                        Berat
+                                    </th>
+                                    <th style="padding:8px 10px;text-align:right;color:var(--muted);font-weight:600">
+                                        Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($itemSetoranDetail['items'] ?? [] as $index => $di)
+                                    <tr style="border-bottom:1px solid var(--cyan-bd)">
+                                        <td style="padding:8px 10px;color:var(--muted)">{{ $loop->iteration }}</td>
+                                        <td style="padding:8px 10px;font-weight:600">{{ $di['trash']['nama'] }}</td>
+                                        <td style="padding:8px 10px;text-align:right">Rp.
+                                            {{ number_format($di['harga'], 0, ',', '.') }}</td>
+                                        <td style="padding:8px 10px;text-align:right">
+                                            {{ number_format($di['berat'], 0, ',', '.') }} Kg</td>
+                                        <td
+                                            style="padding:8px 10px;text-align:right;color:var(--cyan);font-weight:600">
+                                            Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr style="background:var(--cyan-10);border-top:1px solid var(--cyan-bd)">
+                                    <td colspan="3" style="padding:8px 10px;font-weight:700">Total</td>
+                                    <td style="padding:8px 10px;text-align:right;font-weight:700">
+                                        {{ number_format($itemSetoranDetail['total_berat'] ?? 0, 0, ',', '.') }}
+                                        Kg
+                                    </td>
+                                    <td style="padding:8px 10px;text-align:right;font-weight:700;color:var(--cyan)">
+                                        Rp.
+                                        {{ number_format($itemSetoranDetail['total_saldo'] ?? 0, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            @endif
+        </div>
+        {{-- Detail trx id --}}
+        <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+            style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+        </div>
+        {{-- Sheet Detail trx id --}}
+        <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+            <div
+                style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+                <div class="sheet-handle"></div>
+                <div
+                    style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                    Detail Penarikan {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XX' }}
+                </div>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+                <div wire:loading.flex wire:target="trxDetail" class="justify-content-center align-items-center"
+                    style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                    <div class="spinner-border text-success"></div>
+                </div>
+                @if ($itemTrxDetail)
+                    <div
+                        style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+                        <div
+                            style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                            Nilai Penarikan</div>
+                        <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">Rp
+                            {{ number_format($itemTrxDetail->total_penarikan, 0, ',', '.') ?? 0 }}</div>
+                    </div>
+                    <div class="detail-field"><span class="df-key">No. Transaksi</span><span
+                            class="df-val">{{ $itemTrxDetail->kode ?? '-' }}</span></div>
+                    <div class="detail-field"><span class="df-key">Nasabah</span>
+                        <span class="df-val">{{ ucfirst($itemTrxDetail->owner->name) }}</span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Sisa Saldo</span><span class="df-val">
+                            Rp {{ number_format($itemTrxDetail->sisa_saldo, 0, ',', '.') ?? 0 }}
+                        </span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Tanggal</span><span class="df-val">
+                            {{ $itemTrxDetail->created_at->format('Y-m-d') }}
+                        </span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Unit</span>
+                        <span class="df-val">
+                            {{ $itemTrxDetail->bukutabungan->bank->nama }}</span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Petugas</span>
+                        <span class="df-val">
+                            {{ ucfirst($itemTrxDetail->admin->name) }}
+                        </span>
+                    </div>
+                @endif
+            </div>
         </div>
     @else
         {{-- Nasabah --}}
@@ -224,99 +417,77 @@ new class extends Component {
                         <div>
                             <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat datang
                             </div>
-                            <div style="font-size:14px;font-weight:600;color:#fff">{{ Auth::user()->unit->nama }}</div>
+                            <div style="font-size:14px;font-weight:600;color:#fff">{{ Auth::user()->unit->nama }}
+                            </div>
                         </div>
                     </div>
                     <div class="m-gear" onclick="mNav('m-notifikasi')"><i class="bi bi-bell-fill"></i><span
                             style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid rgba(255,255,255,.4);font-size:7px;display:flex;align-items:center;justify-content:center;font-weight:700">3</span>
                     </div>
                 </div>
+                @php
+                    $summaryArah = fn($p) => match (true) {
+                        $p > 0 => 'up',
+                        $p < 0 => 'down',
+                        default => 'neutral',
+                    };
+                @endphp
+
                 <div class="m-summary fade-up">
                     <div class="m-summary-lbl">Total Saldo Anda</div>
+
+                    @php
+                        $arah = $summaryArah($data['totalSaldoNasabah']['persentase']);
+                        $persen = $data['totalSaldoNasabah']['persentase'];
+                    @endphp
                     <div class="m-summary-num">
                         Rp {{ convertRupiahToString($data['totalSaldoNasabah']['today']) }}
-                        @php
-                            $persentase = $data['totalSaldoNasabah']['persentase'];
-                            $arah = match (true) {
-                                $persentase > 0 => 'up',
-                                $persentase < 0 => 'down',
-                                default => 'neutral',
-                            };
-                            $iconClass = match ($arah) {
-                                'up' => 'bi-arrow-up-short',
-                                'down' => 'bi-arrow-down-short text-danger',
-                                default => 'bi-dash',
-                            };
-                            $textClass = match ($arah) {
-                                'down' => 'text-danger',
-                                default => '',
-                            };
-                        @endphp
-
-                        <i class="bi {{ $iconClass }}" style="font-size: 0.6em;"></i>
-                        <span class="m-summary-percent {{ $textClass }}" style="font-size: 0.5em;">
-                            @if ($arah === 'neutral')
-                                Sama
-                            @else
-                                {{ number_format(abs($persentase), 1, ',', '.') }}%
-                            @endif
+                        <i class="bi {{ $arah === 'down' ? 'bi-arrow-down-short text-danger' : ($arah === 'up' ? 'bi-arrow-up-short' : 'bi-dash') }}"
+                            style="font-size:0.6em;"></i>
+                        <span class="m-summary-percent {{ $arah === 'down' ? 'text-danger' : '' }}"
+                            style="font-size:0.5em;">
+                            {{ $arah === 'neutral' ? 'Sama' : number_format(abs($persen), 1, ',', '.') . '%' }}
                         </span>
                     </div>
+
                     <div class="m-pills">
+
                         <div class="m-pill c" wire:click="getBukuTabungan"
                             @click="$store.sheet.show('detail-saldo')">
                             <span class="m-pill-n">{{ $data['totalRekeningNasabah'] }}</span>
                             <span class="m-pill-l">Rekening</span>
                         </div>
+
+                        @php
+                            $arah = $summaryArah($data['totalSetoranNasabah']['persentase']);
+                            $persen = $data['totalSetoranNasabah']['persentase'];
+                        @endphp
                         <div class="m-pill c">
                             <span
                                 class="m-pill-n">{{ convertRupiahToString($data['totalSetoranNasabah']['today']) }}</span>
                             <span class="m-pill-l">Setoran</span>
-                            @php
-                                $persentase = $data['totalSetoranNasabah']['persentase'];
-                                $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
-                                    default => 'neutral',
-                                };
-                                $textClass = $arah === 'down' ? 'text-danger' : '';
-                            @endphp
-
-                            <span class="m-pill-l{{ $textClass }}"
+                            <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
                                 <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
-                                @if ($arah === 'neutral')
-                                    Sama
-                                @else
-                                    {{ $arah === 'up' ? '+' : '' }}{{ $persentase }}%
-                                @endif
+                                {{ $arah === 'neutral' ? 'Sama' : ($arah === 'up' ? '+' : '') . $persen . '%' }}
                             </span>
                         </div>
+
+                        @php
+                            $arah = $summaryArah($data['totalPenarikanNasabah']['persentase']);
+                            $persen = $data['totalPenarikanNasabah']['persentase'];
+                        @endphp
                         <div class="m-pill">
                             <span
                                 class="m-pill-n">{{ convertRupiahToString($data['totalPenarikanNasabah']['today']) }}</span>
                             <span class="m-pill-l">Tarik</span>
-
-                            @php
-                                $persentase = $data['totalPenarikanNasabah']['persentase'];
-                                $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
-                                    default => 'neutral',
-                                };
-                                $textClass = $arah === 'down' ? 'text-danger' : '';
-                            @endphp
-
-                            <span class="m-pill-l{{ $textClass }}"
+                            <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
                                 <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
-                                @if ($arah === 'neutral')
-                                    Sama
-                                @else
-                                    {{ $arah === 'up' ? '+' : '' }}{{ $persentase }}%
-                                @endif
+                                {{ $arah === 'neutral' ? 'Sama' : ($arah === 'up' ? '+' : '') . $persen . '%' }}
                             </span>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -593,10 +764,6 @@ new class extends Component {
                     style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
                     Setoran
                 </div>
-                {{-- <div class="m-search mb-3">
-                <i class="bi bi-search si"></i>
-                <input type="text" wire:model.live="searchSetoran" placeholder="Cari nama jenis sampah...">
-            </div> --}}
             </div>
             <div style="flex:1;overflow-y:auto;padding:0 10px 10px;-webkit-overflow-scrolling:touch">
                 <div wire:loading.flex wire:target="getSetoranByAuthUser"
@@ -706,10 +873,6 @@ new class extends Component {
                     style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
                     Penarikan Anda
                 </div>
-                {{-- <div class="m-search mb-3">
-                <i class="bi bi-search si"></i>
-                <input type="text" wire:model.live="searchSetoran" placeholder="Cari nama jenis sampah...">
-            </div> --}}
             </div>
             <div style="flex:1;overflow-y:auto;padding:0 10px 10px;-webkit-overflow-scrolling:touch">
                 <div wire:loading.flex wire:target="getTrxByAuthUser"
@@ -852,14 +1015,14 @@ new class extends Component {
                 </div>
             @endif
         </div>
-        {{-- Detail setoran --}}
+        {{-- Detail trx id --}}
         <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
             x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
             style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
         </div>
-        {{-- Sheet Detail setoran --}}
+        {{-- Sheet Detail trx id --}}
         <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"

@@ -7,6 +7,7 @@ use App\Models\BankSampah;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
 use App\Livewire\TraitComponent;
+use Illuminate\Support\Facades\Auth;
 new class extends Component {
     use WithPagination;
     use TraitComponent;
@@ -38,7 +39,12 @@ new class extends Component {
     public ?string $passwordNasabah = '';
     public ?string $statusNasabah = '';
     public ?string $unitNasabah = '';
-
+    public ?int $saldoNasabah = 0;
+    public ?int $totalSetoran = 0;
+    public ?int $totalBeratSetoran = 0;
+    public ?string $tglDaftar = '';
+    public ?string $tglLastSetor = '';
+    public ?string $tglLastWd = '';
     public ?string $userId = '';
 
     public array $bukuTabungan = [];
@@ -74,7 +80,22 @@ new class extends Component {
         $this->jenisNasabah = $user->mewakili;
         $this->organisasiNasabah = $user->organisasi_id;
         $this->passwordNasabah = $user->password;
-        $this->unitNasabah = $user->unit->id;
+        $this->unitNasabah = $user->unit->nama;
+        $this->statusNasabah = $user->status;
+        $this->saldoNasabah = $user->bukutabungans->sum('saldo');
+        $this->totalBeratSetoran = $user->setorans->sum('total_berat');
+        $this->totalSetoran = $user->setorans->count();
+        $this->tglDaftar = $user->created_at->timezone('Asia/Jakarta')->format('d M Y, H:i');
+        $this->tglLastSetor = $user->setorans()->latest()->value('created_at')
+            ? \Carbon\Carbon::parse($user->setorans()->latest()->value('created_at'))
+                ->timezone('Asia/Jakarta')
+                ->format('d M Y, H:i')
+            : 'Tidak Ada';
+        $this->tglLastWd = $user->transaksis()->latest()->value('created_at')
+            ? \Carbon\Carbon::parse($user->transaksis()->latest()->value('created_at'))
+                ->timezone('Asia/Jakarta')
+                ->format('d M Y, H:i')
+            : 'Tidak Ada';
 
         $this->userId = $user->id;
     }
@@ -179,11 +200,23 @@ new class extends Component {
 
     public function getData()
     {
+        $parent = Auth::user()->unit->parent_id;
         $user = $this->userService->userBuilder();
-        $nasabahQuery = $user->with('organisasi');
+        $nasabahQuery = $user->with(['organisasi', 'bukutabungans', 'setorans']);
         if ($this->keyword) {
-            $nasabahQuery->where('name', 'like', "%{$this->keyword}%")->orWhereHas('unit', function ($q) {
-                $q->where('nama', 'like', "%{$this->keyword}%");
+            $nasabahQuery
+                ->where('name', 'like', "%{$this->keyword}%")
+                ->orWhereHas('unit', function ($q) {
+                    $q->where('nama', 'like', "%{$this->keyword}%");
+                })
+                ->orWhereHas('bukutabungans', function ($q) {
+                    $q->where('nomor_rekening', 'like', "%{$this->keyword}%");
+                });
+        }
+
+        if ($parent) {
+            $nasabahQuery->whereDoesntHave('roles', function ($q) {
+                $q->whereIn('name',  ['admin', 'supervisor']);
             });
         }
         $nasabah = $nasabahQuery->latest()->paginate($this->perPage);

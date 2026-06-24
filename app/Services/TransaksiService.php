@@ -12,4 +12,5 @@ interface TransaksiService
     public function getTrxByAuthUser();
     public function getTrxByUserByLimit();
     public function transaksiById(int $id);
+    public function getTrxByUniLimit();
 }

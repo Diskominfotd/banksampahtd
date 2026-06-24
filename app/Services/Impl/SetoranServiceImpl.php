@@ -33,8 +33,7 @@ class SetoranServiceImpl implements SetoranService
             try {
                 $totalSaldoSetoran = collect($cart)->sum(fn($c) => $c['harga'] * $c['berat']);
 
-                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])
-                ->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
+                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
                 $setoran = Setoran::create([
                     'penyetor_id' => $nasabah['id'],
                     'total_berat' => collect($cart)->sum('berat'),
@@ -70,16 +69,20 @@ class SetoranServiceImpl implements SetoranService
     public function getSetoranByUnit()
     {
         $auth = $this->checkUser();
+        $parent = $auth->unit->parent_id;
         $unitId = $auth->unit->id;
-
-        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+        if (!$parent) {
+            return Setoran::with(['penyetor', 'bukutabungan.bank', 'items']);
+        }
+        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])
+        ->whereHas('bukutabungan', function ($q) use ($unitId) {
             $q->where('bank_id', $unitId);
         });
     }
 
     public function getSetoranByIdNasabah(int $setoranId)
     {
-        return Setoran::with(['penyetor', 'items.trash'])
+        return Setoran::with(['penyetor', 'admin', 'items.trash'])
             ->where('id', $setoranId)
             ->first();
     }
@@ -156,6 +159,19 @@ class SetoranServiceImpl implements SetoranService
     {
         return Setoran::with(['bukutabungan.bank', 'penyetor'])
             ->where('penyetor_id', $this->checkUser()->id)
+            ->latest()
+            ->limit(5)
+            ->get();
+    }
+
+    public function getSetoranByUniLimit()
+    {
+        $auth = $this->checkUser();
+        $unitId = $auth->unit->id;
+        return Setoran::with(['bukutabungan.bank', 'penyetor'])
+            ->whereHas('bukutabungan', function ($q) use ($unitId) {
+                $q->where('bank_id', $unitId);
+            })
             ->latest()
             ->limit(5)
             ->get();

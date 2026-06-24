@@ -22,10 +22,12 @@ new class extends Component {
                         </div>
                     </div>
                     <div class="d-flex gap-1">
-                        <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
-                            data-bs-target="#wm-tambah-jenis">
-                            <i class="bi bi-patch-plus me-1"></i>Tambah Jenis
-                        </button>
+                        @if (Auth::user()->hasRole(['supervisor']))
+                            <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
+                                data-bs-target="#wm-tambah-jenis">
+                                <i class="bi bi-patch-plus me-1"></i>Tambah Jenis
+                            </button>
+                        @endif
 
                         <button wire:click="priceDetail" class="w-btn w-btn-primary" style="font-size:11px"
                             data-bs-toggle="modal" data-bs-target="#wm-update-harga">
@@ -47,7 +49,7 @@ new class extends Component {
                                 <th>Syarat</th>
                                 <th>Harga/kg</th>
                                 <th>Type Harga</th>
-                                <th>Aksi</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -63,15 +65,17 @@ new class extends Component {
                                         {{ ucfirst($t->type) }}
                                     </td>
                                     <td>
-                                        <button wire:click="detailJenis('{{ encrypt($t->trash->id) }}')"
-                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                            data-bs-toggle="modal" data-bs-target="#wm-edit-jenis">
-                                            <i class="bi bi-pencil-fill"></i>
-                                        </button>
-                                        <button wire:click="alertDelete('{{ encrypt($t->id) }}')"
-                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </button>
+                                        @if (Auth::user()->hasRole(['supervisor']))
+                                            <button wire:click="alertDelete('{{ encrypt($t->id) }}')"
+                                                class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                            <button wire:click="detailJenis('{{ encrypt($t->trash->id) }}')"
+                                                class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                                data-bs-toggle="modal" data-bs-target="#wm-edit-jenis">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -277,6 +281,7 @@ new class extends Component {
                                     <input class="w-form-input flex-grow-1" type="text" x-model="formatted"
                                         @input="format($event.target.value)" wire:ignore
                                         :disabled="$wire.prices[{{ $index }}]?.is_induk">
+
                                     <button type="button" title="Ubah"
                                         style="width:28px;height:28px;flex-shrink:0;border-radius:50%;background:none;border:0.5px solid #198754;color:#198754;display:flex;align-items:center;justify-content:center;padding:0;"
                                         wire:click="updatePrice({{ $index }})" wire:loading.attr="disabled"
@@ -320,4 +325,3 @@ new class extends Component {
         </div>
     </div>
 </div>
-

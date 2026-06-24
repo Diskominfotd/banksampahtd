@@ -113,6 +113,7 @@ new class extends Component {
         $totalPenarikanNasabah = $this->transaksiService->totalTransaksiNasabah();
         $setoranNasabahByLimit = $this->setoranService->getSetoranByUserByLimit();
         $trxNasabahByLimit = $this->transaksiService->getTrxByUserByLimit();
+
         return [
             'totalBeratSetoran' => $totalBeratSetoran,
             'totalSaldoSetoran' => $totalSaldoSetoran,

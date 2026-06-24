@@ -73,21 +73,15 @@ new class extends Component {
             <div class="ms-auto d-flex gap-2">
                 <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
-                    wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i>
+                    @click="$store.sheet.show('pencarian')">
+                    <i class="bi bi-search"></i>
                 </div>
+                <div class="m-gear"
+                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
+                    wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i></div>
             </div>
         </div>
         <div class="m-body mb-5" style="padding-top:16px">
-            <div class="d-flex gap-2 align-items-center mb-2">
-                <div class="m-search flex-grow-1">
-                    <i class="bi bi-search si"></i>
-                    <input wire:model.live="keyword" type="text" placeholder="Cari no rekening, nama nasabah...">
-                </div>
-                <div class="col-md-3">
-                    <input class="f-input" type="date" wire:model.live="date" />
-                </div>
-
-            </div>
             <div class="d-flex flex-column gap-2">
                 @if (count($data['setoran']) > 0)
                     @foreach ($data['setoran'] as $st)
@@ -100,13 +94,18 @@ new class extends Component {
                                 <div class="tx-date"><i class="bi bi-clock me-1"></i>
                                     {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
                                     {{ $st->bukutabungan->bank->nama }}
-                                    <b>Rp {{ number_format($st->total_saldo, 0, ',', '.') }}</b>
                                 </div>
                                 <div class="d-flex gap-1 mt-2">
                                     <button @click="$store.sheet.show('detail-setoran')"
                                         wire:click="detailSetoran('{{ encrypt($st->id) }}')" class="btn-tx"> <i
                                             class="bi bi-eye"></i>
                                     </button>
+                                    <span class="bs bs-green flex-shrink-0">
+                                        Rp {{ number_format($st->total_saldo, 0, ',', '.') }}
+                                    </span>
+                                    <span class="bs bs-purple flex-shrink-0">
+                                        Petugas - {{ ucfirst($st->admin->name) }}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -114,7 +113,7 @@ new class extends Component {
                 @else
                     <div class="item-empty">
                         <i class="bi bi-inbox"></i>
-                       Tidak Ada Data
+                        Tidak Ada Data
                     </div>
                 @endif
                 </tbody>
@@ -145,7 +144,7 @@ new class extends Component {
         <div
             style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
             margin-bottom:18px;color:var(--text-main)">
-            Detail Setoran
+            Detail Setoran - {{ $detailItems['kode'] ?? 'STR-XXX-XXX-XXX' }}
         </div>
         <div wire:loading.flex wire:target="detailSetoran" class="justify-content-center align-items-center"
             style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
@@ -162,11 +161,41 @@ new class extends Component {
                         </div>
                     </div><span class="bs bs-green" style="cursor:pointer">Rp.
                         {{ number_format($di['sub_total'], 0, ',', '.') }}</span>
+
                 </div>
             @endforeach
         </div>
         <div class="d-flex justify-content-end mt-4">
             <b> Total - Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}</b>
+        </div>
+    </div>
+
+    <div x-show="$store.sheet.is('pencarian')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
+    <div x-show="$store.sheet.is('pencarian')" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full"
+        style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;
+       background:var(--bg-card,#fff);border-radius:20px 20px 0 0;
+       padding:20px;max-height:90dvh;overflow-y:auto"
+        x-cloak>
+        <div class="sheet-handle"></div>
+        <div
+            style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+            margin-bottom:18px;color:var(--text-main)">
+            Pencarian
+        </div>
+        <div class="f-group"><label>Keyword</label>
+            <input class="f-input" type="text" wire:model.live="keyword"
+                placeholder="Cari no rekening, nama nasabah..."P>
+        </div>
+        <div class="f-group"><label>Tanggal</label>
+            <input class="f-input" type="date" wire:model.live="date">
         </div>
     </div>
 
@@ -206,6 +235,7 @@ new class extends Component {
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th>Kode</th>
                                 <th>Nasabah</th>
                                 <th>Nomor Rekening</th>
                                 <th>Berat</th>
@@ -220,7 +250,11 @@ new class extends Component {
                                 @foreach ($data['setoran'] as $index => $st)
                                     <tr>
                                         <td style="font-size:10px;color:var(--muted)">
-                                            {{ $data['setoran']->firstItem() + $index }}</td>
+                                            {{ $data['setoran']->firstItem() + $index }}
+                                        </td>
+                                        <td style="font-size:10px;color:var(--muted)">
+                                            {{ $st->kode ?? '-' }}
+                                        </td>
                                         <td>
                                             <div style="font-size:11px;font-weight:600">
                                                 {{ ucfirst($st->penyetor->name) }}
@@ -273,7 +307,7 @@ new class extends Component {
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
-                    <div class="w-modal-title">Detail Setoran</div>
+                    <div class="w-modal-title">Detail Setoran - {{ $detailItems['kode'] ?? 'STR-XXX-XXX-XXX' }}</div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <div class="w-modal-body">
@@ -316,6 +350,12 @@ new class extends Component {
                                     <strong>
                                         Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}
                                     </strong>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Petugas -
+                                    <strong>{{ ucfirst(data_get($detailItems, 'admin.name', '-')) }}</strong>
                                 </td>
                             </tr>
                         </tfoot>

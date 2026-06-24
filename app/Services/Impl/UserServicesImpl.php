@@ -103,7 +103,7 @@ class UserServicesImpl implements UserServices
 
     public function getUserById(int $id)
     {
-        return User::query()->find($id);
+        return User::with(['bukutabungans','setorans'])->find($id);
     }
 
     public function getBukuTabunganByUserId(int $id)
@@ -208,14 +208,17 @@ class UserServicesImpl implements UserServices
     public function getUserByUnitAndBook()
     {
         $user = $this->checkUser();
-
-        return User::with([
-            'bukutabungans' => function ($q) use ($user) {
+        if (!$user->unit->parent_id) {
+            return User::with(['bukutabungans']);
+        } else {
+            return User::with([
+                'bukutabungans' => function ($q) use ($user) {
+                    $q->where('bank_id', $user->unit->id);
+                },
+            ])->whereHas('bukutabungans', function ($q) use ($user) {
                 $q->where('bank_id', $user->unit->id);
-            },
-        ])->whereHas('bukutabungans', function ($q) use ($user) {
-            $q->where('bank_id', $user->unit->id);
-        });
+            });
+        }
     }
 
     public function totalNasabah()

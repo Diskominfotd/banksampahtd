@@ -187,14 +187,16 @@ new class extends Component {
                             </div>
                         @endforeach
                     </div>
-                    <button type="button" wire:click="loadMoreNasabah"
-                        style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
-                        <span wire:loading.remove wire:target="loadMoreNasabah">Tampilkan lebih banyak</span>
-                        <span wire:loading wire:target="loadMoreNasabah">
-                            <span class="spinner-border spinner-border-sm"
-                                style="width:12px;height:12px;border-width:1.5px;"></span>
-                        </span>
-                    </button>
+                    @if (count($this->nasabah) >= 10)
+                        <button type="button" wire:click="loadMoreNasabah"
+                            style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                            <span wire:loading.remove wire:target="loadMoreNasabah">Tampilkan lebih banyak</span>
+                            <span wire:loading wire:target="loadMoreNasabah">
+                                <span class="spinner-border spinner-border-sm"
+                                    style="width:12px;height:12px;border-width:1.5px;"></span>
+                            </span>
+                        </button>
+                    @endif
                 </div>
 
             </div>
@@ -205,9 +207,9 @@ new class extends Component {
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
                     <div class="w-modal-title">Pilih Jenis Sampah</div>
-                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div> 
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
-                 <div class="px-3 py-2 border-bottom">
+                <div class="px-3 py-2 border-bottom">
                     <input type="text" wire:model.live="searchJenis" class="form-control form-control-sm"
                         placeholder="Cari nama atau rekening nasabah..." />
                 </div>

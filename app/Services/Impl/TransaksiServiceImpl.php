@@ -52,19 +52,21 @@ class TransaksiServiceImpl implements TransaksiService
     public function getTransaksis()
     {
         $user = $this->checkUser();
+        $parent = $user->unit->parent_id;
         $unitId = $user->unit->id;
-
-        return Transaksi::with(['owner', 'bukutabungan.bank'])
-        ->whereHas('bukutabungan', function ($q) use ($unitId) {
-            $q->where('bank_id', $unitId);
-        });
+        if (!$parent) {
+            return Transaksi::with(['owner', 'bukutabungan.bank']);
+        } else {
+            return Transaksi::with(['owner', 'bukutabungan.bank'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+                $q->where('bank_id', $unitId);
+            });
+        }
     }
 
     public function penarikanToday()
     {
         $todayDate = now()->startOfDay();
-        return $this->getTransaksis()->whereDate('created_at', $todayDate)
-        ->latest()->limit(5)->get();
+        return $this->getTransaksis()->whereDate('created_at', $todayDate)->latest()->limit(5)->get();
     }
 
     public function totalPenarikanSaldoNasabah()
@@ -73,10 +75,8 @@ class TransaksiServiceImpl implements TransaksiService
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
-        $today = $this->getTransaksis()->whereDate('created_at', $todayDate)
-        ->sum('total_penarikan');
-        $yesterday = $this->getTransaksis()->whereDate('created_at', $yesterdayDate)
-        ->sum('total_penarikan');
+        $today = $this->getTransaksis()->whereDate('created_at', $todayDate)->sum('total_penarikan');
+        $yesterday = $this->getTransaksis()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
 
         return [
             'total' => $total,
@@ -121,6 +121,18 @@ class TransaksiServiceImpl implements TransaksiService
     {
         return Transaksi::with(['bukutabungan.bank'])
             ->where('owner_id', $this->checkUser()->id)
+            ->latest()
+            ->limit(5)
+            ->get();
+    }
+    public function getTrxByUniLimit()
+    {
+        $auth = $this->checkUser();
+        $unitId = $auth->unit->id;
+        return Transaksi::with(['bukutabungan.bank', 'penyetor'])
+            ->whereHas('bukutabungan', function ($q) use ($unitId) {
+                $q->where('bank_id', $unitId);
+            })
             ->latest()
             ->limit(5)
             ->get();

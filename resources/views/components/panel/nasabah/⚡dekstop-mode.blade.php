@@ -54,7 +54,9 @@ new class extends Component {
                         <tbody>
                             @foreach ($data['nasabah'] as $index => $nasabah)
                                 <tr>
-                                    <td style="font-size:10px;color:var(--muted)">{{ $index + 1 }}</td>
+                                    <td style="font-size:10px;color:var(--muted)">
+                                        {{ $data['nasabah']->firstItem() + $index }}
+                                    </td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="avatar" style="width:28px;height:28px;font-size:10px">
@@ -73,12 +75,15 @@ new class extends Component {
                                     <td style="font-size:10px;color:var(--muted)">
                                         {{ $nasabah->unit->nama ?? '-' }}
                                     </td>
-                                    <td style="font-weight:600">0 kg / 0 trx</td>
-                                    <td style="font-weight:700;color:var(--cyan)">Rp 0</td>
+                                    <td style="font-weight:600">{{ $nasabah->setorans->sum('total_berat') }} kg /
+                                        {{ $nasabah->setorans->count() }} trx</td>
+                                    <td style="font-weight:700;color:var(--cyan)">Rp
+                                        {{ number_format($nasabah->bukutabungans->sum('saldo'), 0, ',', '.') }}
+                                    </td>
                                     <td><span
                                             class="bs bs-green">{{ ucfirst($nasabah->getRoleNames()->first()) }}</span>
                                     </td>
-                                    <td><span class="bs bs-green">Aktif</span></td>
+                                    <td><span class="bs bs-green">{{ ucfirst($nasabah->status) }}</span></td>
                                     <td>
                                         <button wire:click="detail('{{ encrypt($nasabah->id) }}')"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
@@ -244,11 +249,11 @@ new class extends Component {
                         <div class="avatar" style="width:52px;height:52px;font-size:18px">SR</div>
                         <div>
                             <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">
-                                {{ ucfirst($this->namaNasabah) }}</div>
+                                {{ ucfirst($this->namaNasabah) }} - {{$this->nikNasabah}}</div>
                             <div style="font-size:11px;color:var(--muted)">Unit - {{ $this->unitNasabah }}
                             </div>
                         </div>
-                        <span class="bs bs-green ms-auto">{{ $this->statusNasabah }}</span>
+                        <span class="bs bs-green ms-auto">{{ ucfirst($this->statusNasabah) }}</span>
                     </div>
                     <div class="row g-3">
                         <div class="col-6">
@@ -259,7 +264,7 @@ new class extends Component {
                                     Saldo Tabungan</div>
                                 <div
                                     style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:var(--cyan)">
-                                    Rp 0</div>
+                                    Rp {{ number_format($this->saldoNasabah, 0, ',', '.') }}</div>
                             </div>
                         </div>
                         <div class="col-6">
@@ -268,7 +273,8 @@ new class extends Component {
                                 <div
                                     style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px">
                                     Total Setoran</div>
-                                <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700">0 kg / 0
+                                <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:700">
+                                    {{ $this->totalBeratSetoran }} kg / {{ $this->totalSetoran }}
                                     trx</div>
                             </div>
                         </div>
@@ -279,16 +285,22 @@ new class extends Component {
                                     class="df-val">{{ $this->nomorHpNasabah }}</span></div>
                         </div>
                         <div class="col-6">
-                            <div class="detail-field"><span class="df-key">Bergabung</span><span class="df-val">12
-                                    Maret 2024</span></div>
+                            <div class="detail-field">
+                                <span class="df-key">Bergabung</span>
+                                <span class="df-val">{{ $tglDaftar }}</span>
+                            </div>
                         </div>
                         <div class="col-6">
-                            <div class="detail-field"><span class="df-key">Terakhir Setor</span><span
-                                    class="df-val">29 Mei 2026</span></div>
+                            <div class="detail-field">
+                                <span class="df-key">Terakhir Setor</span>
+                                <span class="df-val">{{ $tglLastSetor }}</span>
+                            </div>
                         </div>
                         <div class="col-6">
-                            <div class="detail-field"><span class="df-key">Jenis Sampah Utama</span><span
-                                    class="df-val">Plastik HDPE</span></div>
+                            <div class="detail-field">
+                                <span class="df-key">Terakir Tarik Dana</span>
+                                <span class="df-val">{{ $tglLastWd }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

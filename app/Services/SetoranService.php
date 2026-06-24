@@ -15,4 +15,5 @@ interface SetoranService
     public function totalSaldoSetoranNasbah();
     public function getSetoranByAuthUser();
     public function getSetoranByUserByLimit();
+    public function getSetoranByUniLimit();
 }
