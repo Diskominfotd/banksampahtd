@@ -138,6 +138,7 @@ class SetoranServiceImpl implements SetoranService
 
     public function totalSaldoSetoranNasbah()
     {
+        $total = $this->setoranByAuthUser()->sum('total_saldo');
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
@@ -145,6 +146,7 @@ class SetoranServiceImpl implements SetoranService
         $yesterday = $this->setoranByAuthUser()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
 
         return [
+            'total' => $total,
             'today' => $today,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),

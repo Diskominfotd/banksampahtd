@@ -40,9 +40,9 @@ new class extends Component {
                         </div>
                         <button wire:click="detail('{{ encrypt($category->id) }}')" class="btn-tx"
                             @click="$store.sheet.show('edit-kategori')"> <i
-                                class="bi bi-pencil-square me-1"></i>Edit</button>
+                                class="bi bi-pencil-square me-1"></i></button>
                         <button wire:click="alertDelete('{{ encrypt($category->id) }}')" class="btn-tx"> <i
-                                class="bi bi-trash me-1"></i>Hapus</button>
+                                class="bi bi-trash me-1"></i></button>
                     </div>
                 @endforeach
             </div>

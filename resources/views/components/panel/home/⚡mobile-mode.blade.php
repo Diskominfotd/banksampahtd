@@ -57,14 +57,17 @@ new class extends Component {
                     <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
                         <div class="avatar avatar-md">{{ Auth::user()->initials() }}</div>
                         <div>
-                            <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat datang
+                            <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat
+                                datang</strong>
                             </div>
-                            <div style="font-size:14px;font-weight:600;color:#fff">{{ Auth::user()->unit->nama }}</div>
+                            <div style="font-size:14px;font-weight:600;color:#fff">
+                                <strong>{{ ucfirst(Auth::user()->name) }}
+                            </div>
                         </div>
                     </div>
-                    <div class="m-gear" onclick="mNav('m-notifikasi')"><i class="bi bi-bell-fill"></i><span
+                    {{-- <div class="m-gear" onclick="mNav('m-notifikasi')"><i class="bi bi-bell-fill"></i><span
                             style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid rgba(255,255,255,.4);font-size:7px;display:flex;align-items:center;justify-content:center;font-weight:700">3</span>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="m-summary fade-up">
                     <div class="m-summary-lbl">Total Berat Sampah</div>
@@ -129,7 +132,7 @@ new class extends Component {
                         @endphp
                         <div class="m-pill c">
                             <span
-                                class="m-pill-n">{{ convertRupiahToString($data['totalSaldoSetoran']['today']) }}</span>
+                                class="m-pill-n">{{ convertRupiahToString($data['totalSaldoSetoran']['total']) }}</span>
                             <span class="m-pill-l">Setoran</span>
                             <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
@@ -161,40 +164,40 @@ new class extends Component {
                 <div class="row g-2">
                     <div class="col-3 fade-up"><a class="svc-item" href="{{ route('setoran') }}">
                             <div class="svc-icon ic1"><i class="bi bi-recycle"></i>
-                                <div class="notif-dot">5</div>
+                                {{-- <div class="notif-dot">5</div> --}}
                             </div><span class="svc-lbl">Setoran</span>
-                        </a></div>
+                        </a>
+                    </div>
                     <div class="col-3 fade-up"><a class="svc-item" href="{{ route('nasabah') }}">
                             <div class="svc-icon ic2"><i class="bi bi-people-fill"></i></div><span
                                 class="svc-lbl">Nasabah</span>
-                        </a></div>
+                        </a>
+                    </div>
                     <div class="col-3 fade-up"><a class="svc-item" href="{{ route('harga') }}">
                             <div class="svc-icon ic3"><i class="bi bi-tags-fill"></i></div><span
                                 class="svc-lbl">Harga</span>
-                        </a></div>
-                    <div class="col-3 fade-up"><a class="svc-item" href="{{ route('kategori') }}">
-                            <div class="svc-icon ic4"><i class="bi bi-grid-fill"></i></div><span
-                                class="svc-lbl">Kategori</span>
-                        </a></div>
-                </div>
-                <div class="row g-2 mt-1">
+                        </a>
+                    </div>
                     <div class="col-3 fade-up"><a class="svc-item" href="{{ route('penarikan.saldo') }}">
                             <div class="svc-icon ic5"><i class="bi bi-cash-coin"></i></div><span
                                 class="svc-lbl">Penarikan</span>
-                        </a></div>
-                    <div class="col-3 fade-up"><a class="svc-item" href="{{ route('harga') }}">
-                            <div class="svc-icon ic3"><i class="bi bi-graph-up"></i></div><span
-                                class="svc-lbl">Laporan</span>
-                        </a></div>
-                    <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-setoran')">
-                            <div class="svc-icon ic6"><i class="bi bi-person-circle"></i></div><span
-                                class="svc-lbl">Profile</span>
-                        </a></div>
-                    <div class="col-3 fade-up"><a class="svc-item" onclick="mNav('m-penarikan')">
-                            <div class="svc-icon ic2"><i class="bi bi-wallet2"></i></div><span
-                                class="svc-lbl">Saldo</span>
-                        </a></div>
+                        </a>
+                    </div>
                 </div>
+                @if (Auth::user()->hasRole(['supervisor']))
+                    <div class="row g-2 mt-1">
+                        <div class="col-3 fade-up"><a class="svc-item" href="{{ route('kategori') }}">
+                                <div class="svc-icon ic4"><i class="bi bi-grid-fill"></i></div><span
+                                    class="svc-lbl">Kategori</span>
+                            </a>
+                        </div>
+                        <div class="col-3 fade-up"><a class="svc-item" href="{{ route('harga') }}">
+                                <div class="svc-icon ic3"><i class="bi bi-graph-up"></i></div><span
+                                    class="svc-lbl">Laporan</span>
+                            </a>
+                        </div>
+                    </div>
+                @endif
                 <div class="sec-lbl">Setoran Hari Ini</div>
                 <div class="row g-2">
                     @forelse ($this->getData()['setoranTerbaru'] ?? [] as $stl)

@@ -30,7 +30,7 @@ new class extends Component {
                 <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, rekening...">
             </div>
             <div class="d-flex flex-column gap-2">
-                @foreach ($data['nasabah'] as $index => $nasabah)
+                @forelse ($data['nasabah'] as $index => $nasabah)
                     <div class="tx-card d-flex align-items-start gap-2 fade-up">
                         <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)">
                             <div class="avatar" style="width:36px;height:36px;font-size:12px;flex-shrink:0">
@@ -40,15 +40,16 @@ new class extends Component {
                         <div class="flex-grow-1 overflow-hidden">
                             <div class="tx-name text-truncate">{{ ucfirst($nasabah->name) }}</div>
                             <div class="tx-date"><i class="bi bi-cash me-1"></i>
-                                Saldo - Rp. {{ number_format($nasabah->bukuTabungans->sum('saldo'), 0, ',', '.') }}
+                                <strong>Saldo - Rp.
+                                    {{ number_format($nasabah->bukuTabungans->sum('saldo'), 0, ',', '.') }}</strong>
                             </div>
                             <div class="d-flex gap-1 mt-2">
                                 <button @click="$store.sheet.show('edit-nasabah')"
                                     wire:click="detail('{{ encrypt($nasabah->id) }}')" class="btn-tx">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
-                                <button wire:click="alertDelete('{{ encrypt($nasabah->id) }}')" class="btn-tx"><i
-                                        class="bi bi-trash-fill"></i>
+                                <button wire:click="alertDelete('{{ encrypt($nasabah->id) }}')" class="btn-tx">
+                                    <i class="bi bi-trash-fill"></i>
                                 </button>
                                 <button @click="$store.sheet.show('rekening-nasabah')"
                                     wire:click="getBukuTabungan('{{ encrypt($nasabah->id) }}')" class="btn-tx">
@@ -58,7 +59,12 @@ new class extends Component {
                         </div>
                         <span class="bs bs-green flex-shrink-0">{{ ucfirst($nasabah->status) }}</span>
                     </div>
-                @endforeach
+                @empty
+                    <div class="item-empty">
+                        <i class="bi bi-inbox"></i>
+                        Tidak Ada Data
+                    </div>
+                @endforelse
             </div>
             @if ($data['nasabah']->count() >= 10)
                 <button type="button" wire:click="loadPerpage"

@@ -15,11 +15,13 @@ new class extends Component {
             </div>
             <div class="ph-title">Harga Sampah</div>
             <div class="ms-auto d-flex gap-2">
-                <div class="m-gear"
-                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
-                    @click="$store.sheet.show('tambah-jenis')">
-                    <i class="bi bi-plus-lg"></i>
-                </div>
+                @if (Auth::user()->hasRole(['supervisor']))
+                    <div class="m-gear"
+                        style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
+                        @click="$store.sheet.show('tambah-jenis')">
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                @endif
                 <div wire:click="priceDetail" class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
                     @click="$store.sheet.show('update-harga')"><i class="bi bi-pencil-fill" style="font-size:12px"></i>
@@ -32,7 +34,7 @@ new class extends Component {
                 <input type="text" wire:model.live="keyword" placeholder="Cari nama jenis sampah...">
             </div>
             <div class="d-flex flex-column gap-2">
-                @foreach ($data['trashs'] as $t)
+                @forelse ($data['trashs'] as $t)
                     <div class="list-item fade-up">
                         <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
                         <div class="list-main">
@@ -44,19 +46,25 @@ new class extends Component {
                                     wire:click="detailJenis('{{ encrypt($t->trash->id) }}')" class="btn-tx">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
-                                <button wire:click="alertDelete('{{ encrypt($t->id) }}')" class="btn-tx"><i
-                                        class="bi bi-trash-fill"></i></button>
+                                <button wire:click="alertDelete('{{ encrypt($t->id) }}')" class="btn-tx">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
                             </div>
                         </div>
                         <div style="text-align:right">
                             <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--cyan)">
-                                Rp {{ number_format($t->harga ?? 0, 0, ',', '.') }}</div>
+                                Rp {{ number_format($t->harga ?? 0, 0, ',', '.') }}
+                            </div>
                             <div style="font-size:9px;color:var(--muted)">/kg</div>
                             <div style="font-size:9px;color:var(--muted)"><b>Harga - {{ ucfirst($t->type) }}</b></div>
                         </div>
-
                     </div>
-                @endforeach
+                @empty
+                    <div class="item-empty">
+                        <i class="bi bi-inbox"></i>
+                        Belum ada data
+                    </div>
+                @endforelse
             </div>
             @if ($data['trashs']->count() >= 10)
                 <button type="button" wire:click="loadPerpage"

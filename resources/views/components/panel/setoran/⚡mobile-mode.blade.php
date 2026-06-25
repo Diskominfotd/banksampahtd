@@ -147,8 +147,8 @@ new class extends Component {
             <div class="spinner-border text-success"></div>
         </div>
         <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
-            @foreach ($this->nasabah as $n)
-                <div class="list-item fade-up mb-1"wire:click="pilihNasabah({{ $n->id }})"
+            @forelse ($this->nasabah as $n)
+                <div class="list-item fade-up mb-1" wire:click="pilihNasabah({{ $n->id }})"
                     style="cursor:pointer">
                     <div class="list-ico ic1">
                         <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)">
@@ -166,7 +166,12 @@ new class extends Component {
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="item-empty">
+                    <i class="bi bi-inbox"></i>
+                    Belum ada data
+                </div>
+            @endforelse
         </div>
         @if (count($this->nasabah) >= 10)
             <button type="button" wire:click="loadMoreNasabah"
@@ -179,7 +184,7 @@ new class extends Component {
             </button>
         @endif
     </div>
-    
+
     <div x-show="$store.sheet.is('pilih-jenis-sampah')" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
@@ -209,7 +214,7 @@ new class extends Component {
             <div class="spinner-border text-success"></div>
         </div>
         <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
-            @foreach ($this->items as $item)
+            @forelse ($this->items as $item)
                 <div class="list-item fade-up mb-1" wire:click="pilihJenisSampah({{ $item->id }})"
                     style="cursor:pointer">
                     <div class="list-ico ic1">
@@ -223,7 +228,12 @@ new class extends Component {
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="item-empty">
+                    <i class="bi bi-inbox"></i>
+                    Belum ada data
+                </div>
+            @endforelse
             @if (count($this->items) >= 10)
                 <button type="button" wire:click="loadMoreItemSampah"
                     style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">

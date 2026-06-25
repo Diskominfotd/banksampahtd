@@ -104,8 +104,8 @@ new class extends Component {
             <div class="spinner-border text-success"></div>
         </div>
         <div style="flex:1;overflow-y:auto;padding:0 15px 15px;-webkit-overflow-scrolling:touch">
-            @foreach ($this->nasabah as $n)
-                <div class="list-item fade-up mb-1"wire:click="pilihNasabah({{ $n->id }})"
+            @forelse ($this->nasabah as $n)
+                <div class="list-item fade-up mb-1" wire:click="pilihNasabah({{ $n->id }})"
                     style="cursor:pointer">
                     <div class="list-ico ic1">
                         <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)">
@@ -124,7 +124,12 @@ new class extends Component {
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="item-empty">
+                    <i class="bi bi-inbox"></i>
+                    Belum ada data
+                </div>
+            @endforelse
         </div>
         @if (count($this->nasabah) >= 10)
             <button type="button" wire:click="loadMoreNasabah"

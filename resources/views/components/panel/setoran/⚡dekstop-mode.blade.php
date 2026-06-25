@@ -167,7 +167,7 @@ new class extends Component {
                 </div>
                 <div class="w-modal-body" style="overflow-y: auto; max-height: 60vh;">
                     <div class="d-flex flex-column gap-2">
-                        @foreach ($this->nasabah as $n)
+                        @forelse ($this->nasabah as $n)
                             <div class="w-row" wire:click="pilihNasabah({{ $n->id }})" style="cursor:pointer"
                                 wire:key="nasabah-{{ $n->id }}">
                                 <div class="avatar" style="width:28px;height:28px;font-size:10px">
@@ -185,7 +185,12 @@ new class extends Component {
                                     {{ ucfirst($n->status) }}
                                 </span>
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="item-empty">
+                                <i class="bi bi-inbox"></i>
+                                Tidak Ada Data
+                            </div>
+                        @endforelse
                     </div>
                     @if (count($this->nasabah) >= 10)
                         <button type="button" wire:click="loadMoreNasabah"
@@ -215,7 +220,7 @@ new class extends Component {
                 </div>
                 <div class="w-modal-body" style="overflow-y: auto; max-height: 60vh;">
                     <div class="d-flex flex-column gap-2">
-                        @foreach ($this->items as $item)
+                        @forelse ($this->items as $item)
                             <div class="w-row" wire:click="pilihJenisSampah({{ $item->id }})">
                                 <div class="w-row-ico ic1"><i class="bi bi-recycle" style="font-size:13px"></i></div>
                                 <div class="flex-grow-1 overflow-hidden">
@@ -225,7 +230,12 @@ new class extends Component {
                                     <div class="w-row-meta">Tipe Harga - {{ $item->type }}</div>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="item-empty">
+                                <i class="bi bi-inbox"></i>
+                                Tidak Ada Data
+                            </div>
+                        @endforelse
                     </div>
                     @if (count($this->items) >= 10)
                         <button type="button" wire:click="loadMoreItemSampah"
