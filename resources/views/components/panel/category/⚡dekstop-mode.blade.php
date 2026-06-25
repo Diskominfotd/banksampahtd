@@ -18,7 +18,7 @@ new class extends Component {
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
                         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Kategori</div>
-                        <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
+                        <div style="font-size:11px;color:var(--muted)">
                         </div>
                     </div>
                     <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
@@ -28,7 +28,7 @@ new class extends Component {
                 <div class="w-panel">
                     <div class="w-search mb-3" style="width:100%">
                         <i class="bi bi-search si"></i>
-                        <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit..."
+                        <input wire:model.live="keyword" type="text" placeholder="Cari berdasarkan nama..."
                             style="width:100%">
                     </div>
                     <table class="w-tbl">
@@ -53,11 +53,12 @@ new class extends Component {
                                         <button wire:click="detail('{{ encrypt($category->id) }}')"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
                                             data-bs-toggle="modal" data-bs-target="#wm-edit-kategori">
-                                            Edit
+                                            <i class="bi bi-pencil-square"></i>
                                         </button>
+
                                         <button wire:click="alertDelete('{{ encrypt($category->id) }}')"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
-                                            Hapus
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </td>
                                 </tr>

@@ -14,6 +14,15 @@ new class extends Component {
     public ?string $date = '';
     public $itemTrxDetail = null;
 
+    public function logout()
+    {
+        Auth::logout();
+
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
     public function boot(TransaksiService $transaksiService)
     {
         $this->transaksiService = $transaksiService;
@@ -87,33 +96,49 @@ new class extends Component {
                     @click="$store.sheet.show('pencarian')">
                     <i class="bi bi-search"></i>
                 </div>
-                <div wire:click="movePage('buat.penarikan.saldo')" class="m-gear"
-                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)">
-                    <i class="bi bi-plus-lg"></i>
-                </div>
+                @if (Auth::user()->hasRole(['admin']))
+                    <div wire:click="movePage('buat.penarikan.saldo')" class="m-gear"
+                        style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)">
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                @endif
             </div>
         </div>
         <div class="m-body">
             <div class="d-flex flex-column gap-2 mt-2">
-                @foreach ($data['nasabah'] as $index => $nasabah)
+                @forelse ($data['nasabah'] as $index => $nasabah)
+                    @php
+                        $bukutabungan = $nasabah->owner->bukutabungans->first();
+                    @endphp
                     <div class="list-item fade-up" wire:click="trxDetail('{{ encrypt($nasabah->id) }}')"
                         @click="$store.sheet.show('detail-trx-id')">
+
                         <span class="list-num">{{ $index + 1 }}</span>
                         <div class="list-ico ic1"><i class="bi bi-cash" style="font-size:12px"></i></div>
                         <div class="list-main">
-                            <div class="list-name">{{ ucfirst($nasabah->owner->name) }} —
-                                {{ $nasabah->owner->bukutabungans->first()->nomor_rekening }}</div>
-                            <div class="list-sub">{{ $nasabah->owner->bukutabungans->first()->bank->nama }} ·
+                            <div class="list-name">
+                                {{ ucfirst($nasabah->owner->name) }} —
+                                {{ $bukutabungan?->nomor_rekening ?? '-' }}
+                            </div>
+                            <div class="list-sub">
+                                {{ $bukutabungan?->bank?->nama ?? '-' }} ·
                                 {{ $nasabah->tanggal_transaksi->diffForHumans() }}
                             </div>
                             <div class="list-sub">
-                                <b>Sisa - Rp {{ number_format($nasabah->sisa_saldo ?? 0, 0, ',', '.') }} </b>
+                                <b>Sisa - Rp {{ number_format($nasabah->sisa_saldo ?? 0, 0, ',', '.') }}</b>
                             </div>
-                        </div><span class="bs bs-green" style="cursor:pointer"
-                            onclick="openDetail('m-detail-setoran')">Rp
-                            {{ number_format($nasabah->total_penarikan ?? 0, 0, ',', '.') }}</span>
+                        </div>
+
+                        <span class="bs bs-green" style="cursor:pointer" onclick="openDetail('m-detail-setoran')">
+                            Rp {{ number_format($nasabah->total_penarikan ?? 0, 0, ',', '.') }}
+                        </span>
                     </div>
-                @endforeach
+                @empty
+                    <div class="item-empty">
+                        <i class="bi bi-inbox"></i>
+                        Tidak Ada Data
+                    </div>
+                @endforelse
             </div>
             @if (count($data['nasabah']) >= 10)
                 <button type="button" wire:click="loadMore"
@@ -227,10 +252,12 @@ new class extends Component {
                         <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
                         </div>
                     </div>
-                    <a class="w-btn w-btn-primary" href="{{ route('buat.penarikan.saldo') }}"
-                        style="font-size:11px"><i class="bi bi-plus-circle me-1"></i>Buat
-                        Penarikan
-                    </a>
+                    @if (Auth::user()->hasRole(['admin']))
+                        <a class="w-btn w-btn-primary" href="{{ route('buat.penarikan.saldo') }}"
+                            style="font-size:11px"><i class="bi bi-plus-circle me-1"></i>Buat
+                            Penarikan
+                        </a>
+                    @endif
                 </div>
                 <div class="w-panel">
                     <div class="d-flex gap-2 mb-3">

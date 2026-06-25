@@ -42,4 +42,8 @@ class PanelController extends Controller
     {
         return view('panel.pages.buat-penarikan');
     }
+    public function profile()
+    {
+        return view('panel.pages.profile');
+    }
 }

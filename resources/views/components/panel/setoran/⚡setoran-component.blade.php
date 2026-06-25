@@ -14,6 +14,15 @@ new class extends Component {
 
     public array $detailItems = [];
 
+    public function logout()
+    {
+        Auth::logout();
+
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
     public function boot(SetoranService $setoranService)
     {
         $this->setoranService = $setoranService;
@@ -65,7 +74,7 @@ new class extends Component {
     @php
         $data = $this->getData();
     @endphp
-    <div id="m-setoran">
+    <div id="m-nasabah">
         <div class="m-page-header">
             <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
@@ -76,9 +85,11 @@ new class extends Component {
                     @click="$store.sheet.show('pencarian')">
                     <i class="bi bi-search"></i>
                 </div>
+                 @if (Auth::user()->hasRole(['admin']))
                 <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
                     wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i></div>
+                @endif
             </div>
         </div>
         <div class="m-body mb-5" style="padding-top:16px">
@@ -122,7 +133,7 @@ new class extends Component {
                 {{ $data['setoran']->links('vendor.pagination.bootstrap-5') }}
             </div>
         </div>
-        @include('panel.template.mobile-bottombar')
+       @include('components.⚡mobile-bottombar')
     </div>
 
     {{-- ======= MOBILE SHEET: DETAIL Setoran ======= --}}
@@ -213,11 +224,13 @@ new class extends Component {
                         <div style="font-size:11px;color:var(--muted)">342 kg masuk hari ini — 5 setoran pending</div>
                     </div>
                     <div class="d-flex gap-2">
+                        @if (Auth::user()->hasRole(['admin']))
                         <button class="w-btn w-btn-primary" style="font-size:11px"
                             wire:click="movePage('setoran.catat')">
                             <i class="bi bi-plus-lg me-1"></i>
                             Catat Setoran
                         </button>
+                        @endif
                     </div>
                 </div>
                 <div class="w-panel">

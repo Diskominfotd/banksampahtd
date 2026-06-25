@@ -49,7 +49,15 @@ new class extends Component {
 
     public array $bukuTabungan = [];
     public int $unitBukuTabungan;
+    public function logout()
+    {
+        Auth::logout();
 
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
     public function loadPerpage()
     {
         $this->perPage += 10;
@@ -216,7 +224,7 @@ new class extends Component {
 
         if ($parent) {
             $nasabahQuery->whereDoesntHave('roles', function ($q) {
-                $q->whereIn('name',  ['admin', 'supervisor']);
+                $q->whereIn('name', ['admin', 'supervisor']);
             });
         }
         $nasabah = $nasabahQuery->latest()->paginate($this->perPage);

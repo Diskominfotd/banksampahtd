@@ -103,7 +103,7 @@ class UserServicesImpl implements UserServices
 
     public function getUserById(int $id)
     {
-        return User::with(['bukutabungans','setorans'])->find($id);
+        return User::with(['bukutabungans', 'setorans'])->find($id);
     }
 
     public function getBukuTabunganByUserId(int $id)
@@ -248,7 +248,6 @@ class UserServicesImpl implements UserServices
     public function totalSaldoNasabah()
     {
         $totalSaldo = $this->bukuTabunganByAuthUser()->sum('saldo');
-
         return [
             'today' => $totalSaldo,
             'yesterday' => 0,
@@ -260,5 +259,51 @@ class UserServicesImpl implements UserServices
     {
         $user = $this->checkUser();
         return BukuTabungan::where('user_id', $user->id)->count();
+    }
+
+    public function getBankByUserId(int $id)
+    {
+        return BankSampah::where('id', $id)->first();
+    }
+
+    public function updateBankSampah(int $id, array $data)
+    {
+        $unit = $this->getBankByUserId($id);
+        $unit->update([
+            'nama' => $data['nama'],
+            'kode_bank' => $data['kode_bank'],
+            'alamat' => $data['alamat'],
+            'jam_buka' => $data['jam_buka'],
+            'jam_tutup' => $data['jam_tutup'],
+            'telepon' => $data['telepon'],
+        ]);
+        session()->flash('success', 'Behasil');
+    }
+
+    public function updateProfile(int $id, array $data)
+    {
+        $hashedNik = hash('sha256', $data['nik']);
+        $user = User::findOrFail($id);
+        $user->update([
+            'nama' => $data['nama'],
+            'email' => $data['email'],
+            'nomor_hp' => $data['nomor_hp'],
+            'nik' => $data['nik'],
+            'nik_hash' => $hashedNik,
+        ]);
+        session()->flash('success', 'Behasil');
+    }
+
+    public function updatePassword(int $id, string $password) {
+        $user = User::findOrFail($id);
+        $user->update([
+            'password' => bcrypt($password)
+        ]);
+        session()->flash('success', 'Behasil');
+    }
+
+    public function nasabahAktifByBook(int $unitId)
+    {
+       return BukuTabungan::where('bank_id', $unitId)->count();
     }
 }

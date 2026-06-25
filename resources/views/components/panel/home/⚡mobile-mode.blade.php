@@ -51,11 +51,11 @@ new class extends Component {
     </style>
     @if (Auth::user()->hasRole(['admin', 'supervisor']))
         {{-- AdminSupervisor --}}
-        <div id="m-beranda">
+      <div id="m-nasabah">
             <div class="m-header">
                 <div class="m-topbar">
                     <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
-                        <div class="avatar avatar-md">{{ Auth::user()->initials() }}</div>
+                        <div class="avatar avatar-md">{{ strtoupper(Auth::user()->initials()) }}</div>
                         <div>
                             <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat
                                 datang</strong>
@@ -159,7 +159,7 @@ new class extends Component {
                     </div>
                 </div>
             </div>
-            <div class="m-body mb-4">
+            <div class="m-body" style="padding-top:16px">
                 <div class="sec-lbl">Menu Utama</div>
                 <div class="row g-2">
                     <div class="col-3 fade-up"><a class="svc-item" href="{{ route('setoran') }}">
@@ -257,9 +257,8 @@ new class extends Component {
                         </div>
                     @endforelse
                 </div>
-
             </div>
-            @include('panel.template.mobile-bottombar')
+            @include('components.⚡mobile-bottombar')
         </div>
         {{-- Detail setoran id --}}
         <div x-show="$store.sheet.is('detail-setoran-id')" x-transition:enter="transition ease-out duration-200"

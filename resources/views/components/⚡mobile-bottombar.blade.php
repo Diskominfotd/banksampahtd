@@ -18,7 +18,7 @@ new class extends Component {
         <a href="/nasabah" class="m-nav-btn" :class="{ 'active': path.startsWith('/nasabah') }">
             <i class="bi bi-people-fill"></i><span>Nasabah</span>
         </a>
-        <a href="/profil" class="m-nav-btn" :class="{ 'active': path.startsWith('/profil') }">
+        <a href="/profile" class="m-nav-btn" :class="{ 'active': path.startsWith('/profile') }">
             <i class="bi bi-person-fill"></i><span>Profil</span>
         </a>
     </nav>

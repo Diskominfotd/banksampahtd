@@ -24,6 +24,15 @@ new class extends Component {
 
     public ?string $searchJenis = '';
 
+    public function logout()
+    {
+        Auth::logout();
+
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
     public function boot(UserServices $userService, SetoranService $setoranService)
     {
         $this->userService = $userService;

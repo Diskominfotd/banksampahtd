@@ -27,6 +27,8 @@ class DatabaseSeeder extends Seeder
             'alamat' => 'Jl. Sudirman No. 1',
             'telepon' => '081234567890',
             'kode_bank' => 'ABC',
+            'jam_buka' => '08:00',
+            'jam_tutup' => '16:00',
         ]);
         BankSampah::create([
             'nama' => 'Bank Sampah Unit Marpoyan',
@@ -35,6 +37,8 @@ class DatabaseSeeder extends Seeder
             'alamat' => 'Jl. Marpoyan',
             'telepon' => '081111111111',
             'kode_bank' => 'ABD',
+            'jam_buka' => '08:00',
+            'jam_tutup' => '16:00',
         ]);
 
         BankSampah::create([
@@ -44,6 +48,8 @@ class DatabaseSeeder extends Seeder
             'alamat' => 'Jl. Panam',
             'telepon' => '082222222222',
             'kode_bank' => 'ABE',
+            'jam_buka' => '08:00',
+            'jam_tutup' => '16:00',
         ]);
 
         $org = Organisasi::create([

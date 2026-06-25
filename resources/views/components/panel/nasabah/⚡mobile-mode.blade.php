@@ -23,7 +23,6 @@ new class extends Component {
                 </div>
             </div>
         </div>
-
         <div class="m-body" style="padding-top:16px">
             <div class="m-search mb-3">
                 <i class="bi bi-search si"></i>

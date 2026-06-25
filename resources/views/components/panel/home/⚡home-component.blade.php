@@ -30,6 +30,15 @@ new class extends Component {
     public $itemSetoranDetail = null;
     public $itemTrxDetail = null;
 
+    public function logout()
+    {
+        Auth::logout();
+
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
     public function mount()
     {
         $this->nasabahId = Auth::id();

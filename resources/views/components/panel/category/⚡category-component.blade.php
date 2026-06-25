@@ -17,6 +17,15 @@ new class extends Component {
 
     public ?string $keyword = '';
 
+    public function logout()
+    {
+        Auth::logout();
+
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
     public function movePage(string $route)
     {
         return redirect()->route($route);

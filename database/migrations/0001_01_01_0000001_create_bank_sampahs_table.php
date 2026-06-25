@@ -11,12 +11,13 @@ return new class extends Migration {
             $table->id();
             $table->string('nama');
             $table->enum('jenis', ['induk', 'unit'])->default('unit');
-            $table->foreignId('parent_id')->nullable()
-            ->constrained('bank_sampahs')->nullOnDelete();
-            $table->string('kode_bank')->nullable();
+            $table->foreignId('parent_id')->nullable()->constrained('bank_sampahs')->nullOnDelete();
+            $table->string('kode_bank')->unique();
             $table->text('alamat')->nullable();
             $table->string('telepon')->nullable();
             $table->boolean('use_parent_price')->default(true);
+            $table->time('jam_buka');
+            $table->time('jam_tutup');
             $table->timestamps();
         });
     }

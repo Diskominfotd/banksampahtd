@@ -23,4 +23,9 @@ interface UserServices
     public function totalSaldoNasabah();
     public function totalBukuTabunganNasabah();
     public function getBanks();
+    public function getBankByUserId(int $id);
+    public function updateBankSampah(int $id, array $data);
+    public function updateProfile(int $id, array $data);
+    public function updatePassword(int $id, string $password);
+     public function nasabahAktifByBook(int $unitId);
 }

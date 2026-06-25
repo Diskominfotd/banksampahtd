@@ -39,7 +39,7 @@ new class extends Component {
                 </a>
             @endif
         @endif
-        <a href="/laporan" class="w-nav" :class="{ 'active': path.startsWith('/laporan') }">
+        <a href="/profile" class="w-nav" :class="{ 'active': path.startsWith('/profile') }">
             <i class="bi bi-person-circle"></i>
         </a>
         <div class="mt-auto"></div>

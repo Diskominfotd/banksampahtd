@@ -34,6 +34,15 @@ new class extends Component {
 
     public ?string $trashId;
 
+    public function logout()
+    {
+        Auth::logout();
+
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
     public function movePage(string $route)
     {
         return redirect()->route($route);
@@ -186,13 +195,13 @@ new class extends Component {
 ?>
 
 <div x-data x-init="if (!Alpine.store('sheet')) {
-        Alpine.store('sheet', {
-            active: null,
-            show(name) { this.active = name },
-            hide() { this.active = null },
-            is(name) { return this.active === name },
-        })
-    }">
+    Alpine.store('sheet', {
+        active: null,
+        show(name) { this.active = name },
+        hide() { this.active = null },
+        is(name) { return this.active === name },
+    })
+}">
     {{-- The only way to do great work is to love what you do. - Steve Jobs --}}
     @php
         $data = $this->getData();

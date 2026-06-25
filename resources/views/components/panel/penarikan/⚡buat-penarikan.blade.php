@@ -18,10 +18,16 @@ new class extends Component {
     public ?int $pageNasabah = 10;
     public ?string $searchNasabah = '';
 
-    public function boot(
-        UserServices $userService, 
-        TransaksiService $transaksiService
-    )
+    public function logout()
+    {
+        Auth::logout();
+
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
+    public function boot(UserServices $userService, TransaksiService $transaksiService)
     {
         $this->userService = $userService;
         $this->transaksiService = $transaksiService;
