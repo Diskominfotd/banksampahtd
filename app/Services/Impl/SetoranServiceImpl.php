@@ -74,8 +74,7 @@ class SetoranServiceImpl implements SetoranService
         if (!$parent) {
             return Setoran::with(['penyetor', 'bukutabungan.bank', 'items']);
         }
-        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])
-        ->whereHas('bukutabungan', function ($q) use ($unitId) {
+        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])->whereHas('bukutabungan', function ($q) use ($unitId) {
             $q->where('bank_id', $unitId);
         });
     }

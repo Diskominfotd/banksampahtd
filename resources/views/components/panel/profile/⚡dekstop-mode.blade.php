@@ -87,8 +87,9 @@ new class extends Component {};
                                                 <input class="w-form-input" type="text" x-model="kodeBank"
                                                     maxlength="6" placeholder="ABC123"
                                                     style="text-transform: uppercase;"
-                                                    @input="kodeBank = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')">
-                                                <button type="button" class="btn btn-success" @click="generateKode()"
+                                                    @input="kodeBank = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
+                                                    disabled>
+                                                <button type="button" class="btn-tx" @click="generateKode()"
                                                     title="Generate Kode">
                                                     <i class="bi bi-arrow-clockwise"></i>
                                                 </button>

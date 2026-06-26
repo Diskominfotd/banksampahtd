@@ -2,6 +2,7 @@
 
 return [
     App\Providers\AppServiceProvider::class,
+    App\Providers\LaporanServiceProvider::class,
     App\Providers\MainServiceProvider::class,
     App\Providers\SetoranServiceProvider::class,
     App\Providers\TransaksiServiceProvider::class,

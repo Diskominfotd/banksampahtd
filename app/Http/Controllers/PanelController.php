@@ -46,4 +46,8 @@ class PanelController extends Controller
     {
         return view('panel.pages.profile');
     }
+    public function grafik()
+    {
+        return view('panel.pages.grafik');
+    }
 }

@@ -2022,34 +2022,6 @@
             });
         });
 
-        // Chart data — kg sampah & nilai per bulan
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-        const kgData = [1.2, 1.5, 1.3, 1.8, 2.0, 0, 0, 0, 0, 0, 0, 0]; // ton
-        const nilaiData = [6.2, 7.8, 6.5, 8.4, 9.1, 0, 0, 0, 0, 0, 0, 0]; // juta
-
-        function drawChart(containerId, isWeb) {
-            const c = document.getElementById(containerId);
-            if (!c) return;
-            const maxK = Math.max(...kgData);
-            const maxN = Math.max(...nilaiData);
-            c.innerHTML = '';
-            months.forEach((m, i) => {
-                const col = document.createElement('div');
-                col.className = isWeb ? 'w-cb-col' : 'bar-col';
-                const h1 = kgData[i] ? Math.round((kgData[i] / maxK) * (isWeb ? 110 : 88)) : 4;
-                const h2 = nilaiData[i] ? Math.round((nilaiData[i] / maxN) * (isWeb ? 110 : 88)) : 4;
-                const opacity = kgData[i] ? '.9' : '.25';
-                col.innerHTML = `
-          <div style="display:flex;gap:2px;align-items:flex-end;flex:1;width:100%">
-            <div style="flex:1;height:${h1}px;background:#2e7d32;border-radius:3px 3px 0 0;opacity:${opacity}"></div>
-            <div style="flex:1;height:${h2}px;background:#1b5e20;border-radius:3px 3px 0 0;opacity:${opacity}"></div>
-          </div>
-          <span class="${isWeb?'w-cb-lbl':'bar-lbl'}">${m}</span>`;
-                c.appendChild(col);
-            });
-        }
-        drawChart('m-chart-bars', false);
-        drawChart('w-chart-bars', true);
     </script>
 
 </body>

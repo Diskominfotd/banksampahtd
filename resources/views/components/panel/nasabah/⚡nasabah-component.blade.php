@@ -46,6 +46,7 @@ new class extends Component {
     public ?string $tglLastSetor = '';
     public ?string $tglLastWd = '';
     public ?string $userId = '';
+    public ?string $namaUnitNasabah = '';
 
     public array $bukuTabungan = [];
     public int $unitBukuTabungan;
@@ -88,7 +89,7 @@ new class extends Component {
         $this->jenisNasabah = $user->mewakili;
         $this->organisasiNasabah = $user->organisasi_id;
         $this->passwordNasabah = $user->password;
-        $this->unitNasabah = $user->unit->nama;
+        $this->unitNasabah = $user->bank_sampah_id;
         $this->statusNasabah = $user->status;
         $this->saldoNasabah = $user->bukutabungans->sum('saldo');
         $this->totalBeratSetoran = $user->setorans->sum('total_berat');
@@ -104,8 +105,8 @@ new class extends Component {
                 ->timezone('Asia/Jakarta')
                 ->format('d M Y, H:i')
             : 'Tidak Ada';
-
         $this->userId = $user->id;
+        $this->namaUnitNasabah = $user->unit->nama;
     }
 
     public function editNasabah()

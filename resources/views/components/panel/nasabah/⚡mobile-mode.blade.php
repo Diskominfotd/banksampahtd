@@ -156,14 +156,99 @@ new class extends Component {
                 </div>
                 <div class="f-group">
                     <label>Unit</label>
-                    <select class="f-input" wire:model="unit">
-                        <option value="">Pilih Unit</option>
-                        @foreach ($data['banksampah'] as $bank)
-                            <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
-                        @endforeach
-                    </select>
+
+                    <div x-data="{
+                        search: '',
+                        open: false,
+                        selected: '',
+                        selectedLabel: 'Pilih Unit',
+                        all: {{ Js::from($data['banksampah']) }},
+                        get filtered() {
+                            if (this.search === '') return this.all.slice(0, 10);
+                            return this.all.filter(o => o.nama.toLowerCase().includes(this.search.toLowerCase())).slice(0, 10);
+                        },
+                        select(id, label) {
+                            this.selected = id;
+                            this.selectedLabel = label;
+                            this.open = false;
+                            this.search = '';
+                            $wire.set('unit', id);
+                        }
+                    }" x-on:click.outside="open = false" class="position-relative">
+
+                        {{-- Trigger --}}
+                        <button type="button" x-on:click="open = !open"
+                            class="f-input d-flex align-items-center justify-content-between w-100 text-start"
+                            style="cursor: pointer;">
+                            <span x-text="selectedLabel" :class="selected === '' ? 'text-muted' : ''"></span>
+                            <i class="bi bi-chevron-down"
+                                style="font-size: 15px; transition: transform .2s; flex-shrink: 0;"
+                                :style="open ? 'transform: rotate(180deg)' : ''"></i>
+                        </button>
+
+                        {{-- Dropdown --}}
+                        <div x-show="open" x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                            style="position: absolute; bottom: calc(100% + 4px); left: 0; right: 0; z-index: 1050;
+                            background: #fff; border: 1.5px solid #dee2e6;
+                            border-radius: 10px; overflow: hidden;
+                            box-shadow: 0 -4px 24px rgba(0,0,0,.08), 0 -1px 6px rgba(0,0,0,.04);">
+
+                            {{-- Search --}}
+                            <div style="padding: 10px 10px 6px;">
+                                <div class="position-relative">
+                                    <i class="bi bi-search position-absolute text-muted"
+                                        style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 15px;"></i>
+                                    <input type="text" x-model="search" x-on:click.stop x-init="$watch('open', v => v && $nextTick(() => $el.focus()))"
+                                        placeholder="Cari unit..." class="f-input"
+                                        style="padding-left: 34px; font-size: 13px; height: 36px;">
+                                </div>
+                            </div>
+
+                            <div style="height: 1px; background: #f0f0f0; margin: 0 10px;"></div>
+
+                            {{-- Options --}}
+                            <div style="max-height: 180px; overflow-y: auto; padding: 6px;">
+                                <template x-if="filtered.length === 0">
+                                    <div class="text-center text-muted py-3" style="font-size: 13px;">
+                                        <i class="ti ti-mood-empty d-block mb-1" style="font-size: 22px;"></i>
+                                        Tidak ditemukan
+                                    </div>
+                                </template>
+                                <template x-for="option in filtered" :key="option.id">
+                                    <div x-on:click="select(option.id, option.nama)"
+                                        style="padding: 8px 10px; font-size: 13px; border-radius: 6px;
+                               cursor: pointer; transition: background .15s;
+                               display: flex; align-items: center; justify-content: space-between;"
+                                        :style="selected == option.id ?
+                                            'background: #e7f0ff; color: #0d6efd; font-weight: 500;' :
+                                            'color: #212529;'"
+                                        x-on:mouseenter="if (selected != option.id) $el.style.background = '#f8f9fa'"
+                                        x-on:mouseleave="if (selected != option.id) $el.style.background = 'transparent'">
+                                        <span x-text="option.nama"></span>
+                                        <i class="ti ti-check" style="font-size: 14px;"
+                                            x-show="selected == option.id"></i>
+                                    </div>
+                                </template>
+                            </div>
+
+                            {{-- Footer --}}
+                            <div style="padding: 6px 12px 8px; border-top: 1px solid #f0f0f0;">
+                                <small class="text-muted" style="font-size: 11px;"
+                                    x-text="`Menampilkan ${filtered.length} dari ${all.length} unit`"></small>
+                            </div>
+                        </div>
+
+                        <input type="hidden" wire:model="unit" :value="selected">
+                    </div>
+
                     @error('unit')
-                        <small class="text-danger">{{ $message }}</small>
+                        <small class="text-danger mt-1 d-block">
+                            <i class="ti ti-alert-circle me-1"></i>{{ $message }}
+                        </small>
                     @enderror
                 </div>
                 <div class="f-group" x-data="{ show: false }">
@@ -274,15 +359,100 @@ new class extends Component {
                     @enderror
                 </div>
                 <div class="f-group">
-                    <label>Unit</label>
-                    <select class="f-input" wire:model="unitNasabah">
-                        <option value="">Pilih Unit</option>
-                        @foreach ($data['banksampah'] as $bank)
-                            <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
-                        @endforeach
-                    </select>
+                    <label>Unit - {{$namaUnitNasabah ?? '-'}}</label>
+
+                    <div x-data="{
+                        search: '',
+                        open: false,
+                        selected: $wire.entangle('unitNasabah'),
+                        selectedLabel: 'Pilih Unit',
+                        all: {{ Js::from($data['banksampah']) }},
+                        get filtered() {
+                            if (this.search === '') return this.all.slice(0, 10);
+                            return this.all.filter(o => o.nama.toLowerCase().includes(this.search.toLowerCase())).slice(0, 10);
+                        },
+                        select(id, label) {
+                            this.selected = id;
+                            this.selectedLabel = label;
+                            this.open = false;
+                            this.search = '';
+                            $wire.set('unit', id);
+                        }
+                    }" x-on:click.outside="open = false" class="position-relative">
+
+                        {{-- Trigger --}}
+                        <button type="button" x-on:click="open = !open"
+                            class="f-input d-flex align-items-center justify-content-between w-100 text-start"
+                            style="cursor: pointer;">
+                            <span x-text="selectedLabel" :class="selected === '' ? 'text-muted' : ''"></span>
+                            <i class="ti ti-chevron-down"
+                                style="font-size: 15px; transition: transform .2s; flex-shrink: 0;"
+                                :style="open ? 'transform: rotate(180deg)' : ''"></i>
+                        </button>
+
+                        {{-- Dropdown --}}
+                        <div x-show="open" x-transition:enter="transition ease-out duration-150"
+                            x-transition:enter-start="opacity-0 translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-100"
+                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                            style="position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 1050;
+                            background: #fff; border: 1.5px solid #dee2e6;
+                            border-radius: 10px; overflow: hidden;
+                            box-shadow: 0 4px 24px rgba(0,0,0,.08), 0 1px 6px rgba(0,0,0,.04);">
+
+                            {{-- Search --}}
+                            <div style="padding: 10px 10px 6px;">
+                                <div class="position-relative">
+                                    <i class="ti ti-search position-absolute text-muted"
+                                        style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 15px;"></i>
+                                    <input type="text" x-model="search" x-on:click.stop x-init="$watch('open', v => v && $nextTick(() => $el.focus()))"
+                                        placeholder="Cari unit..." class="f-input"
+                                        style="padding-left: 34px; font-size: 13px; height: 36px;">
+                                </div>
+                            </div>
+
+                            <div style="height: 1px; background: #f0f0f0; margin: 0 10px;"></div>
+
+                            {{-- Options --}}
+                            <div style="max-height: 180px; overflow-y: auto; padding: 6px;">
+                                <template x-if="filtered.length === 0">
+                                    <div class="text-center text-muted py-3" style="font-size: 13px;">
+                                        <i class="ti ti-mood-empty d-block mb-1" style="font-size: 22px;"></i>
+                                        Tidak ditemukan
+                                    </div>
+                                </template>
+                                <template x-for="option in filtered" :key="option.id">
+                                    <div x-on:click="select(option.id, option.nama)"
+                                        style="padding: 8px 10px; font-size: 13px; border-radius: 6px;
+                               cursor: pointer; transition: background .15s;
+                               display: flex; align-items: center; justify-content: space-between;"
+                                        :style="selected == option.id ?
+                                            'background: #e7f0ff; color: #0d6efd; font-weight: 500;' :
+                                            'color: #212529;'"
+                                        x-on:mouseenter="if (selected != option.id) $el.style.background = '#f8f9fa'"
+                                        x-on:mouseleave="if (selected != option.id) $el.style.background = 'transparent'">
+                                        <span x-text="option.nama"></span>
+                                        <i class="ti ti-check" style="font-size: 14px;"
+                                            x-show="selected == option.id"></i>
+                                    </div>
+                                </template>
+                            </div>
+
+                            {{-- Footer --}}
+                            <div style="padding: 6px 12px 8px; border-top: 1px solid #f0f0f0;">
+                                <small class="text-muted" style="font-size: 11px;"
+                                    x-text="`Menampilkan ${filtered.length} dari ${all.length} unit`"></small>
+                            </div>
+                        </div>
+
+                        <input type="hidden" wire:model="unitNasabah" :value="selected">
+                    </div>
+
                     @error('unitNasabah')
-                        <small class="text-danger">{{ $message }}</small>
+                        <small class="text-danger mt-1 d-block">
+                            <i class="ti ti-alert-circle me-1"></i>{{ $message }}
+                        </small>
                     @enderror
                 </div>
                 <div class="d-flex gap-2 mt-2">

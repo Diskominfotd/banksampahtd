@@ -18,3 +18,13 @@ if (!function_exists('convertRupiahToString')) {
         return number_format($number, 0, ',', '.');
     }
 }
+if (!function_exists('convertBeratToString')) {
+    function convertBeratToString(float $kg): string
+    {
+        if ($kg >= 1_000) {
+            $result = $kg / 1_000;
+            return number_format($result, $result == floor($result) ? 0 : 1, ',', '.') . ' ton';
+        }
+        return number_format($kg, $kg == floor($kg) ? 0 : 1, ',', '.') . ' kg';
+    }
+}

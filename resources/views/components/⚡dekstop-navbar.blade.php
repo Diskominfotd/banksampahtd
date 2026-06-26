@@ -33,15 +33,16 @@ new class extends Component {
                 <a href="/kategori" class="w-nav" :class="{ 'active': path.startsWith('/kategori') }">
                     <i class="bi bi-grid-fill"></i>
                 </a>
-
-                <a href="/laporan" class="w-nav" :class="{ 'active': path.startsWith('/laporan') }">
-                    <i class="bi bi-graph-up-arrow"></i>
-                </a>
             @endif
+
+            <a href="/grafik" class="w-nav" :class="{ 'active': path.startsWith('/grafik') }">
+                <i class="bi bi-graph-up-arrow"></i>
+            </a>
         @endif
         <a href="/profile" class="w-nav" :class="{ 'active': path.startsWith('/profile') }">
             <i class="bi bi-person-circle"></i>
         </a>
+
         <div class="mt-auto"></div>
         <a href="/setelan" class="w-nav" :class="{ 'active': path.startsWith('/setelan') }">
             <i class="bi bi-gear-fill"></i>
