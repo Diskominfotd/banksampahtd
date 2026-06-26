@@ -65,13 +65,15 @@ class LaporanServiceImpl implements LaporanService
         $parent = $auth->unit->parent_id;
         $unitId = $auth->unit->id;
 
-        $builder = User::withCount('setorans')->withSum('setorans', 'total_berat')->withSum('setorans', 'total_saldo');
+        $builder = User::withCount('setorans')
+        ->withSum('setorans', 'total_berat')
+        ->withSum('setorans', 'total_saldo');
 
         if ($parent) {
             $builder->whereHas('bukutabungans', fn($q) => $q->where('bank_id', $unitId));
         }
-
-        return $builder->having('setorans_sum_total_berat', '>', 0)->orderByDesc('setorans_sum_total_berat')->limit(5)->get();
+        return $builder->having('setorans_sum_total_berat', '>', 0)
+        ->orderByDesc('setorans_sum_total_berat')->limit(5)->get();
     }
 
     public function komposisiSampahBulanIni()

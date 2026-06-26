@@ -20,6 +20,7 @@ new class extends Component {
         $ringkasan = $this->laporanService->ringkasanTotalTahunIni();
         $nasabah = $this->userService->totalNasabah();
         $topNasabah = $this->laporanService->topFiveNasabah();
+        dd($topNasabah);
         $komposisi = $this->laporanService->komposisiSampahBulanIni();
         return [
             'grafik' => $grafik,
