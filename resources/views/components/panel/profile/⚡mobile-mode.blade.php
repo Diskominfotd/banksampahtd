@@ -207,13 +207,13 @@ new class extends Component {
                 }">
                     <label>Kode Unit</label>
                     <div class="d-flex gap-2">
-                        <input class="f-input" type="text" wire:model="namaLengkap" x-model="kodeBank"
+                        <input class="f-input" type="text" wire:model="kodeUnit" x-model="kodeBank"
                             maxlength="6" placeholder="ABC123">
                         <button type="button" class="btn btn-success" @click="generateKode()"
                             title="Generate Kode">
                             <i class="bi bi-arrow-clockwise"></i>
                         </button>
-                        @error('namaLengkap')
+                        @error('kodeUnit')
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>

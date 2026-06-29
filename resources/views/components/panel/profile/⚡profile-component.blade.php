@@ -70,7 +70,7 @@ new class extends Component {
         $this->validate([
             'namaBank' => ['required', 'string', 'max:255'],
             'kodeBank' => ['required', 'string', 'max:20', Rule::unique('bank_sampahs', 'kode_bank')->ignore(Auth::user()->unit->id)],
-            'alamatBank' => ['required', 'string'],
+            'alamatBank' => ['required', 'string','max:255'],
             'jamBuka' => ['required'],
             'jamTutup' => ['required'],
             'nomorTeleponNasabah' => ['nullable', 'string', 'max:20', 'regex:/^08[0-9]+$/'],

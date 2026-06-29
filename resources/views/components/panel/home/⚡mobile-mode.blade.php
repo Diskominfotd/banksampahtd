@@ -51,7 +51,7 @@ new class extends Component {
     </style>
     @if (Auth::user()->hasRole(['admin', 'supervisor']))
         {{-- AdminSupervisor --}}
-      <div id="m-nasabah">
+        <div id="m-nasabah">
             <div class="m-header">
                 <div class="m-topbar">
                     <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
@@ -194,6 +194,16 @@ new class extends Component {
                         <div class="col-3 fade-up"><a class="svc-item" href="{{ route('harga') }}">
                                 <div class="svc-icon ic3"><i class="bi bi-graph-up"></i></div><span
                                     class="svc-lbl">Laporan</span>
+                            </a>
+                        </div>
+                        <div class="col-3 fade-up"><a class="svc-item" href="{{ route('unit') }}">
+                                <div class="svc-icon ic2"> <i class="bi bi-bank"></i></div><span
+                                    class="svc-lbl">Bank/Unit</span>
+                            </a>
+                        </div>
+                        <div class="col-3 fade-up"><a class="svc-item" href="{{ route('organisasi') }}">
+                                <div class="svc-icon ic2"> <i class="bi bi-building-check"></i></div><span
+                                    class="svc-lbl">Organisasi</span>
                             </a>
                         </div>
                     </div>

@@ -26,6 +26,7 @@ new class extends Component {
 
         return redirect()->route('login');
     }
+    
     public function movePage(string $route)
     {
         return redirect()->route($route);

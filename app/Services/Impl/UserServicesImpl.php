@@ -4,6 +4,7 @@ namespace App\Services\Impl;
 use App\Models\BankSampah;
 use App\Models\BukuTabungan;
 use App\Models\Category;
+use App\Models\Organisasi;
 use App\Models\Setoran;
 use App\Models\User;
 use App\Services\UserServices;
@@ -294,16 +295,85 @@ class UserServicesImpl implements UserServices
         session()->flash('success', 'Behasil');
     }
 
-    public function updatePassword(int $id, string $password) {
+    public function updatePassword(int $id, string $password)
+    {
         $user = User::findOrFail($id);
         $user->update([
-            'password' => bcrypt($password)
+            'password' => bcrypt($password),
         ]);
         session()->flash('success', 'Behasil');
     }
 
     public function nasabahAktifByBook(int $unitId)
     {
-       return BukuTabungan::where('bank_id', $unitId)->count();
+        return BukuTabungan::where('bank_id', $unitId)->count();
+    }
+
+    public function unitBuilder()
+    {
+        return BankSampah::query();
+    }
+    public function getUnitById(int $id)
+    {
+        return BankSampah::find($id);
+    }
+    public function createUnit(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+            $parent = BankSampah::first();
+            BankSampah::create([
+                'nama' => $data['nama'],
+                'alamat' => $data['alamat'],
+                'telepon' => $data['telepon'],
+                'parent_id' => $parent->id,
+                'kode_bank' => $data['kode_bank'],
+                'jam_buka' => $data['jam_buka'],
+                'jam_tutup' => $data['jam_tutup'],
+            ]);
+            session()->flash('success', 'Behasil');
+        });
+    }
+    public function updateUnit(int $id, array $data)
+    {
+        return DB::transaction(function () use ($id, $data) {
+            $unit = BankSampah::find($id);
+            $unit->update([
+                'nama' => $data['nama'],
+                'alamat' => $data['alamat'],
+                'telepon' => $data['telepon'],
+                'jam_buka' => $data['jam_buka'],
+                'jam_tutup' => $data['jam_tutup'],
+                'kode_bank' => $data['kode_bank'],
+            ]);
+            session()->flash('success', 'Behasil');
+        });
+    }
+
+    public function createOrganisasi(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+            Organisasi::create([
+                'nama' => $data['nama'],
+            ]);
+            session()->flash('success', 'Behasil');
+        });
+    }
+    public function updateOrganisasi(int $id, array $data)
+    {
+        return DB::transaction(function () use ($id, $data) {
+            $org = Organisasi::find($id);
+            $org->update([
+                'nama' => $data['nama'],
+            ]);
+            session()->flash('success', 'Behasil');
+        });
+    }
+    public function organisasiBuilder()
+    {
+        return Organisasi::query();
+    }
+    public function getOrganisasiById(int $id)
+    {
+        return Organisasi::find($id);
     }
 }

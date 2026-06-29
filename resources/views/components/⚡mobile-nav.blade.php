@@ -21,5 +21,11 @@ new class extends Component {
         <a href="/profil" class="m-nav-btn" :class="{ 'active': path.startsWith('/profil') }">
             <i class="bi bi-person-fill"></i><span>Profil</span>
         </a>
+        <a href="/unit" class="m-nav-btn" :class="{ 'active': path.startsWith('/unit') }">
+            <i class="bi bi-bank"></i></i><span>Bank/Unit</span>
+        </a>
+        <a href="/organisasi" class="m-nav-btn" :class="{ 'active': path.startsWith('/organisasi') }">
+            <i class="bi bi-person-fill"></i><span>Organisasi</span>
+        </a>
     </nav>
 </div>

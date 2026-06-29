@@ -131,7 +131,6 @@ new class extends Component {
 
                         {{-- Tombol Aksi --}}
                         <div class="d-flex justify-content-end gap-2">
-                            <button class="w-btn w-btn-ghost">Batal</button>
                             <button wire:click="simpanSetoran" wire:loading.attr="disabled" class="w-btn w-btn-primary"
                                 style="width:auto;padding:7px 16px">
 
@@ -216,7 +215,7 @@ new class extends Component {
                 </div>
                 <div class="px-3 py-2 border-bottom">
                     <input type="text" wire:model.live="searchJenis" class="form-control form-control-sm"
-                        placeholder="Cari nama atau rekening nasabah..." />
+                        placeholder="Cari nama jenis sampah..." />
                 </div>
                 <div class="w-modal-body" style="overflow-y: auto; max-height: 60vh;">
                     <div class="d-flex flex-column gap-2">

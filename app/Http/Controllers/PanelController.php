@@ -50,4 +50,12 @@ class PanelController extends Controller
     {
         return view('panel.pages.grafik');
     }
+    public function organisasi()
+    {
+        return view('panel.pages.organisasi');
+    }
+    public function unit()
+    {
+        return view('panel.pages.unit');
+    }
 }

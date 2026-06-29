@@ -1,8 +1,6 @@
 <?php
 namespace App\Services;
 
-
-
 interface UserServices
 {
     public function doLogin(array $data);
@@ -27,5 +25,13 @@ interface UserServices
     public function updateBankSampah(int $id, array $data);
     public function updateProfile(int $id, array $data);
     public function updatePassword(int $id, string $password);
-     public function nasabahAktifByBook(int $unitId);
+    public function nasabahAktifByBook(int $unitId);
+    public function getUnitById(int $id);
+    public function createUnit(array $data);
+    public function updateUnit(int $id, array $data);
+    public function createOrganisasi(array $data);
+    public function updateOrganisasi(int $id, array $data);
+    public function getOrganisasiById(int $id);
+    public function organisasiBuilder();
+    public function unitBuilder();
 }
