@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\BankSampah;
 use App\Models\Category;
+use App\Models\Gudang;
 use App\Models\Kategori;
 use App\Models\Organisasi;
 use App\Models\SubKategori;
@@ -13,12 +14,22 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
+
+    private function generateGudangKode(): string
+    {
+        do {
+            $kode = 'GDG-' . strtoupper(Str::random(3)) . '-' . rand(100, 999);
+        } while (Gudang::where('kode', $kode)->exists());
+
+        return $kode;
+    }
     public function run(): void
     {
         $induk = BankSampah::create([
@@ -30,7 +41,12 @@ class DatabaseSeeder extends Seeder
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
         ]);
-        BankSampah::create([
+        Gudang::create([
+            'kode' => $this->generateGudangKode(),
+            'bank_id' => $induk->id,
+        ]);
+
+        $bk2 = BankSampah::create([
             'nama' => 'Bank Sampah Unit Marpoyan',
             'jenis' => 'unit',
             'parent_id' => $induk->id,
@@ -40,8 +56,12 @@ class DatabaseSeeder extends Seeder
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
         ]);
+        Gudang::create([
+            'kode' => $this->generateGudangKode(),
+            'bank_id' => $bk2->id,
+        ]);
 
-        BankSampah::create([
+        $bk3 = BankSampah::create([
             'nama' => 'Bank Sampah Unit Panam',
             'jenis' => 'unit',
             'parent_id' => $induk->id,
@@ -50,6 +70,10 @@ class DatabaseSeeder extends Seeder
             'kode_bank' => 'ABE',
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
+        ]);
+        Gudang::create([
+            'kode' => $this->generateGudangKode(),
+            'bank_id' => $bk3->id,
         ]);
 
         $org = Organisasi::create([

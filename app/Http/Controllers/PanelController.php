@@ -58,4 +58,8 @@ class PanelController extends Controller
     {
         return view('panel.pages.unit');
     }
+    public function gudang()
+    {
+        return view('panel.pages.gudang');
+    }
 }

@@ -27,6 +27,7 @@ new class extends Component {
         opacity: 0;
         pointer-events: none;
         transition: opacity 0.15s ease;
+        z-index: 9999;
     }
 
     .w-tooltip:hover::after {
@@ -41,6 +42,9 @@ new class extends Component {
             <i class="bi bi-house-fill"></i>
         </a>
         @if (Auth::user()->hasRole(['admin', 'supervisor']))
+            <a href="/gudang" class="w-nav w-tooltip" data-tip="Gudang" :class="{ 'active': path.startsWith('/gudang') }">
+                <i class="bi bi-trash3-fill"></i>
+            </a>
             <a href="/penarikan" class="w-nav w-tooltip" data-tip="Beranda"
                 :class="{ 'active': path.startsWith('/penarikan') }">
                 <i class="bi bi-cash-stack"></i>

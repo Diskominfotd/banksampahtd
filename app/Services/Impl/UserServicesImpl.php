@@ -4,6 +4,7 @@ namespace App\Services\Impl;
 use App\Models\BankSampah;
 use App\Models\BukuTabungan;
 use App\Models\Category;
+use App\Models\Gudang;
 use App\Models\Organisasi;
 use App\Models\Setoran;
 use App\Models\User;
@@ -12,9 +13,19 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Throwable;
+use Illuminate\Support\Str;
 
 class UserServicesImpl implements UserServices
 {
+    private function generateGudangKode(): string
+    {
+        do {
+            $kode = 'GDG-' . strtoupper(Str::random(3)) . '-' . rand(100, 999);
+        } while (Gudang::where('kode', $kode)->exists());
+
+        return $kode;
+    }
+
     public function checkUser()
     {
         return Auth::user();
@@ -321,7 +332,7 @@ class UserServicesImpl implements UserServices
     {
         return DB::transaction(function () use ($data) {
             $parent = BankSampah::first();
-            BankSampah::create([
+            $unit = BankSampah::create([
                 'nama' => $data['nama'],
                 'alamat' => $data['alamat'],
                 'telepon' => $data['telepon'],
@@ -329,6 +340,10 @@ class UserServicesImpl implements UserServices
                 'kode_bank' => $data['kode_bank'],
                 'jam_buka' => $data['jam_buka'],
                 'jam_tutup' => $data['jam_tutup'],
+            ]);
+            Gudang::create([
+                'kode' => $this->generateGudangKode(),
+                'bank_id' => $unit->id,
             ]);
             session()->flash('success', 'Behasil');
         });

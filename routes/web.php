@@ -19,5 +19,6 @@ Route::middleware(Authenticate::class)->group(function (): void {
     Route::get('/grafik', [PanelController::class, 'grafik'])->name('grafik');
     Route::get('/organisasi', [PanelController::class, 'organisasi'])->name('organisasi');
     Route::get('/unit', [PanelController::class, 'unit'])->name('unit');
+    Route::get('/gudang', [PanelController::class, 'gudang'])->name('gudang');
 });
 // });

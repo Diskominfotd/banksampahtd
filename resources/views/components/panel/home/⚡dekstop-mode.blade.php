@@ -20,7 +20,7 @@ new class extends Component {
                     <div class="row g-3">
                         <div class="col-3 fade-up">
                             <div class="w-metric">
-                                <div class="w-m-lbl">Total Sampah Hari Ini</div>
+                                <div class="w-m-lbl">Total Sampah</div>
                                 <div class="w-m-val" style="color:var(--cyan)">
                                     {{ number_format($data['totalBeratSetoran']['total'], 0, ',', '.') }} kg
                                 </div>
@@ -196,12 +196,12 @@ new class extends Component {
                                         </a></div>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <div class="w-panel-title mt-3">Transaksi Penarikan Terbaru</div>
+                                    <div class="w-panel-title mt-3">Transaksi Penarikan Hari Ini</div>
                                     <span wire:click="movePage('penarikan.saldo')" class="bs bs-green"
                                         style="font-size: 12px; cursor: pointer;">Semua</span>
                                 </div>
                                 <div class="d-flex flex-column gap-2">
-                                    @foreach ($data['transaksiTerbaru'] as $tb)
+                                    @forelse ($data['transaksiTerbaru'] as $tb)
                                         @php
                                             $owner = $tb->owner ?? null;
                                             $ownerName = $owner->name ?? '-';
@@ -225,9 +225,8 @@ new class extends Component {
                                                 </div>
                                             </div>
                                             <div class="flex-grow-1 overflow-hidden">
-                                                <div class="w-row-title">
-                                                    {{ ucfirst($ownerName) }} — {{ $nomorRekening }}
-                                                </div>
+                                                <div class="w-row-title">{{ ucfirst($ownerName) }} —
+                                                    {{ $nomorRekening }}</div>
                                                 <div class="w-row-meta">
                                                     {{ $bankNama }} ·
                                                     {{ $tb->tanggal_transaksi?->diffForHumans() ?? '-' }}
@@ -241,14 +240,21 @@ new class extends Component {
                                                 Rp {{ number_format($tb->total_penarikan ?? 0, 0, ',', '.') }}
                                             </span>
                                         </div>
-                                    @endforeach
+                                    @empty
+                                        <div
+                                            style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
+                                            <i class="bi bi-inbox"
+                                                style="font-size:24px;display:block;margin-bottom:6px"></i>
+                                            Belum ada transaksi
+                                        </div>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
                         <div class="col-7">
                             <div class="w-panel h-100">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <div class="w-panel-title">Setoran Masuk Terbaru</div>
+                                    <div class="w-panel-title">Setoran Masuk Hari Ini</div>
                                     <span wire:click="movePage('setoran')" class="bs bs-green"
                                         style="font-size: 12px; cursor: pointer;">Semua</span>
                                 </div>
@@ -601,7 +607,7 @@ new class extends Component {
                                     </div>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <div class="w-panel-title mt-3">Transaksi Penarikan Terbaru</div>
+                                    <div class="w-panel-title mt-3">Transaksi Penarikan Hari Ini</div>
                                 </div>
                                 <div class="d-flex flex-column gap-2">
                                     @if ($data['trxNasabahByLimit']->isNotEmpty())
@@ -637,7 +643,7 @@ new class extends Component {
                         <div class="col-7">
                             <div class="w-panel h-100">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <div class="w-panel-title">Setoran Masuk Terbaru</div>
+                                    <div class="w-panel-title">Setoran Masuk Hari Ini</div>
                                 </div>
                                 <div class="d-flex flex-column gap-2">
                                     @if ($data['setoranNasabahByLimit']->isNotEmpty())
