@@ -14,8 +14,8 @@ return new class extends Migration {
             $table->id();
             $table->string('kode')->unique();
             $table->decimal('berat', 12, 2)->default(0);
-            $table->decimal('saldo', 12, 2)->default(0);
-            $table->foreignId('bank_id')->nullable()->constrained('bank_sampahs')->cascadeOnDelete();
+            $table->foreignId('bank_id')->nullable()
+            ->constrained('bank_sampahs')->cascadeOnDelete();
             $table->timestamps();
         });
     }

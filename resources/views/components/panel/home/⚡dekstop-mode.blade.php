@@ -181,7 +181,8 @@ new class extends Component {
                                     <div class="col-3"><a class="w-svc" href="{{ route('setoran') }}">
                                             <div class="w-svc-icon ic1"><i class="bi bi-recycle"></i></div><span
                                                 class="w-svc-lbl">Setoran</span>
-                                        </a></div>
+                                        </a>
+                                    </div>
                                     <div class="col-3"><a class="w-svc" href="{{ route('nasabah') }}">
                                             <div class="w-svc-icon ic2"><i class="bi bi-people-fill"></i></div><span
                                                 class="w-svc-lbl">Nasabah</span>
@@ -189,11 +190,15 @@ new class extends Component {
                                     <div class="col-3"><a class="w-svc" href="{{ route('harga') }}">
                                             <div class="w-svc-icon ic3"><i class="bi bi-tags-fill"></i></div><span
                                                 class="w-svc-lbl">Harga</span>
-                                        </a></div>
+                                        </a>
+                                    </div>
+                                    @if (Auth::user()->hasRole('admin'))
                                     <div class="col-3"><a class="w-svc" href="{{ route('buat.penarikan.saldo') }}">
                                             <div class="w-svc-icon ic4"><i class="bi bi-cash-coin"></i></div><span
                                                 class="w-svc-lbl">Buat Penarikan</span>
-                                        </a></div>
+                                        </a>
+                                    </div>
+                                    @endif
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="w-panel-title mt-3">Transaksi Penarikan Hari Ini</div>
@@ -1113,4 +1118,5 @@ new class extends Component {
         </div>
     @endif
 
+</div>
 </div>

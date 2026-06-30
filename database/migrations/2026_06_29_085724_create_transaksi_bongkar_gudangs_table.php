@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,6 +12,11 @@ return new class extends Migration
     {
         Schema::create('transaksi_bongkar_gudangs', function (Blueprint $table) {
             $table->id();
+            $table->string('kode')->unique();
+            $table->decimal('total_berat', 12, 2);
+            $table->decimal('total_penarikan', 12, 2);
+            $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('gudang_id')->nullable()->constrained('gudangs')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -42,9 +42,12 @@ new class extends Component {
             <i class="bi bi-house-fill"></i>
         </a>
         @if (Auth::user()->hasRole(['admin', 'supervisor']))
-            <a href="/gudang" class="w-nav w-tooltip" data-tip="Gudang" :class="{ 'active': path.startsWith('/gudang') }">
-                <i class="bi bi-trash3-fill"></i>
-            </a>
+            @if (Auth::user()->hasRole('admin'))
+                <a href="/gudang" class="w-nav w-tooltip" data-tip="Gudang"
+                    :class="{ 'active': path.startsWith('/gudang') }">
+                    <i class="bi bi-trash3-fill"></i>
+                </a>
+            @endif
             <a href="/penarikan" class="w-nav w-tooltip" data-tip="Beranda"
                 :class="{ 'active': path.startsWith('/penarikan') }">
                 <i class="bi bi-cash-stack"></i>
@@ -80,13 +83,16 @@ new class extends Component {
             :class="{ 'active': path.startsWith('/profile') }">
             <i class="bi bi-person-circle"></i>
         </a>
-        <a href="/unit" class="w-nav w-tooltip" data-tip="Beranda" :class="{ 'active': path.startsWith('/unit') }">
-            <i class="bi bi-bank"></i>
-        </a>
-        <a href="/organisasi" class="w-nav w-tooltip" data-tip="Organisasi"
-            :class="{ 'active': path.startsWith('/organisasi') }">
-            <i class="bi bi-building-check"></i>
-        </a>
+        @if (Auth::user()->hasRole('supervisor'))
+            <a href="/unit" class="w-nav w-tooltip" data-tip="Beranda"
+                :class="{ 'active': path.startsWith('/unit') }">
+                <i class="bi bi-bank"></i>
+            </a>
+            <a href="/organisasi" class="w-nav w-tooltip" data-tip="Organisasi"
+                :class="{ 'active': path.startsWith('/organisasi') }">
+                <i class="bi bi-building-check"></i>
+            </a>
+        @endif
 
         <div class="mt-auto"></div>
         <a href="/setelan" class="w-nav w-tooltip" data-tip="Pengaturan"

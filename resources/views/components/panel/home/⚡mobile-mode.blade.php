@@ -168,11 +168,20 @@ new class extends Component {
                             </div><span class="svc-lbl">Setoran</span>
                         </a>
                     </div>
-                    <div class="col-3 fade-up"><a class="svc-item" href="{{ route('nasabah') }}">
-                            <div class="svc-icon ic2"><i class="bi bi-people-fill"></i></div><span
-                                class="svc-lbl">Nasabah</span>
-                        </a>
-                    </div>
+                    @if (Auth::user()->hasRole(['supervisor']))
+                        <div class="col-3 fade-up"><a class="svc-item" href="{{ route('nasabah') }}">
+                                <div class="svc-icon ic2"><i class="bi bi-people-fill"></i></div><span
+                                    class="svc-lbl">Nasabah</span>
+                            </a>
+                        </div>
+                    @endif
+                    @if (Auth::user()->hasRole(['admin']))
+                        <div class="col-3 fade-up"><a class="svc-item" href="{{ route('gudang') }}">
+                                <div class="svc-icon ic2"><i class="bi bi-trash3-fill"></i></div><span
+                                    class="svc-lbl">Gudang</span>
+                            </a>
+                        </div>
+                    @endif
                     <div class="col-3 fade-up"><a class="svc-item" href="{{ route('harga') }}">
                             <div class="svc-icon ic3"><i class="bi bi-tags-fill"></i></div><span
                                 class="svc-lbl">Harga</span>

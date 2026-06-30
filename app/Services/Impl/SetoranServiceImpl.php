@@ -2,6 +2,7 @@
 namespace App\Services\Impl;
 
 use App\Models\BukuTabungan;
+use App\Models\Gudang;
 use App\Models\Setoran;
 use App\Models\User;
 use App\Services\SetoranService;
@@ -42,7 +43,6 @@ class SetoranServiceImpl implements SetoranService
                     'buku_tabungan_id' => $bukutabungan->id,
                     'admin_id' => Auth::user()->id,
                 ]);
-
                 foreach ($cart as $item) {
                     $setoran->items()->create([
                         'price_id' => $item['price_id'],
@@ -53,8 +53,9 @@ class SetoranServiceImpl implements SetoranService
                         'sub_total' => $item['harga'] * $item['berat'],
                     ]);
                 }
-
                 $bukutabungan->increment('saldo', $totalSaldoSetoran);
+                $gudang = Gudang::where('bank_id', $bankId)->first();
+                $gudang->increment('berat', collect($cart)->sum('berat'));
                 return $setoran;
             } catch (\Throwable $e) {
                 Log::error('createSetoran failed', [
@@ -176,5 +177,23 @@ class SetoranServiceImpl implements SetoranService
             ->latest()
             ->limit(5)
             ->get();
+    }
+
+    public function getGudangByUnit()
+    {
+        $auth = $this->checkUser();
+        $parent = $auth->unit->parent_id;
+        $unitId = $auth->unit->id;
+        if (!$parent) {
+            Gudang::query();
+        }
+        return Gudang::where('bank_id', $unitId);
+    }
+    public function totalStokGudang()
+    {
+        $total = $this->getGudangByUnit()->sum('berat');
+        return [
+            'total' => $total,
+        ];
     }
 }

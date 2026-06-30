@@ -16,4 +16,6 @@ interface SetoranService
     public function getSetoranByAuthUser();
     public function getSetoranByUserByLimit();
     public function getSetoranByUniLimit();
+    public function totalStokGudang();
+    public function getGudangByUnit();
 }

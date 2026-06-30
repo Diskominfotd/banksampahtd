@@ -1,9 +1,11 @@
 <?php
 namespace App\Services\Impl;
 
+use App\Models\BankSampah;
 use App\Models\BukuTabungan;
+use App\Models\Gudang;
 use App\Models\Transaksi;
-use App\Models\User;
+use App\Models\TransaksiBongkarGudang;
 use App\Services\TransaksiService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -136,5 +138,63 @@ class TransaksiServiceImpl implements TransaksiService
             ->latest()
             ->limit(5)
             ->get();
+    }
+
+    public function bongkarGudang(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+            $user = $this->checkUser();
+            $userId = $user->id;
+            $unitId = $user->unit->id;
+            $gdg = Gudang::where('bank_id', $unitId)->first();
+            if (!$gdg) {
+                session()->flash('error', 'Gudang tidak ditemukan untuk unit ini');
+                return;
+            }
+            if ($gdg->berat < $data['total_berat']) {
+                session()->flash('error', 'Stok gudang tidak cukup untuk penarikan ini');
+                return;
+            }
+            $trx = TransaksiBongkarGudang::create([
+                'total_penarikan' => $data['total_penarikan'],
+                'total_berat' => $data['total_berat'],
+                'admin_id' => $userId,
+                'gudang_id' => $gdg->id,
+            ]);
+
+            $gdg->decrement('berat', $trx->total_berat);
+
+            session()->flash('success', 'Berhasil');
+        });
+    }
+    public function getTrxGudangById(int $id)
+    {
+        return TransaksiBongkarGudang::with('admin')->findOrFail($id);
+    }
+
+    public function getTrxGudang()
+    {
+        $unit = $this->checkUser()->unit->id;
+        $bank = BankSampah::with('gudang')->where('id', $unit)->first();
+        return TransaksiBongkarGudang::with('admin')->where('gudang_id', $bank->gudang->id);
+    }
+
+    public function totalPendapatan()
+    {
+        $total = $this->getTrxGudang()->sum('total_penarikan');
+
+        $todayDate = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
+
+        $today = $this->getTrxGudang()->whereDate('created_at', $todayDate)->sum('total_penarikan');
+
+        $yesterday = $this->getTrxGudang()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+
+        return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
     }
 }

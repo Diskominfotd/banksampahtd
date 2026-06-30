@@ -43,7 +43,7 @@ new class extends Component {
         <!-- ══ LEFT PANEL ══ -->
         <div class="left-panel">
             <div class="brand-logo"><i class="bi bi-recycle text-white"></i></div>
-            <div class="brand-name">Bank Sampah<br>Nusantara</div>
+            <div class="brand-name">Bank Sampah<br>Tanah Datar</div>
             <p class="brand-tagline">
                 Platform pengelolaan bank sampah digital yang membantu memantau setoran, nasabah, dan laporan keuangan
                 secara real-time.
@@ -63,7 +63,7 @@ new class extends Component {
                 </div>
             </div>
             <div class="left-footer mt-auto">
-                © 2026 Bank Sampah Nusantara · Kabupaten Tanah Datar
+                © 2026 Bank Sampah Tanah Datar · Kabupaten Tanah Datar
             </div>
         </div>
 
@@ -114,13 +114,13 @@ new class extends Component {
                     </div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check mb-0">
+                    {{-- <div class="form-check mb-0">
                         <input class="form-check-input" type="checkbox" id="rememberMe">
                         <label class="form-check-label" for="rememberMe" style="font-size:12px;">
                             Ingat saya
                         </label>
                     </div>
-                    <a class="forgot-link" onclick="showForgot()">Lupa kata sandi?</a>
+                    <a class="forgot-link" onclick="showForgot()">Lupa kata sandi?</a> --}}
                 </div>
                 <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
                     id="btn-login" type="submit" style="padding:12px; border-radius:12px;" wire:loading.attr="disabled"

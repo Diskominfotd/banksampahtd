@@ -13,4 +13,8 @@ interface TransaksiService
     public function getTrxByUserByLimit();
     public function transaksiById(int $id);
     public function getTrxByUniLimit();
+    public function bongkarGudang(array $data);
+    public function getTrxGudang();
+    public function totalPendapatan();
+    public function getTrxGudangById(int $id);
 }
