@@ -7,6 +7,7 @@ new class extends Component {
 };
 ?>
 
+@if (Auth::user()->hasRole(['admin', 'supervisor']))
 <div class="mt-5">
     <nav class="m-bottom-nav" x-data="{ path: window.location.pathname }">
         <a href="/" class="m-nav-btn" :class="{ 'active': path === '/' }">
@@ -23,3 +24,5 @@ new class extends Component {
         </a>
     </nav>
 </div>
+@endif
+

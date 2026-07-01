@@ -434,16 +434,16 @@ new class extends Component {
             <div class="m-header">
                 <div class="m-topbar">
                     <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
-                        <div class="avatar avatar-md">{{ Auth::user()->initials() }}</div>
+                        <div class="avatar avatar-md" wire:click="movePage('profile')">{{ Auth::user()->initials() }}</div>
                         <div>
                             <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat datang
                             </div>
-                            <div style="font-size:14px;font-weight:600;color:#fff">{{ Auth::user()->unit->nama }}
+                            <div style="font-size:14px;font-weight:600;color:#fff">{{ ucfirst(Auth::user()->name) }}
                             </div>
                         </div>
                     </div>
-                    <div class="m-gear" onclick="mNav('m-notifikasi')"><i class="bi bi-bell-fill"></i><span
-                            style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid rgba(255,255,255,.4);font-size:7px;display:flex;align-items:center;justify-content:center;font-weight:700">3</span>
+                    <div class="m-gear" wire:click="logout">
+                        <i class="bi bi-box-arrow-left"></i>
                     </div>
                 </div>
                 @php
@@ -1071,7 +1071,8 @@ new class extends Component {
                             {{ number_format($itemTrxDetail->total_penarikan, 0, ',', '.') ?? 0 }}</div>
                     </div>
                     <div class="detail-field"><span class="df-key">No. Transaksi</span><span
-                            class="df-val">{{ $itemTrxDetail->kode ?? '-' }}</span></div>
+                            class="df-val">{{ $itemTrxDetail->kode ?? '-' }}</span>
+                    </div>
                     <div class="detail-field"><span class="df-key">Nasabah</span>
                         <span class="df-val">{{ ucfirst($itemTrxDetail->owner->name) }}</span>
                     </div>

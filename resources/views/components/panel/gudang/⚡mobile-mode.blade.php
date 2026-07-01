@@ -98,8 +98,7 @@ new class extends Component {
             <div class="row g-2">
                 @forelse ($data['trx'] ?? [] as $trx)
                     <div class="tx-card d-flex align-items-start gap-2 fade-up"
-                        wire:click="setoranDetail('{{ encrypt($trx->id) }}')"
-                        @click="$store.sheet.show('detail-setoran-id')">
+                        wire:click="trxDetail('{{ encrypt($trx->id) }}')" @click="$store.sheet.show('detail-trx')">
                         <div class="tx-ico" style="background:rgba(92,53,168,.10);color:var(--purple)">
                             <i class="bi bi-box-fill" style="font-size:14px"></i>
                         </div>
@@ -195,6 +194,54 @@ new class extends Component {
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+
+    <div x-show="$store.sheet.is('detail-trx')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
+    <div x-show="$store.sheet.is('detail-trx')" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+        <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                Detail Transaksi - {{ $itemTrx->kode ?? 'TRX-XXX-XXX-XXX' }}
+            </div>
+        </div>
+        <div wire:loading.flex wire:target="trxDetail" class="justify-content-center align-items-center"
+            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+            <div class="spinner-border text-success"></div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+            @if ($itemTrx)
+                <div
+                    style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+                    <div
+                        style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
+                        Nilai Penarikan</div>
+                    <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">Rp
+                        {{ number_format($itemTrx->total_penarikan, 0, ',', '.') ?? 0 }}
+                    </div>
+                    <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">
+                        {{ number_format($itemTrx->total_berat, 0, ',', '.') ?? 0 }} Kg
+                    </div>
+                    <div class="detail-field"><span class="df-key">Petugas</span><span class="df-val">
+                            {{ ucfirst($itemTrx->admin->name) }}
+                        </span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Tanggal</span><span class="df-val">
+                            {{ $itemTrx->created_at->format('Y-m-d') }}
+                        </span>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 

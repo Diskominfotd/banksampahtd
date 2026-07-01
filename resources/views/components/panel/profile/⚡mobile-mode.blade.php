@@ -11,6 +11,8 @@ new class extends Component {
     {{-- I have not failed. I've just found 10,000 ways that won't work. - Thomas Edison --}}
     <div id="m-nasabah">
         <div class="m-page-header">
+            <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
+            </div>
             <div class="ph-title">Profil & Setelan</div>
         </div>
         <div class="m-body" style="padding-top:16px">
@@ -35,8 +37,7 @@ new class extends Component {
             @if (Auth::user()->hasRole(['supervisor']))
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="sec-lbl">Informasi Unit</div>
-                    <button class="btn-tx"
-                        @click="$store.sheet.show('edit-bank-sampah')">Edit</button>
+                    <button class="btn-tx" @click="$store.sheet.show('edit-bank-sampah')">Edit</button>
                 </div>
                 <div class="d-flex flex-column gap-2 mb-3">
                     <div class="detail-field"><span class="df-key">Nama Bank Sampah</span><span
@@ -56,7 +57,15 @@ new class extends Component {
                             aktif</span></div>
                 </div>
             @endif
+            <div class="list-item" wire:click="logout">
+                <div class="list-ico ic6"><i class="bi bi-box-arrow-right" style="font-size:12px"></i></div>
+                <div class="list-main">
+                    <div class="list-name" style="color:var(--red)">Keluar</div>
+                    <div class="list-sub">Logout dari aplikasi</div>
+                </div>
+            </div>
         </div>
+
         @include('components.⚡mobile-bottombar')
     </div>
 
@@ -133,7 +142,7 @@ new class extends Component {
             <div class="sheet-handle"></div>
             <div
                 style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
-                Edit Password
+                Ubah Password
             </div>
         </div>
         <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">

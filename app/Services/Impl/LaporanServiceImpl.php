@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\Impl;
 
+use App\Models\BankSampah;
 use App\Models\Category;
 use App\Models\Setoran;
 use App\Models\Transaksi;
@@ -59,23 +60,33 @@ class LaporanServiceImpl implements LaporanService
         ];
     }
 
-    public function topFiveNasabah()
-    {
-        $auth = $this->checkUser();
-        $parent = $auth->unit->parent_id;
-        $unitId = $auth->unit->id;
+public function topFiveNasabah()
+{
+    $auth = $this->checkUser();
+    $unit = $auth->unit;
+    $unitId = $unit->id;
 
-        $builder = User::withCount('setorans')
-        ->withSum('setorans', 'total_berat')
-        ->withSum('setorans', 'total_saldo');
+    $topNasabah = User::query()
+        ->withCount(['setorans as setorans_count' => function ($q) use ($unitId) {
+            $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
+        }])
+        ->withSum(['setorans as setorans_sum_total_berat' => function ($q) use ($unitId) {
+            $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
+        }], 'total_berat')
+        ->withSum(['setorans as setorans_sum_total_saldo' => function ($q) use ($unitId) {
+            $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
+        }], 'total_saldo')
+        ->whereHas('bukutabungans', fn($q) => $q->where('bank_id', $unitId))
+        ->having('setorans_sum_total_berat', '>', 0)
+        ->orderByDesc('setorans_sum_total_berat')
+        ->limit(5)
+        ->get();
 
-        if ($parent) {
-            $builder->whereHas('bukutabungans', fn($q) => $q->where('bank_id', $unitId));
-        }
-        return $builder->having('setorans_sum_total_berat', '>', 0)
-        ->orderByDesc('setorans_sum_total_berat')->limit(5)->get();
-    }
-
+    return [
+        'top_nasabah' => $topNasabah,
+        'unit' => $unit,
+    ];
+}
     public function komposisiSampahBulanIni()
     {
         $auth = $this->checkUser();

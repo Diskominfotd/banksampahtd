@@ -21,6 +21,7 @@ new class extends Component {
         $nasabah = $this->userService->totalNasabah();
         $topNasabah = $this->laporanService->topFiveNasabah();
         $komposisi = $this->laporanService->komposisiSampahBulanIni();
+    //    return dd($topNasabah);
         return [
             'grafik' => $grafik,
             'ringkasan' => $ringkasan,

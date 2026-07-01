@@ -136,7 +136,7 @@ new class extends Component {
                         <div class="w-panel">
                             <div class="w-panel-title">Top Nasabah Bulan Ini</div>
                             <div class="d-flex flex-column gap-2">
-                                @foreach ($data['topNasabah'] as $i => $tpn)
+                                @foreach ($data['topNasabah']['top_nasabah'] as $i => $tpn)
                                     <div class="d-flex align-items-center gap-2 p-2"
                                         style="background:var(--bg-deep);border:1px solid var(--border);border-radius:10px">
                                         <span
@@ -147,7 +147,7 @@ new class extends Component {
                                             <div style="font-size:11px;font-weight:600">{{ ucfirst($tpn->name) }}</div>
                                             <div style="font-size:9px;color:var(--muted)">
                                                 {{ convertBeratToString((float) $tpn->setorans_sum_total_berat) }}
-                                                · {{ $tpn->unit->nama ?? '-' }}
+                                                · {{ $data['topNasabah']['unit']->nama ?? '-' }}
                                             </div>
                                         </div>
                                         <span style="font-weight:700;font-size:11px;color:var(--cyan)">
