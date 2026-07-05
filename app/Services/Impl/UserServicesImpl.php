@@ -201,7 +201,7 @@ class UserServicesImpl implements UserServices
 
                 $bank = BankSampah::findOrFail($bankId);
                 do {
-                    $nomorRekening = $bank->kode_bank . str_pad(random_int(0, 99999), 5, '0', STR_PAD_LEFT);
+                    $nomorRekening = $bank->kode_bank . '-' . str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
                 } while (BukuTabungan::where('nomor_rekening', $nomorRekening)->exists());
 
                 BukuTabungan::create([

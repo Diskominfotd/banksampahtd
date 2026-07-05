@@ -2,6 +2,9 @@
 
 use Livewire\Component;
 use App\Services\UserServices;
+use App\Models\User;
+use App\Models\BankSampah;
+use App\Models\Setoran;
 
 new class extends Component {
     protected UserServices $userService;
@@ -23,10 +26,30 @@ new class extends Component {
             'password' => $this->password,
         ]);
     }
+
+    public function getData()
+    {
+        $nasabah = User::where('status', 'active')
+            ->whereHas('roles', function ($q) {
+                $q->where('name', 'nasabah');
+            })
+            ->count();
+        $unit = BankSampah::count();
+        $setoran = Setoran::sum('total_berat');
+
+        return [
+            'nasabah' => $nasabah,
+            'unit' => $unit,
+            'setoran' => $setoran,
+        ];
+    }
 };
 ?>
 
 <div>
+    @php
+        $data = $this->getData();
+    @endphp
     <!-- Background -->
     <div class="bg-layer">
         <div class="bg-blob b1"></div>
@@ -42,7 +65,9 @@ new class extends Component {
 
         <!-- ══ LEFT PANEL ══ -->
         <div class="left-panel">
-            <div class="brand-logo"><i class="bi bi-recycle text-white"></i></div>
+            <div class="brand-logo">
+                <img src="{{ asset('logotanahdatar.png') }}" alt="Logo" width="40" height="40">
+            </div>
             <div class="brand-name">Bank Sampah<br>Tanah Datar</div>
             <p class="brand-tagline">
                 Platform pengelolaan bank sampah digital yang membantu memantau setoran, nasabah, dan laporan keuangan
@@ -50,15 +75,15 @@ new class extends Component {
             </p>
             <div class="stat-chips">
                 <div class="stat-chip">
-                    <div class="stat-chip-n">128</div>
+                    <div class="stat-chip-n">{{ $data['nasabah'] }}</div>
                     <div class="stat-chip-l">Nasabah Aktif</div>
                 </div>
                 <div class="stat-chip">
-                    <div class="stat-chip-n">8,2 T</div>
+                    <div class="stat-chip-n">{{ convertBeratToString($data['setoran']) }}</div>
                     <div class="stat-chip-l">Sampah 2026</div>
                 </div>
                 <div class="stat-chip">
-                    <div class="stat-chip-n">6 Unit</div>
+                    <div class="stat-chip-n">{{ $data['unit'] }} Unit</div>
                     <div class="stat-chip-l">Cabang Aktif</div>
                 </div>
             </div>
