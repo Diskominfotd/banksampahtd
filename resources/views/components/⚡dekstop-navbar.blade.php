@@ -84,7 +84,7 @@ new class extends Component {
             <i class="bi bi-person-circle"></i>
         </a>
         @if (Auth::user()->hasRole('supervisor'))
-            <a href="/unit" class="w-nav w-tooltip" data-tip="Beranda"
+            <a href="/unit" class="w-nav w-tooltip" data-tip="Bank/Unit"
                 :class="{ 'active': path.startsWith('/unit') }">
                 <i class="bi bi-bank"></i>
             </a>

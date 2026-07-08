@@ -10,13 +10,15 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('transaksi_bongkar_gudangs', function (Blueprint $table) {
+        Schema::create('pengeluarans', function (Blueprint $table) {
             $table->id();
             $table->string('kode')->unique();
             $table->decimal('total_penarikan', 12, 2);
             $table->string('keterangan');
-            $table->foreignId('admin_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('gudang_id')->nullable()->constrained('gudangs')->cascadeOnDelete();
+            $table->foreignId('admin_id')->nullable()
+            ->constrained('users')->nullOnDelete();
+            $table->foreignId('gudang_id')->nullable()
+            ->constrained('gudangs')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -26,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('transaksi_bongkar_gudangs');
+        Schema::dropIfExists('pengeluarans');
     }
 };

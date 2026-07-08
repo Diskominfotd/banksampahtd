@@ -183,7 +183,7 @@ new class extends Component {
                     <div class="w-modal-body">
                         <div class="d-flex flex-column gap-3">
                             <div class="row g-3">
-                                <div class="col-12" x-data="{
+                                {{-- <div class="col-12" x-data="{
                                     kodeUnit: @entangle('kodeUnit'),
                                     generateKode() {
                                         const huruf = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -212,7 +212,7 @@ new class extends Component {
                                     @error('kodeUnit')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
-                                </div>
+                                </div> --}}
                                 <div class="col-6">
                                     <label class="w-form-label">Nama</label>
                                     <input class="w-form-input" type="text" wire:model="namaUnit"

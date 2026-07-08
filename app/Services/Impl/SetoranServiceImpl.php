@@ -34,7 +34,8 @@ class SetoranServiceImpl implements SetoranService
             try {
                 $totalSaldoSetoran = collect($cart)->sum(fn($c) => $c['harga'] * $c['berat']);
 
-                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
+                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])
+                ->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
                 $setoran = Setoran::create([
                     'penyetor_id' => $nasabah['id'],
                     'total_berat' => collect($cart)->sum('berat'),
@@ -54,8 +55,8 @@ class SetoranServiceImpl implements SetoranService
                     ]);
                 }
                 $bukutabungan->increment('saldo', $totalSaldoSetoran);
-                $gudang = Gudang::where('bank_id', $bankId)->first();
-                $gudang->increment('berat', collect($cart)->sum('berat'));
+                // $gudang = Gudang::where('bank_id', $bankId)->first();
+                // $gudang->increment('berat', collect($cart)->sum('berat'));
                 return $setoran;
             } catch (\Throwable $e) {
                 Log::error('createSetoran failed', [
@@ -75,7 +76,8 @@ class SetoranServiceImpl implements SetoranService
         if (!$parent) {
             return Setoran::with(['penyetor', 'bukutabungan.bank', 'items']);
         }
-        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])
+        ->whereHas('bukutabungan', function ($q) use ($unitId) {
             $q->where('bank_id', $unitId);
         });
     }
@@ -155,7 +157,8 @@ class SetoranServiceImpl implements SetoranService
 
     public function getSetoranByAuthUser()
     {
-        return Setoran::with(['bukutabungan.bank', 'penyetor'])->where('penyetor_id', $this->checkUser()->id);
+        return Setoran::with(['bukutabungan.bank', 'penyetor'])
+        ->where('penyetor_id', $this->checkUser()->id);
     }
     public function getSetoranByUserByLimit()
     {

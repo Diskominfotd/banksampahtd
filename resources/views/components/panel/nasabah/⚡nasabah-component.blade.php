@@ -146,6 +146,8 @@ new class extends Component {
 
     public function registerNasabah()
     {
+        $unit = Auth::user()->unit->id;
+        $parent = Auth::user()->unit->parent_id;
         $rules = [
             'nama' => 'required',
             'nik' => [
@@ -165,6 +167,9 @@ new class extends Component {
             'password' => 'required|min:6',
             'unit' => 'required|exists:bank_sampahs,id',
         ];
+        if ($parent) {
+            $this->unit = $unit;
+        }
         $this->validate($rules);
         $this->userService->register([
             'name' => $this->nama,
@@ -210,8 +215,10 @@ new class extends Component {
     public function getData()
     {
         $parent = Auth::user()->unit->parent_id;
+        $unit = Auth::user()->unit->id;
         $user = $this->userService->userBuilder();
         $nasabahQuery = $user->with(['organisasi', 'bukutabungans', 'setorans']);
+
         if ($this->keyword) {
             $nasabahQuery
                 ->where('name', 'like', "%{$this->keyword}%")
@@ -224,9 +231,13 @@ new class extends Component {
         }
 
         if ($parent) {
-            $nasabahQuery->whereDoesntHave('roles', function ($q) {
-                $q->whereIn('name', ['admin', 'supervisor']);
-            });
+            $nasabahQuery
+                ->whereDoesntHave('roles', function ($q) {
+                    $q->whereIn('name', ['supervisor']);
+                })
+                ->whereHas('unit', function ($q) use ($unit) {
+                    $q->where('id', $unit);
+                });
         }
         $nasabah = $nasabahQuery->latest()->paginate($this->perPage);
         return [

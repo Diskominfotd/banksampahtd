@@ -17,6 +17,7 @@ new class extends Component {
 
     public int $totalBerat;
     public int $totalNilai;
+    public ?string $keterangan = null;
 
     public ?int $stokGudang = 0;
 
@@ -68,6 +69,7 @@ new class extends Component {
         $this->validate([
             'totalBerat' => ['required', 'numeric', 'min:1'],
             'totalNilai' => ['required', 'numeric', 'min:10000'],
+            'keterangan' => ['required', 'string', 'max:255'],
         ]);
         if ($this->stokGudang < $this->totalBerat) {
             $this->addError('totalBerat', 'Jumlah melebihi stok.');
@@ -76,8 +78,9 @@ new class extends Component {
         $this->transaksiService->bongkarGudang([
             'total_penarikan' => $this->totalNilai,
             'total_berat' => $this->totalBerat,
+            'keterangan' => $this->keterangan ?? null,
         ]);
-        $this->reset(['totalBerat', 'totalNilai']);
+        $this->reset(['totalBerat', 'totalNilai', 'keterangan']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
@@ -86,7 +89,7 @@ new class extends Component {
     {
         $totalBeratSetoran = $this->setoranService->totalBeratSetoran();
         $setoran = $this->setoranService->getSetoranByUnit()->latest()->paginate($this->pageSetoran);
-        $totalStokGudang = $this->setoranService->totalStokGudang();
+        $totalStokGudang = $this->setoranService->totalBeratSetoran();
         $totalPenarikanSaldoNasabah = $this->transaksiService->totalPenarikanSaldoNasabah();
         $trx = $this->transaksiService->getTrxGudang()->latest()->paginate($this->pageTrx);
         $totalPendapatan = $this->transaksiService->totalPendapatan();
@@ -103,13 +106,13 @@ new class extends Component {
 ?>
 
 <div x-data x-init="if (!Alpine.store('sheet')) {
-    Alpine.store('sheet', {
-        active: null,
-        show(name) { this.active = name },
-        hide() { this.active = null },
-        is(name) { return this.active === name },
-    })
-}">
+        Alpine.store('sheet', {
+            active: null,
+            show(name) { this.active = name },
+            hide() { this.active = null },
+            is(name) { return this.active === name },
+        })
+    }">
     {{-- An unexamined life is not worth living. - Socrates --}}
     @php
         $data = $this->getData();

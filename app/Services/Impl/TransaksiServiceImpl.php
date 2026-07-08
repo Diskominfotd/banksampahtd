@@ -4,6 +4,7 @@ namespace App\Services\Impl;
 use App\Models\BankSampah;
 use App\Models\BukuTabungan;
 use App\Models\Gudang;
+use App\Models\Pengeluaran;
 use App\Models\Transaksi;
 use App\Models\TransaksiBongkarGudang;
 use App\Services\TransaksiService;
@@ -39,13 +40,20 @@ class TransaksiServiceImpl implements TransaksiService
     public function createTransaksi(array $data)
     {
         return DB::transaction(function () use ($data) {
-            Transaksi::create([
+            $trx = Transaksi::create([
                 'total_penarikan' => $data['jumlah'],
                 'sisa_saldo' => $data['saldo'] - $data['jumlah'],
                 'tanggal_transaksi' => Carbon::now(),
                 'owner_id' => $data['user_id'],
                 'admin_id' => $this->checkUser()->id,
                 'buku_tabungan_id' => $data['buku_tabungan_id'],
+            ]);
+            $bk = BukuTabungan::where('id', $trx->buku_tabungan_id)->first();
+            Pengeluaran::create([
+                'total_penarikan' => $trx->total_penarikan,
+                'keterangan' => 'Penarikan tabungan oleh nasabah dengan nomor Rekening : ' . $bk->nomor_rekening,
+                'admin_id' => $trx->admin_id,
+                'gudang_id' => $this->checkUser()->unit->gudang->id,
             ]);
             session()->flash('success', 'Berhasil');
         });
@@ -158,6 +166,7 @@ class TransaksiServiceImpl implements TransaksiService
             $trx = TransaksiBongkarGudang::create([
                 'total_penarikan' => $data['total_penarikan'],
                 'total_berat' => $data['total_berat'],
+                'keterangan' => $data['keterangan'],
                 'admin_id' => $userId,
                 'gudang_id' => $gdg->id,
             ]);

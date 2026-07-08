@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class TransaksiBongkarGudang extends Model
 {
-    protected $fillable = ['kode', 'total_berat', 'total_penarikan', 'admin_id', 'gudang_id'];
+    protected $fillable = ['kode', 'total_berat', 'total_penarikan', 'admin_id', 'gudang_id','keterangan'];
 
     public function admin()
     {

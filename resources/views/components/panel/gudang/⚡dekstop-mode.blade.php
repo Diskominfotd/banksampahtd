@@ -240,8 +240,7 @@ new class extends Component {
                             <div
                                 style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
                                 Nilai Setoran</div>
-                            <div
-                                style="font-family:'Syne',sans-serif;font-size:36px;font-weight:700;color:var(--cyan)">
+                            <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:700;color:var(--cyan)">
                                 Rp
                                 {{ number_format($itemSetoranDetail->total_saldo, 0, ',', '.') ?? 0 }}
                             </div>
@@ -342,6 +341,15 @@ new class extends Component {
                                 @error('totalNilai')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
+
+                                <label class="w-form-label">Ketrangan</label>
+                                <textarea class="w-form-input" wire:model="keterangan" rows="3" cols="3"
+                                    placeholder="ex: Bongkar gudang untuk keperluan ...">
+                                </textarea>
+                                @error('totalNilai')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+
                             </div>
                         </div>
                     </div>

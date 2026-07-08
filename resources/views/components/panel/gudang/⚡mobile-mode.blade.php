@@ -183,6 +183,14 @@ new class extends Component {
                     @error('totalNilai')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
+
+                    <label>Keterangan</label>
+                    <textarea class="f-input" wire:model="keterangan" rows="3" cols="3"
+                        placeholder="ex: Bongkar gudang untuk keperluan ...">
+                    </textarea>
+                    @error('keterangan')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
                 </div>
                 <div class="d-flex gap-2 mt-2">
                     <button type="submit" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
@@ -234,6 +242,11 @@ new class extends Component {
                     </div>
                     <div class="detail-field"><span class="df-key">Petugas</span><span class="df-val">
                             {{ ucfirst($itemTrx->admin->name) }}
+                        </span>
+                    </div>
+                    <div class="detail-field"><span class="df-key">Keterangan</span>
+                        <span class="df-val">
+                            {{ $itemTrx->keterangan ?? '-' }}
                         </span>
                     </div>
                     <div class="detail-field"><span class="df-key">Tanggal</span><span class="df-val">

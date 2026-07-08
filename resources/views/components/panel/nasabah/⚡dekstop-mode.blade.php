@@ -398,11 +398,13 @@ new class extends Component {
                 </div>
                 <div class="w-modal-footer">
                     <button class="w-btn w-btn-ghost" data-bs-dismiss="modal">Tutup</button>
-                    <button class="w-btn w-btn-ghost" data-bs-dismiss="modal"
-                        onclick="setTimeout(()=> new bootstrap.Modal(document.getElementById('wm-tambah-setoran')).show(), 300)">
+                    <button class="w-btn w-btn-ghost" data-bs-dismiss="modal" wire:click="movePage('setoran.catat')">
                         Catat Setoran
                     </button>
-                    <button class="w-btn w-btn-danger">Proses Penarikan</button>
+                    <button class="w-btn w-btn-ghost" data-bs-dismiss="modal"
+                        wire:click="movePage('buat.penarikan.saldo')">
+                        Buat Penarikan
+                    </button>
                 </div>
             </div>
         </div>
@@ -413,7 +415,7 @@ new class extends Component {
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
-                    <div class="w-modal-title">Edit Nasabah {{$unitNasabah}}</div>
+                    <div class="w-modal-title">Edit Nasabah {{ $unitNasabah }}</div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <form wire:submit="editNasabah">
@@ -471,7 +473,7 @@ new class extends Component {
                                     @enderror
                                 </div>
                                 <div class="col-6">
-                                    <label class="w-form-label">Unit - {{$namaUnitNasabah ?? '-'}}</label>
+                                    <label class="w-form-label">Unit - {{ $namaUnitNasabah ?? '-' }}</label>
                                     <div x-data="{
                                         search: '',
                                         open: false,
