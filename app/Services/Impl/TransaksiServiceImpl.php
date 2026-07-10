@@ -159,20 +159,12 @@ class TransaksiServiceImpl implements TransaksiService
                 session()->flash('error', 'Gudang tidak ditemukan untuk unit ini');
                 return;
             }
-            if ($gdg->berat < $data['total_berat']) {
-                session()->flash('error', 'Stok gudang tidak cukup untuk penarikan ini');
-                return;
-            }
-            $trx = TransaksiBongkarGudang::create([
+            TransaksiBongkarGudang::create([
                 'total_penarikan' => $data['total_penarikan'],
-                'total_berat' => $data['total_berat'],
                 'keterangan' => $data['keterangan'],
                 'admin_id' => $userId,
                 'gudang_id' => $gdg->id,
             ]);
-
-            $gdg->decrement('berat', $trx->total_berat);
-
             session()->flash('success', 'Berhasil');
         });
     }
@@ -195,9 +187,11 @@ class TransaksiServiceImpl implements TransaksiService
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
-        $today = $this->getTrxGudang()->whereDate('created_at', $todayDate)->sum('total_penarikan');
+        $today = $this->getTrxGudang()
+        ->whereDate('created_at', $todayDate)->sum('total_penarikan');
 
-        $yesterday = $this->getTrxGudang()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+        $yesterday = $this->getTrxGudang()
+        ->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
 
         return [
             'total' => $total,
@@ -205,5 +199,54 @@ class TransaksiServiceImpl implements TransaksiService
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
+    }
+
+    public function getPengeluaran()
+    {
+        return Pengeluaran::with('admin')
+        ->where('gudang_id', $this->checkUser()->unit->gudang->id);
+    }
+
+    public function getPengeluaranByGudang(){
+        $gudang = $this->checkUser()->unit->gudang->id;
+        return Pengeluaran::where('gudang_id',$gudang);
+    }
+
+    public function totalPengeluaranByUnit()
+    {
+        $total = $this->getPengeluaranByGudang()->sum('total_penarikan');
+        $todayDate = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
+
+        $today = $this->getPengeluaranByGudang()
+        ->whereDate('created_at', $todayDate)->sum('total_penarikan');
+        $yesterday = $this->getPengeluaranByGudang()
+        ->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+
+         return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+
+    }
+    public function buatPengeluaran(array $data)
+    {
+        return DB::transaction(function () use ($data) {
+            $user = $this->checkUser();
+            Pengeluaran::create([
+                'total_penarikan' => $data['total_penarikan'],
+                'keterangan' => $data['keterangan'],
+                'admin_id' => $user->id,
+                'gudang_id' => $user->unit->gudang->id,
+            ]);
+            session()->flash('success', 'Berhasil');
+        });
+    }
+    public function pengeluaranById(int $id)
+    {
+        return Pengeluaran::with('admin')
+        ->where('id', $id)->first();
     }
 }

@@ -23,7 +23,8 @@
             --blue: #1b5e20;
             --orange: #e65100;
             --purple: #5c35a8;
-            --red: #d32f2f;
+             --red: #d32f2f;
+            --red-10: rgba(211, 47, 47, .10);
             --yellow: #f57f17;
             --green: #2e7d32;
             --green-10: rgba(46, 125, 50, .10);
@@ -1287,6 +1288,7 @@
                 height: 100%;
                 border-radius: 2px;
                 background: var(--cyan);
+                max-width: 100%;
             }
 
             .w-panel {

@@ -17,4 +17,8 @@ interface TransaksiService
     public function getTrxGudang();
     public function totalPendapatan();
     public function getTrxGudangById(int $id);
+    public function getPengeluaran();
+    public function buatPengeluaran(array $data);
+    public function pengeluaranById(int $id);
+    public function totalPengeluaranByUnit();
 }

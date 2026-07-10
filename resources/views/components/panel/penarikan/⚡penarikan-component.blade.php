@@ -320,7 +320,9 @@ new class extends Component {
                             @endif
                         </tbody>
                     </table>
-                    {{ $data['nasabah']->links('vendor.pagination.bootstrap-5') }}
+                    <div class="mt-2">
+                        {{ $data['nasabah']->links() }}
+                    </div>
                 </div>
             </div>
         </div>

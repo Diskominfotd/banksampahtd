@@ -85,10 +85,10 @@ new class extends Component {
                     @click="$store.sheet.show('pencarian')">
                     <i class="bi bi-search"></i>
                 </div>
-                 @if (Auth::user()->hasRole(['admin']))
-                <div class="m-gear"
-                    style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
-                    wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i></div>
+                @if (Auth::user()->hasRole(['admin']))
+                    <div class="m-gear"
+                        style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
+                        wire:click="movePage('setoran.catat')"><i class="bi bi-plus-lg"></i></div>
                 @endif
             </div>
         </div>
@@ -130,10 +130,10 @@ new class extends Component {
                 </tbody>
             </div>
             <div class="mt-2">
-                {{ $data['setoran']->links('vendor.pagination.bootstrap-5') }}
+                {{ $data['setoran']->links() }}
             </div>
         </div>
-       @include('components.⚡mobile-bottombar')
+        @include('components.⚡mobile-bottombar')
     </div>
 
     {{-- ======= MOBILE SHEET: DETAIL Setoran ======= --}}
@@ -225,11 +225,11 @@ new class extends Component {
                     </div>
                     <div class="d-flex gap-2">
                         @if (Auth::user()->hasRole(['admin']))
-                        <button class="w-btn w-btn-primary" style="font-size:11px"
-                            wire:click="movePage('setoran.catat')">
-                            <i class="bi bi-plus-lg me-1"></i>
-                            Catat Setoran
-                        </button>
+                            <button class="w-btn w-btn-primary" style="font-size:11px"
+                                wire:click="movePage('setoran.catat')">
+                                <i class="bi bi-plus-lg me-1"></i>
+                                Catat Setoran
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -310,7 +310,9 @@ new class extends Component {
                             @endif
                         </tbody>
                     </table>
-                    {{ $data['setoran']->links('vendor.pagination.bootstrap-5') }}
+                    <div class="mt-2">
+                        {{ $data['setoran']->links() }}
+                    </div>
                 </div>
             </div>
         </div>

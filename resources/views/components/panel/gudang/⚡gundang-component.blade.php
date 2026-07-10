@@ -12,16 +12,17 @@ new class extends Component {
     protected TransaksiService $transaksiService;
     protected SetoranService $setoranService;
 
-    public $pageSetoran = 7;
+    public $pagePgn = 7;
     public $pageTrx = 7;
 
-    public int $totalBerat;
     public int $totalNilai;
     public ?string $keterangan = null;
-
     public ?int $stokGudang = 0;
 
-    public $itemSetoranDetail = null;
+    public int $totalNilaiPengeluaran;
+    public ?string $keteranganPengeluaran = null;
+
+    public $itemTrxPengeluaran = null;
     public $itemTrx = null;
 
     public function boot(SetoranService $setoranService, TransaksiService $transaksiService)
@@ -40,9 +41,14 @@ new class extends Component {
     {
         return redirect()->route($route);
     }
-    public function loadPerpage()
+    public function loadPerpageTrx()
     {
         $this->pageTrx += 7;
+    }
+
+    public function loadPerpagePengeluaran()
+    {
+        $this->pagePgn += 7;
     }
     public function setoranDetail($id)
     {
@@ -57,30 +63,44 @@ new class extends Component {
         $this->stokGudang = $item->berat;
     }
 
+    public function addPengeluaran()
+    {
+        $this->validate([
+            'totalNilaiPengeluaran' => ['required', 'numeric', 'min:1'],
+            'keteranganPengeluaran' => ['required', 'string', 'max:255'],
+        ]);
+        $this->transaksiService->buatPengeluaran([
+            'total_penarikan' => $this->totalNilaiPengeluaran,
+            'keterangan' => $this->keteranganPengeluaran ?? null,
+        ]);
+        $this->reset(['totalNilaiPengeluaran', 'keteranganPengeluaran']);
+        $this->dispatch('close-modal');
+        $this->alertPopUp();
+    }
     public function trxDetail($id)
     {
         $id = decrypt($id);
         $item = $this->transaksiService->getTrxGudangById($id);
         $this->itemTrx = $item;
     }
+    public function trxDetailPengeluaran($id)
+    {
+        $id = decrypt($id);
+        $item = $this->transaksiService->pengeluaranById($id);
+        $this->itemTrxPengeluaran = $item;
+    }
 
     public function doTrxGudang()
     {
         $this->validate([
-            'totalBerat' => ['required', 'numeric', 'min:1'],
             'totalNilai' => ['required', 'numeric', 'min:10000'],
             'keterangan' => ['required', 'string', 'max:255'],
         ]);
-        if ($this->stokGudang < $this->totalBerat) {
-            $this->addError('totalBerat', 'Jumlah melebihi stok.');
-            return;
-        }
         $this->transaksiService->bongkarGudang([
             'total_penarikan' => $this->totalNilai,
-            'total_berat' => $this->totalBerat,
             'keterangan' => $this->keterangan ?? null,
         ]);
-        $this->reset(['totalBerat', 'totalNilai', 'keterangan']);
+        $this->reset(['totalNilai', 'keterangan']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
@@ -88,14 +108,21 @@ new class extends Component {
     public function getData()
     {
         $totalBeratSetoran = $this->setoranService->totalBeratSetoran();
-        $setoran = $this->setoranService->getSetoranByUnit()->latest()->paginate($this->pageSetoran);
+        $pengeluaran = $this->transaksiService
+            ->getPengeluaran()
+            ->latest()
+            ->paginate($this->pagePgn, ['*'], 'pgnPage'); // <- pageName unik
         $totalStokGudang = $this->setoranService->totalBeratSetoran();
-        $totalPenarikanSaldoNasabah = $this->transaksiService->totalPenarikanSaldoNasabah();
-        $trx = $this->transaksiService->getTrxGudang()->latest()->paginate($this->pageTrx);
+        $totalPenarikanSaldoNasabah = $this->transaksiService->totalPengeluaranByUnit();
+        $trx = $this->transaksiService
+            ->getTrxGudang()
+            ->latest()
+            ->paginate($this->pageTrx, ['*'], 'trxPage'); // <- pageName unik
         $totalPendapatan = $this->transaksiService->totalPendapatan();
+
         return [
             'totalStokGudang' => $totalStokGudang,
-            'setoran' => $setoran,
+            'pengeluaran' => $pengeluaran,
             'totalPenarikanSaldoNasabah' => $totalPenarikanSaldoNasabah,
             'totalBeratSetoran' => $totalBeratSetoran,
             'trx' => $trx,
@@ -106,13 +133,13 @@ new class extends Component {
 ?>
 
 <div x-data x-init="if (!Alpine.store('sheet')) {
-        Alpine.store('sheet', {
-            active: null,
-            show(name) { this.active = name },
-            hide() { this.active = null },
-            is(name) { return this.active === name },
-        })
-    }">
+    Alpine.store('sheet', {
+        active: null,
+        show(name) { this.active = name },
+        hide() { this.active = null },
+        is(name) { return this.active === name },
+    })
+}">
     {{-- An unexamined life is not worth living. - Socrates --}}
     @php
         $data = $this->getData();
@@ -128,7 +155,7 @@ new class extends Component {
         <script>
             $wire.on('close-modal', () => {
                 $('#wm-bongkar-gudang').modal('hide');
-                $('#wm-detail-setoran-id').modal('hide');
+                $('#wm-trx-pengeluaran').modal('hide');
                 Alpine.store('sheet').hide();
             });
         </script>

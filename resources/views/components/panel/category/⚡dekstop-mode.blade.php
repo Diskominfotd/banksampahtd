@@ -66,7 +66,7 @@ new class extends Component {
 
                         </tbody>
                     </table>
-                    {{ $data['categories']->links('vendor.pagination.bootstrap-5') }}
+                    {{ $data['categories']->links() }}
                 </div>
             </div>
         </div>

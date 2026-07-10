@@ -8,8 +8,11 @@ use App\Models\Category;
 use App\Models\Gudang;
 use App\Models\Kategori;
 use App\Models\Organisasi;
+use App\Models\Pengeluaran;
 use App\Models\Setoran;
 use App\Models\SubKategori;
+use App\Models\Transaksi;
+use App\Models\TransaksiBongkarGudang;
 use App\Models\Trash;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -165,6 +168,7 @@ class DatabaseSeeder extends Seeder
             'BESI' => Category::firstOrCreate(['name' => 'BESI']),
             'PLASTIK' => Category::firstOrCreate(['name' => 'PLASTIK']),
             'KERTAS' => Category::firstOrCreate(['name' => 'KERTAS']),
+            'LAINNYA' => Category::firstOrCreate(['name' => 'LAINNYA']),
         ];
 
         $data = [
@@ -190,6 +194,19 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Aki', 'harga' => 8500, 'category' => 'AKI', 'syarat' => 'Aki bekas, boleh kondisi rusak'],
 
             ['nama' => 'Minyak Jelantah', 'harga' => 4000, 'category' => 'MINYAK', 'syarat' => 'Minyak jelantah, disaring dari kotoran kasar'],
+            ['nama' => 'Campur-campur', 'harga' => 680, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Kulit', 'harga' => 680, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Buram', 'harga' => 800, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Tutup botol', 'harga' => 5000, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Plastik Minyak', 'harga' => 800, 'category' => 'PLASTIK', 'syarat' => '-'],
+            ['nama' => 'Botol kaca', 'harga' => 500, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Magic', 'harga' => 1000, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Botol campur', 'harga' => 500, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Ampli Rusak', 'harga' => 1000, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Kipas Angin', 'harga' => 1000, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Karah', 'harga' => 1000, 'category' => 'LAINNYA', 'syarat' => '-'],
+            ['nama' => 'Kertas Putih', 'harga' => 1500, 'category' => 'KERTAS', 'syarat' => '-'],
+            ['nama' => 'Pet Bersih', 'harga' => 1500, 'category' => 'LAINNYA', 'syarat' => '-'],
         ];
 
         foreach ($data as $item) {
@@ -233,7 +250,6 @@ class DatabaseSeeder extends Seeder
             'SRI MULYANI (PERTANIAN)',
             'IRWANDI (BAGIAN ORGANISASI)',
             'Dian Kumala Sari',
-            'YUSRIZAL (KOMINFO)',
             'Mizanul Huda',
             'Puskesmas Sungayang (dr Iranovitha Dewy)',
             'Zulderi Evanita',
@@ -242,7 +258,8 @@ class DatabaseSeeder extends Seeder
             'Besnaya Zalenzi',
             'Teddy Yuliswar',
             'Watma Yenti',
-            'Khairiah Febri BPKD',
+            'Khairiah Febri',
+            'BPKD',
             'Mona Vera Wati Halda',
             'Winna Anggraeni',
             'Ivanka Nadya Syaura',
@@ -277,7 +294,7 @@ class DatabaseSeeder extends Seeder
             'HARNIWATI',
             'HERISON (KESBANGPOL)',
             'POM TK Permata Bunda',
-            'Koperasi Desa Merah Putih Syariah Nagari Gunuang Rajo Tanah Datar (Rahayatul Asni)',
+            'Koperasi Desa Merah Putih Syariah Nagari Gunuang Rajo Tanah Datar ( Rahayatul Asni)',
             'AUREL AULIANISA',
             'Hasby Abyan Shauqi',
             'MUSTIKA SUARMAN (BAG. PBJ)',
@@ -311,6 +328,9 @@ class DatabaseSeeder extends Seeder
             'MARDIAH',
             'Nagari Pangian',
             'Yeni Suhastri',
+            'NOFI HENDRI',
+            'Puskesmas sungayang(dr iranovitha dewy)',
+            'Nadea Annisa'
         ];
 
         $nikStart = 1234567890123501;
@@ -348,9 +368,9 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'ARIF GANI (KEC. TJ EMAS)', 'tanggal' => '20/06/25', 'berat' => 1.34, 'jenis' => 'Kaleng Campur', 'total' => 1350],
             ['nama' => 'ARIF GANI (KEC. TJ EMAS)', 'tanggal' => '20/06/25', 'berat' => 0.44, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 440],
             ['nama' => 'Irza Fhaizati Anas', 'tanggal' => '20/06/25', 'berat' => 4.33, 'jenis' => 'Kardus', 'total' => 6495],
-            ['nama' => 'NOFI  HENDRI', 'tanggal' => '20/06/25', 'berat' => 2.145, 'jenis' => 'Kardus', 'total' => 3217],
-            ['nama' => 'NOFI  HENDRI', 'tanggal' => '20/06/25', 'berat' => 1.825, 'jenis' => 'Kaleng Campur', 'total' => 1825],
-            ['nama' => 'NOFI  HENDRI', 'tanggal' => '06/06/25', 'berat' => 2.25, 'jenis' => 'HVS', 'total' => 3825],
+            ['nama' => 'NOFI HENDRI', 'tanggal' => '20/06/25', 'berat' => 2.145, 'jenis' => 'Kardus', 'total' => 3217],
+            ['nama' => 'NOFI HENDRI', 'tanggal' => '20/06/25', 'berat' => 1.825, 'jenis' => 'Kaleng Campur', 'total' => 1825],
+            ['nama' => 'NOFI HENDRI', 'tanggal' => '06/06/25', 'berat' => 2.25, 'jenis' => 'HVS', 'total' => 3825],
             ['nama' => 'DEDIWAN PUTRA', 'tanggal' => '20/06/25', 'berat' => 0.815, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 815],
             ['nama' => 'M NAZIR (PDAM)', 'tanggal' => '20/06/25', 'berat' => 3.19, 'jenis' => 'Kardus', 'total' => 3190],
             ['nama' => 'M NAZIR (PDAM)', 'tanggal' => '20/06/25', 'berat' => 0.5, 'jenis' => 'Botol Plastik Minuman', 'total' => 750],
@@ -363,8 +383,8 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'IRWANDI (BAGIAN ORGANISASI)', 'tanggal' => '20/06/25', 'berat' => 5.575, 'jenis' => 'HVS', 'total' => 9477],
             ['nama' => 'IRWANDI (BAGIAN ORGANISASI)', 'tanggal' => '20/06/25', 'berat' => 0.59, 'jenis' => 'Kertas Campur', 'total' => 590],
             ['nama' => 'Dian Kumala Sari', 'tanggal' => '20/06/25', 'berat' => 3.71, 'jenis' => 'Kertas Campur', 'total' => 3710],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '20/06/25', 'berat' => 3.15, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 472],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '20/06/25', 'berat' => 1.465, 'jenis' => 'Kaleng Campur', 'total' => 1465],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '20/06/25', 'berat' => 3.15, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 472],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '20/06/25', 'berat' => 1.465, 'jenis' => 'Kaleng Campur', 'total' => 1465],
             ['nama' => 'Mizanul Huda', 'tanggal' => '20/06/25', 'berat' => 1.69, 'jenis' => 'Kardus', 'total' => 2535],
             ['nama' => 'Mizanul Huda', 'tanggal' => '20/06/25', 'berat' => 0.69, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 690],
             ['nama' => 'Puskesmas sungayang(dr iranovitha dewy) ', 'tanggal' => '20/06/25', 'berat' => 1.14, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 1140],
@@ -389,8 +409,8 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Ivanka Nadya Syaura', 'tanggal' => '04/07/25', 'berat' => 0.7, 'jenis' => 'Botol Plastik Minuman', 'total' => 1050],
             ['nama' => 'Ivanka Nadya Syaura', 'tanggal' => '04/07/25', 'berat' => 16.65, 'jenis' => 'HVS', 'total' => 28305],
             ['nama' => 'Ivanka Nadya Syaura', 'tanggal' => '04/07/25', 'berat' => 4.65, 'jenis' => 'Kertas Campur', 'total' => 3720],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '04/07/25', 'berat' => 1.0, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 1000],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '04/07/25', 'berat' => 9.1, 'jenis' => 'Kertas Campur', 'total' => 7735],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '04/07/25', 'berat' => 1.0, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 1000],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '04/07/25', 'berat' => 9.1, 'jenis' => 'Kertas Campur', 'total' => 7735],
             ['nama' => 'DEDIWAN PUTRA', 'tanggal' => '04/07/25', 'berat' => 3.75, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 3750],
             ['nama' => 'DEDIWAN PUTRA', 'tanggal' => '04/07/25', 'berat' => 0.65, 'jenis' => 'Besi Campur', 'total' => 828],
             ['nama' => 'Winna Anggraeni', 'tanggal' => '04/07/25', 'berat' => 8.1, 'jenis' => 'HVS', 'total' => 13770],
@@ -442,8 +462,8 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Feri afni', 'tanggal' => '11/07/25', 'berat' => 0.5, 'jenis' => 'Kardus', 'total' => 595],
             ['nama' => 'Yeri Junaidi', 'tanggal' => '11/07/25', 'berat' => 1.7, 'jenis' => 'Kertas Campur', 'total' => 1156],
             ['nama' => 'Yeri Junaidi', 'tanggal' => '11/07/25', 'berat' => 1.1, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 935],
-            ['nama' => 'Vipiet Adriani  (Bidang KPP)', 'tanggal' => '11/07/25', 'berat' => 1.9, 'jenis' => 'HVS', 'total' => 2746],
-            ['nama' => 'Vipiet Adriani  (Bidang KPP)', 'tanggal' => '11/07/25', 'berat' => 0.95, 'jenis' => 'Kertas Campur', 'total' => 646],
+            ['nama' => 'Vipiet Adriani (Bidang KPP)', 'tanggal' => '11/07/25', 'berat' => 1.9, 'jenis' => 'HVS', 'total' => 2746],
+            ['nama' => 'Vipiet Adriani (Bidang KPP)', 'tanggal' => '11/07/25', 'berat' => 0.95, 'jenis' => 'Kertas Campur', 'total' => 646],
             ['nama' => 'Lia', 'tanggal' => '11/07/25', 'berat' => 9.4, 'jenis' => 'HVS', 'total' => 13583],
             ['nama' => 'Lia', 'tanggal' => '11/07/25', 'berat' => 9.9, 'jenis' => 'Kardus', 'total' => 11781],
             ['nama' => 'Dinda Dwi Lestari', 'tanggal' => '11/07/25', 'berat' => 0.35, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 892],
@@ -459,7 +479,7 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Irza Fhaizati Anas', 'tanggal' => '18/07/25', 'berat' => 4.8, 'jenis' => 'Kardus', 'total' => 5712],
             ['nama' => 'M NAZIR (PDAM)', 'tanggal' => '18/07/25', 'berat' => 0.2, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 170],
             ['nama' => 'M NAZIR (PDAM)', 'tanggal' => '18/07/25', 'berat' => 0.9, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 2295],
-            ['nama' => 'M NAZIR (PDAM)', 'tanggal' => '18/07/25', 'berat' => 2.25, 'jenis' => 'minyak jelnatah', 'total' => 9000],
+            ['nama' => 'M NAZIR (PDAM)', 'tanggal' => '18/07/25', 'berat' => 2.25, 'jenis' => 'Minyak Jelantah', 'total' => 9000],
             ['nama' => 'Arsyifa P Adsha', 'tanggal' => '18/07/25', 'berat' => 23.45, 'jenis' => 'HVS', 'total' => 33885],
             ['nama' => 'Arsyifa P Adsha', 'tanggal' => '18/07/25', 'berat' => 2.9, 'jenis' => 'Kardus', 'total' => 3451],
             ['nama' => 'Arsyifa P Adsha', 'tanggal' => '18/07/25', 'berat' => 12.3, 'jenis' => 'Aki', 'total' => 104550],
@@ -469,10 +489,10 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Juni Fiwaldi ', 'tanggal' => '18/07/25', 'berat' => 1.3, 'jenis' => 'Kardus', 'total' => 1768],
             ['nama' => 'Juni Fiwaldi ', 'tanggal' => '18/07/25', 'berat' => 0.1, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 320],
             ['nama' => 'Juni Fiwaldi ', 'tanggal' => '18/07/25', 'berat' => 0.6, 'jenis' => 'Gelas Plastik Minuman Bersih (tanpa tutup plastik)', 'total' => 1920],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '18/07/25', 'berat' => 39.1, 'jenis' => 'HVS', 'total' => 62560],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '18/07/25', 'berat' => 0.4, 'jenis' => 'Plastik Campur', 'total' => 480],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '18/07/25', 'berat' => 1.0, 'jenis' => 'Kaleng Campur', 'total' => 1200],
-            ['nama' => 'Winna anggraeni', 'tanggal' => '18/07/25', 'berat' => 2.71, 'jenis' => 'Minyak Jelanta', 'total' => 10840],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '18/07/25', 'berat' => 39.1, 'jenis' => 'HVS', 'total' => 62560],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '18/07/25', 'berat' => 0.4, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 480],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '18/07/25', 'berat' => 1.0, 'jenis' => 'Kaleng Campur', 'total' => 1200],
+            ['nama' => 'Winna anggraeni', 'tanggal' => '18/07/25', 'berat' => 2.71, 'jenis' => 'Minyak Jelantah', 'total' => 10840],
             ['nama' => 'Connie Elfina', 'tanggal' => '18/07/25', 'berat' => 15.15, 'jenis' => 'HVS', 'total' => 24240],
             ['nama' => 'SOFA NOFA (PMPTSP)', 'tanggal' => '18/07/25', 'berat' => 7.0, 'jenis' => 'Botol Plastik Minuman', 'total' => 8400],
             ['nama' => 'Dinda Dwi Lestari', 'tanggal' => '18/07/25', 'berat' => 4.53, 'jenis' => 'HVS', 'total' => 7248],
@@ -485,12 +505,12 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Besnaya Zalenzi', 'tanggal' => '25/07/25', 'berat' => 7.9, 'jenis' => 'Kardus', 'total' => 10744],
             ['nama' => 'Besnaya Zalenzi', 'tanggal' => '25/07/25', 'berat' => 2.0, 'jenis' => 'Botol Plastik Minuman', 'total' => 2400],
             ['nama' => 'BPBD (iihuska)', 'tanggal' => '25/07/25', 'berat' => 3.0, 'jenis' => 'Kardus', 'total' => 4080],
-            ['nama' => 'BPBD (iihuska)', 'tanggal' => '25/07/25', 'berat' => 0.5, 'jenis' => 'Plastik Campur', 'total' => 600],
+            ['nama' => 'BPBD (iihuska)', 'tanggal' => '25/07/25', 'berat' => 0.5, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 600],
             ['nama' => 'BPBD (iihuska)', 'tanggal' => '25/07/25', 'berat' => 0.9, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 2880],
             ['nama' => 'BPBD (iihuska)', 'tanggal' => '25/07/25', 'berat' => 2.0, 'jenis' => 'Kaleng Campur', 'total' => 2400],
             ['nama' => 'BPBD (iihuska)', 'tanggal' => '25/07/25', 'berat' => 0.4, 'jenis' => 'Kertas Campur', 'total' => 160],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '25/07/25', 'berat' => 95.0, 'jenis' => 'HVS', 'total' => 152000],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '25/07/25', 'berat' => 0.5, 'jenis' => 'Plastik Campur', 'total' => 600],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '25/07/25', 'berat' => 95.0, 'jenis' => 'HVS', 'total' => 152000],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '25/07/25', 'berat' => 0.5, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 600],
             ['nama' => 'Juni Fiwaldi ', 'tanggal' => '25/07/25', 'berat' => 5.0, 'jenis' => 'HVS', 'total' => 8000],
             ['nama' => 'Juni Fiwaldi ', 'tanggal' => '25/07/25', 'berat' => 0.5, 'jenis' => 'Kardus', 'total' => 680],
             ['nama' => 'Juni Fiwaldi ', 'tanggal' => '25/07/25', 'berat' => 0.1, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 320],
@@ -507,7 +527,7 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Puskesmas sungayang(dr iranovitha dewy) ', 'tanggal' => '25/07/25', 'berat' => 15.0, 'jenis' => 'Kertas Campur', 'total' => 6000],
             ['nama' => 'Puskesmas sungayang(dr iranovitha dewy) ', 'tanggal' => '25/07/25', 'berat' => 1.5, 'jenis' => 'Botol Plastik Minuman', 'total' => 1800],
             ['nama' => 'Emelda', 'tanggal' => '25/07/25', 'berat' => 14.0, 'jenis' => 'HVS', 'total' => 22400],
-            ['nama' => 'Emelda', 'tanggal' => '25/07/25', 'berat' => 3.8, 'jenis' => 'Plastik Campur', 'total' => 4560],
+            ['nama' => 'Emelda', 'tanggal' => '25/07/25', 'berat' => 3.8, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 4560],
             ['nama' => 'Irza Fhaizati Anas', 'tanggal' => '25/07/25', 'berat' => 8.0, 'jenis' => 'HVS', 'total' => 12800],
             ['nama' => 'AZZA', 'tanggal' => '25/07/25', 'berat' => 4.5, 'jenis' => 'HVS', 'total' => 7200],
             ['nama' => 'AZZA', 'tanggal' => '25/07/25', 'berat' => 17.5, 'jenis' => 'Kertas Campur', 'total' => 7000],
@@ -552,8 +572,8 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'AUREL AULIANISA', 'tanggal' => '15/08/25', 'berat' => 3.1, 'jenis' => 'Kertas Campur', 'total' => 1240],
             ['nama' => 'Hasby Abyan Shauqi', 'tanggal' => '15/08/25', 'berat' => 10.2, 'jenis' => 'HVS', 'total' => 14739],
             ['nama' => 'Hasby Abyan Shauqi', 'tanggal' => '15/08/25', 'berat' => 4.5, 'jenis' => 'Kertas Campur', 'total' => 1800],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '15/08/25', 'berat' => 131.5, 'jenis' => 'HVS', 'total' => 190018],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '15/08/25', 'berat' => 28.0, 'jenis' => 'Koran', 'total' => 112000],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '15/08/25', 'berat' => 131.5, 'jenis' => 'HVS', 'total' => 190018],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '15/08/25', 'berat' => 28.0, 'jenis' => 'Koran', 'total' => 112000],
             ['nama' => 'MUSTIKA SUARMAN (BAG. PBJ)', 'tanggal' => '15/08/25', 'berat' => 1.8, 'jenis' => 'Kardus', 'total' => 2448],
             ['nama' => 'MUSTIKA SUARMAN (BAG. PBJ)', 'tanggal' => '15/08/25', 'berat' => 0.3, 'jenis' => 'Botol Plastik Minuman', 'total' => 360],
             ['nama' => 'Ririyanti Zahrul', 'tanggal' => '15/08/25', 'berat' => 0.05, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 60],
@@ -586,8 +606,8 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Sugesti Permana', 'tanggal' => '29/08/25', 'berat' => 0.7, 'jenis' => 'Kertas Campur', 'total' => 476],
             ['nama' => 'Sugesti Permana', 'tanggal' => '29/08/25', 'berat' => 0.4, 'jenis' => 'Sak Telur', 'total' => 340],
             ['nama' => 'Sugesti Permana', 'tanggal' => '29/08/25', 'berat' => 3.7, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 4440],
-            ['nama' => 'ZATINAL(Dinas Pariwisata Pemuda dan Olahraga)', 'tanggal' => '29/08/25', 'berat' => 6.0, 'jenis' => 'Kardus', 'total' => 7140],
-            ['nama' => 'ZATINAL(Dinas Pariwisata Pemuda dan Olahraga)', 'tanggal' => '29/08/25', 'berat' => 2.3, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 5865],
+            ['nama' => 'ZATINAL (Dinas Pariwisata Pemuda dan Olahraga)', 'tanggal' => '29/08/25', 'berat' => 6.0, 'jenis' => 'Kardus', 'total' => 7140],
+            ['nama' => 'ZATINAL (Dinas Pariwisata Pemuda dan Olahraga)', 'tanggal' => '29/08/25', 'berat' => 2.3, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 5865],
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '29/08/25', 'berat' => 8.0, 'jenis' => 'Kardus', 'total' => 9520],
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '29/08/25', 'berat' => 0.4, 'jenis' => 'Kertas Campur', 'total' => 272],
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '29/08/25', 'berat' => 3.0, 'jenis' => 'Sak Telur', 'total' => 2550],
@@ -609,8 +629,8 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'POM TK Permata Bunda', 'tanggal' => '12/09/25', 'berat' => 1.1, 'jenis' => 'kulit', 'total' => 440],
             ['nama' => 'POM TK Permata Bunda', 'tanggal' => '12/09/25', 'berat' => 2.4, 'jenis' => 'buram', 'total' => 1920],
             ['nama' => 'POM TK Permata Bunda', 'tanggal' => '12/09/25', 'berat' => 0.1, 'jenis' => 'plastik minyak', 'total' => 80],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '19/09/25', 'berat' => 146.0, 'jenis' => 'HVS', 'total' => 210970],
-            ['nama' => 'YUSRIZAL (KOMINFO)', 'tanggal' => '19/09/25', 'berat' => 15.8, 'jenis' => 'Buram', 'total' => 9480],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '19/09/25', 'berat' => 146.0, 'jenis' => 'HVS', 'total' => 210970],
+            ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '19/09/25', 'berat' => 15.8, 'jenis' => 'Buram', 'total' => 9480],
             ['nama' => 'Puskesmas sungayang(dr iranovitha dewy) ', 'tanggal' => '19/09/25', 'berat' => 2.5, 'jenis' => 'Kertas Campur', 'total' => 1700],
             ['nama' => 'Puskesmas sungayang(dr iranovitha dewy) ', 'tanggal' => '19/09/25', 'berat' => 2.2, 'jenis' => 'Botol Plastik Minuman', 'total' => 2805],
             ['nama' => 'ABDURRAHMAN HADI (SEKDA)', 'tanggal' => '19/09/25', 'berat' => 25.0, 'jenis' => 'HVS', 'total' => 36125],
@@ -696,7 +716,7 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '12/12/25', 'berat' => 6.0, 'jenis' => 'Kaleng Campur', 'total' => 18000],
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '12/12/25', 'berat' => 4.5, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 3600],
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '12/12/25', 'berat' => 4.2, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 10080],
-            ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '12/12/25', 'berat' => 0.6, 'jenis' => 'Tutu botol', 'total' => 1200],
+            ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '12/12/25', 'berat' => 0.6, 'jenis' => 'Tutup botol', 'total' => 1200],
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '12/12/25', 'berat' => 3.8, 'jenis' => 'Kaleng Campur', 'total' => 6080],
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '12/12/25', 'berat' => 2.0, 'jenis' => 'Kertas Campur', 'total' => 1280],
             ['nama' => 'dr. DWINANDA EMIRA', 'tanggal' => '12/12/25', 'berat' => 2.5, 'jenis' => 'Botol kaca', 'total' => 1250],
@@ -718,7 +738,7 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Dian Kumala Sari', 'tanggal' => '09/01/26', 'berat' => 1.5, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 3600],
             ['nama' => 'Dian Kumala Sari', 'tanggal' => '09/01/26', 'berat' => 4.5, 'jenis' => 'Kaleng Campur', 'total' => 7200],
             ['nama' => 'Dian Kumala Sari', 'tanggal' => '09/01/26', 'berat' => 16.0, 'jenis' => 'Ampli rusak', 'total' => 16000],
-            ['nama' => 'Dian Kumala Sari', 'tanggal' => '09/01/26', 'berat' => 10.9, 'jenis' => 'Magic Rusak', 'total' => 10900],
+            ['nama' => 'Dian Kumala Sari', 'tanggal' => '09/01/26', 'berat' => 10.9, 'jenis' => 'Magic', 'total' => 10900],
             ['nama' => 'Ira Fitria Elisman', 'tanggal' => '09/01/26', 'berat' => 4.1, 'jenis' => 'HVS', 'total' => 5576],
             ['nama' => 'Ira Fitria Elisman', 'tanggal' => '09/01/26', 'berat' => 3.0, 'jenis' => 'Kipas Angin', 'total' => 3000],
             ['nama' => 'Ira Fitria Elisman', 'tanggal' => '09/01/26', 'berat' => 1.2, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 2880],
@@ -777,13 +797,13 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Ivanka Nadya Syaura', 'tanggal' => '13/02/26', 'berat' => 2.2, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 1760],
             ['nama' => 'Ivanka Nadya Syaura', 'tanggal' => '13/02/26', 'berat' => 0.8, 'jenis' => 'Kaleng Campur', 'total' => 1280],
             ['nama' => 'POPPY AZIZ', 'tanggal' => '20/02/26', 'berat' => 8.3, 'jenis' => 'Kardus', 'total' => 9296],
-            ['nama' => 'POPPY AZIZ', 'tanggal' => '20/02/26', 'berat' => 1.5, 'jenis' => 'Plastik Campur', 'total' => 1500],
+            ['nama' => 'POPPY AZIZ', 'tanggal' => '20/02/26', 'berat' => 1.5, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 1500],
             ['nama' => 'Lovely Harman Zulyadi', 'tanggal' => '20/02/26', 'berat' => 46.0, 'jenis' => 'HVS', 'total' => 62560],
             ['nama' => 'Lovely Harman Zulyadi', 'tanggal' => '20/02/26', 'berat' => 21.0, 'jenis' => 'Kulit', 'total' => 10500],
             ['nama' => 'Lovely Harman Zulyadi', 'tanggal' => '20/02/26', 'berat' => 7.0, 'jenis' => 'Karah', 'total' => 7000],
             ['nama' => 'Yeni Hanifah', 'tanggal' => '20/02/26', 'berat' => 3.8, 'jenis' => 'Kardus', 'total' => 4256],
             ['nama' => 'Yeni Hanifah', 'tanggal' => '20/02/26', 'berat' => 1.4, 'jenis' => 'Kertas Campur', 'total' => 896],
-            ['nama' => 'Yeni Hanifah', 'tanggal' => '20/02/26', 'berat' => 2.8, 'jenis' => 'Plastik Campur', 'total' => 4200],
+            ['nama' => 'Yeni Hanifah', 'tanggal' => '20/02/26', 'berat' => 2.8, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 4200],
             ['nama' => 'UTRI SATRIA PUTRA (BAGIAN AP)', 'tanggal' => '27/02/26', 'berat' => 12.0, 'jenis' => 'Kertas Putih', 'total' => 18000],
             ['nama' => 'UTRI SATRIA PUTRA (BAGIAN AP)', 'tanggal' => '27/02/26', 'berat' => 1.2, 'jenis' => 'Kaleng Campur', 'total' => 1920],
             ['nama' => 'UTRI SATRIA PUTRA (BAGIAN AP)', 'tanggal' => '27/02/26', 'berat' => 0.5, 'jenis' => 'Plastik Campur (Karah-karah)', 'total' => 400],
@@ -835,7 +855,7 @@ class DatabaseSeeder extends Seeder
             ['nama' => 'Puskesmas sungayang(dr iranovitha dewy) ', 'tanggal' => '30/04/26', 'berat' => 1.2, 'jenis' => 'Sak Telur', 'total' => 960],
             ['nama' => 'Puskesmas sungayang(dr iranovitha dewy) ', 'tanggal' => '30/04/26', 'berat' => 6.5, 'jenis' => 'Kertas Campur', 'total' => 4160],
             ['nama' => 'Puskesmas sungayang(dr iranovitha dewy) ', 'tanggal' => '30/04/26', 'berat' => 4.5, 'jenis' => 'Kardus', 'total' => 3802],
-            ['nama' => 'Vipiet Adriani  (Bidang KPP)', 'tanggal' => '22/05/26', 'berat' => 19.0, 'jenis' => 'Kertas Campur', 'total' => 7410],
+            ['nama' => 'Vipiet Adriani (Bidang KPP)', 'tanggal' => '22/05/26', 'berat' => 19.0, 'jenis' => 'Kertas Campur', 'total' => 7410],
             ['nama' => 'AUREL AULIANISA', 'tanggal' => '22/05/26', 'berat' => 1.0, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 1625],
             ['nama' => 'AUREL AULIANISA', 'tanggal' => '22/05/26', 'berat' => 3.2, 'jenis' => 'Botol Plastik Minuman Bersih (tanpa tutup dan label)', 'total' => 5200],
             ['nama' => 'AUREL AULIANISA', 'tanggal' => '22/05/26', 'berat' => 14.0, 'jenis' => 'HVS', 'total' => 15470],
@@ -951,7 +971,6 @@ class DatabaseSeeder extends Seeder
             Log::warning('Detail baris yang di-skip:', $skipped);
         }
 
-        // Kalau mau langsung lihat di terminal saat php artisan db:seed
         if (app()->runningInConsole()) {
             $this->command->info("{$created} transaksi berhasil dibuat.");
             if (!empty($skipped)) {
@@ -960,6 +979,89 @@ class DatabaseSeeder extends Seeder
                     $this->command->line("  #{$s['index']}: {$s['trx']['nama']} / {$s['trx']['jenis']} — {$s['alasan']}");
                 }
             }
+        }
+
+        $nasabahnarik = [
+        ['nama' => 'POM TK Permata Bunda', 'tanggal' => '08/08/25', 'total' => 180000,'admin'=>'Naya'],
+        ['nama' => 'Jusdawenti', 'tanggal' => '24/10/25', 'total' => 150000,'admin'=>'Adrian'],
+        ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '06/02/26', 'total' => 780000,'admin'=>'Adrian'],
+        ['nama' => 'POM TK Permata Bunda', 'tanggal' => '02/07/26', 'total' => 550000,'admin'=>'Adrian'],
+        ];
+      
+        foreach ($nasabahnarik as $index => $nbr) {
+         $nsb = User::with(['unit.gudang'])->where('name', $nbr['nama'])->first();
+         $adm = User::where('name', $nbr['admin'].' '.'daring')->first();
+         $bt = BukuTabungan::where('user_id', $nsb->id)->first();
+         $tanggal2 = \Carbon\Carbon::createFromFormat('d/m/y', $nbr['tanggal']);
+         $trans = Transaksi::create([
+                'total_penarikan' => $nbr['total'],
+                'sisa_saldo' => $bt->saldo - $nbr['total'],
+                'tanggal_transaksi' => $tanggal2,
+                'owner_id' => $nsb->id,
+                'admin_id' => $adm->id,
+                'buku_tabungan_id' => $bt->id,
+                'created_at' => $tanggal2,
+                'updated_at' => $tanggal2,
+            ]);
+
+         $bt->decrement('saldo', $nbr['total']);
+           Pengeluaran::create([
+                'total_penarikan' => $trans->total_penarikan,
+                'keterangan' => 'Penarikan tabungan oleh nasabah dengan nomor Rekening : ' . $bt->nomor_rekening,
+                'admin_id' => $adm->id,
+                'gudang_id' => $nsb->unit->gudang->id,
+          ]);
+        }
+
+
+        $gdgTrx = [
+            ['total' => 2923000, 'ket' => 'Penjualan sampah ke BSI', 'admin' => 'Adrian daring', 'tanggal' => '01/09/25'],
+            ['total' => 2095000, 'ket' => 'Penjualan sampah ke BSI', 'admin' => 'Adrian daring', 'tanggal' => '03/10/25'],
+            ['total' => 130000, 'ket' => 'Narsum Batu Basa', 'admin' => 'Adrian daring', 'tanggal' => '03/10/25'],
+            ['total' => 4300, 'ket' => 'Sisa Arus Kas Operasional', 'admin' => 'Adrian daring', 'tanggal' => '05/10/25'],
+            ['total' => 70000, 'ket' => 'Donasi narasumber', 'admin' => 'Adrian daring', 'tanggal' => '14/10/25'],
+            ['total' => 150000, 'ket' => 'Narsum di Padang magek', 'admin' => 'Adrian daring', 'tanggal' => '16/10/25'],
+            ['total' => 210000, 'ket' => 'Donasi Narasumber dan Penjualan Prelove', 'admin' => 'Adrian daring', 'tanggal' => '31/10/25'],
+            ['total' => 75000, 'ket' => 'Penjualan Prelove ke TK', 'admin' => 'Adrian daring', 'tanggal' => '09/01/26'],
+            ['total' => 2603000, 'ket' => 'Penjualan Sampah ke BSI', 'admin' => 'Adrian daring', 'tanggal' => '20/04/26'],
+            ['total' => 70000, 'ket' => 'Bayar memilah sampah', 'admin' => 'Adrian daring', 'tanggal' => '25/05/26'],
+        ];
+   
+        foreach ($gdgTrx as $index => $g) {
+        $tanggal3 = \Carbon\Carbon::createFromFormat('d/m/y', $g['tanggal']);
+         $admg = User::where('name', $g['admin'])->first();
+         $gdg = Gudang::where('bank_id', 2)->first();
+         $tgd = TransaksiBongkarGudang::create([
+                'keterangan' => $g['ket'],
+                'total_penarikan' => $g['total'],
+                'admin_id' => $admg->id,
+                'gudang_id' => $gdg->id,
+                'created_at' => $tanggal3,
+                'updated_at' => $tanggal3,
+         ]);
+
+         $pengl = [
+          ['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian daring', 'tanggal' => '11/02/26'],
+          ['total' => 150000, 'ket' => 'Bayar rambahan dan PLN', 'admin' => 'Adrian daring', 'tanggal' => '27/03/26'],
+          ['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian daring', 'tanggal' => '11/02/26'],
+         ];
+
+         foreach ($pengl as $pg) {
+        $tanggal4 = \Carbon\Carbon::createFromFormat('d/m/y', $pg['tanggal']);
+         $admg = User::where('name', $g['admin'])->first();
+         $gdg = Gudang::where('bank_id', 2)->first();
+            Pengeluaran::create([
+                'total_penarikan' => $pg['total'],
+                'keterangan' => $pg['ket'],
+                'admin_id' => $admg->id,
+                'gudang_id' => $gdg->id,
+                 'created_at' => $tanggal4,
+                'updated_at' => $tanggal4,
+            ]);
+         }
+
+          
+
         }
     }
 }

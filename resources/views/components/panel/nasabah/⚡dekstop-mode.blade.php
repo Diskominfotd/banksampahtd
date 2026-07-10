@@ -109,7 +109,9 @@ new class extends Component {
                             @endforeach
                         </tbody>
                     </table>
-                    {{ $data['nasabah']->links('vendor.pagination.bootstrap-5') }}
+                  <div class="mt-2">
+                      {{ $data['nasabah']->links() }}
+                  </div>
                 </div>
             </div>
         </div>
