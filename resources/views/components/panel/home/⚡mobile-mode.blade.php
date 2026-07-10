@@ -470,9 +470,7 @@ new class extends Component {
                             {{ $arah === 'neutral' ? 'Sama' : number_format(abs($persen), 1, ',', '.') . '%' }}
                         </span>
                     </div>
-
                     <div class="m-pills">
-
                         <div class="m-pill c" wire:click="getBukuTabungan"
                             @click="$store.sheet.show('detail-saldo')">
                             <span class="m-pill-n">{{ $data['totalRekeningNasabah'] }}</span>
@@ -485,7 +483,7 @@ new class extends Component {
                         @endphp
                         <div class="m-pill c">
                             <span
-                                class="m-pill-n">{{ convertRupiahToString($data['totalSetoranNasabah']['today']) }}</span>
+                                class="m-pill-n">{{ convertRupiahToString($data['totalSetoranNasabah']['total']) }}</span>
                             <span class="m-pill-l">Setoran</span>
                             <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">

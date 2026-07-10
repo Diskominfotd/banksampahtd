@@ -193,11 +193,12 @@ new class extends Component {
                                         </a>
                                     </div>
                                     @if (Auth::user()->hasRole('admin'))
-                                    <div class="col-3"><a class="w-svc" href="{{ route('buat.penarikan.saldo') }}">
-                                            <div class="w-svc-icon ic4"><i class="bi bi-cash-coin"></i></div><span
-                                                class="w-svc-lbl">Buat Penarikan</span>
-                                        </a>
-                                    </div>
+                                        <div class="col-3"><a class="w-svc"
+                                                href="{{ route('buat.penarikan.saldo') }}">
+                                                <div class="w-svc-icon ic4"><i class="bi bi-cash-coin"></i></div><span
+                                                    class="w-svc-lbl">Buat Penarikan</span>
+                                            </a>
+                                        </div>
                                     @endif
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
@@ -467,7 +468,7 @@ new class extends Component {
                                     @elseif ($arah === 'down')
                                         <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
                                     @else
-                                        <i class="bi bi-dash"></i> Sama seperti kemarin
+                                        <i class="bi bi-dash"></i> Tidak ada perubahan
                                     @endif
                                 </div>
                                 @php
@@ -504,7 +505,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Setoran</div>
                                 <div class="w-m-val" style="color:var(--blue)">Rp
-                                    {{ convertRupiahToString($data['totalSetoranNasabah']['today']) }}
+                                    {{ convertRupiahToString($data['totalSetoranNasabah']['total']) }}
                                 </div>
                                 @php
                                     $persentase = $data['totalSetoranNasabah']['persentase'];
@@ -520,7 +521,7 @@ new class extends Component {
                                     @elseif ($arah === 'down')
                                         <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
                                     @else
-                                        <i class="bi bi-dash"></i> Sama seperti kemarin
+                                        <i class="bi bi-dash"></i> Tidak ada perubahan
                                     @endif
                                 </div>
                                 @php
@@ -559,7 +560,7 @@ new class extends Component {
                                     @elseif ($arah === 'down')
                                         <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
                                     @else
-                                        <i class="bi bi-dash"></i> Sama seperti kemarin
+                                        <i class="bi bi-dash"></i> Tidak ada perubahan
                                     @endif
                                 </div>
                                 @php
@@ -959,7 +960,8 @@ new class extends Component {
                         <div class="row g-2">
                             @if (!empty($setoranNasabah))
                                 @foreach ($setoranNasabah as $stn)
-                                    <div class="col-12" x-data="{ open: false }">
+                                    <div class="col-12" x-data="{ open: false }"
+                                        wire:key="setoran-{{ $stn->id }}">
                                         <div class="list-item fade-up" style="cursor:pointer" @click="open = !open">
                                             <span class="list-num">{{ $loop->iteration }}</span>
 
@@ -1002,44 +1004,49 @@ new class extends Component {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @foreach ($stn['items'] ?? [] as $index => $di)
+                                                        @forelse ($stn->items ?? [] as $index => $di)
                                                             <tr>
                                                                 <td>{{ $index + 1 }}</td>
                                                                 <td style="font-size:11px;font-weight:600">
-                                                                    {{ $di['trash']['nama'] }}</td>
+                                                                    {{ $di->trash->nama ?? '-' }}</td>
                                                                 <td>Rp.
-                                                                    {{ number_format($di['harga'], 0, ',', '.') }}
+                                                                    {{ number_format($di->harga, 0, ',', '.') }}
                                                                 </td>
-                                                                <td>{{ number_format($di['berat'], 0, ',', '.') }}
+                                                                <td>{{ number_format($di->berat, 0, ',', '.') }}
                                                                     KG</td>
                                                                 <td>Rp.
-                                                                    {{ number_format($di['sub_total'], 0, ',', '.') }}
+                                                                    {{ number_format($di->sub_total, 0, ',', '.') }}
                                                                 </td>
                                                             </tr>
-                                                        @endforeach
+                                                        @empty
+                                                            <tr>
+                                                                <td colspan="5"
+                                                                    style="text-align:center;color:var(--muted)">
+                                                                    Tidak ada detail
+                                                                </td>
+                                                            </tr>
+                                                        @endforelse
                                                     </tbody>
                                                     <tfoot>
                                                         <tr>
                                                             <td colspan="3"><strong>Total</strong></td>
                                                             <td>
                                                                 <strong>
-                                                                    {{ number_format($stn['total_berat'] ?? 0, 0, ',', '.') }}
+                                                                    {{ number_format($stn->total_berat ?? 0, 0, ',', '.') }}
                                                                     KG
                                                                 </strong>
                                                             </td>
                                                             <td>
                                                                 <strong>
                                                                     Rp.
-                                                                    {{ number_format($stn['total_saldo'] ?? 0, 0, ',', '.') }}
+                                                                    {{ number_format($stn->total_saldo ?? 0, 0, ',', '.') }}
                                                                 </strong>
                                                             </td>
                                                         </tr>
                                                     </tfoot>
                                                 </table>
-
                                             </div>
                                         </div>
-
                                     </div>
                                 @endforeach
                             @else
@@ -1050,6 +1057,16 @@ new class extends Component {
                                 </div>
                             @endif
                         </div>
+                        @if (count($this->setoranNasabah) >= 10)
+                            <button type="button" wire:click="loadMoreSetoran"
+                                style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                                <span wire:loading.remove wire:target="loadMoreSetoran">Tampilkan lebih banyak</span>
+                                <span wire:loading wire:target="loadMoreSetoran">
+                                    <span class="spinner-border spinner-border-sm"
+                                        style="width:12px;height:12px;border-width:1.5px;"></span>
+                                </span>
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>

@@ -144,8 +144,10 @@ class SetoranServiceImpl implements SetoranService
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
-        $today = $this->setoranByAuthUser()->whereDate('created_at', $todayDate)->sum('total_saldo');
-        $yesterday = $this->setoranByAuthUser()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
+        $today = $this->setoranByAuthUser()
+        ->whereDate('created_at', $todayDate)->sum('total_saldo');
+        $yesterday = $this->setoranByAuthUser()
+        ->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
 
         return [
             'total' => $total,
