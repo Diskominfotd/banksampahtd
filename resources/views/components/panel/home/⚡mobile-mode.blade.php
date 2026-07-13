@@ -522,7 +522,7 @@ new class extends Component {
                     </div>
                     <div class="col-3 fade-up"><a class="svc-item" wire:click="getBukuTabungan"
                             @click="$store.sheet.show('detail-saldo')">
-                            <div class="svc-icon ic2"><i class="bi bi-wallet2"></i></div><span
+                            <div class="svc-icon ic2"><i class="bi bi-wallet"></i></div><span
                                 class="svc-lbl">Saldo</span>
                         </a>
                     </div>
@@ -534,7 +534,7 @@ new class extends Component {
                     </div>
                     <div class="col-3 fade-up"><a class="svc-item" wire:click="getTrxByAuthUser"
                             @click="$store.sheet.show('detail-trx')">
-                            <div class="svc-icon ic2"><i class="bi bi-cash-stack"></i></div><span
+                            <div class="svc-icon ic2"><i class="bi bi-wallet2"></i></div><span
                                 class="svc-lbl">Penarikan</span>
                         </a>
                     </div>
@@ -573,7 +573,7 @@ new class extends Component {
                             <div class="list-item fade-up" wire:click="trxDetail('{{ encrypt($trxbl->id) }}')"
                                 @click="$store.sheet.show('detail-trx-id')">
                                 <span class="list-num">{{ $loop->iteration }}</span>
-                                <div class="list-ico ic2"><i class="bi bi-cash-coin" style="font-size:12px"></i>
+                                <div class="list-ico ic2"><i class="bi bi-wallet2" style="font-size:12px"></i>
                                 </div>
                                 <div class="list-main">
                                     <div class="list-name">{{ $trxbl->created_at->format('d M Y') }} —
@@ -905,7 +905,7 @@ new class extends Component {
                             <div class="list-item fade-up"><span class="list-num">
                                     {{ $loop->iteration }}
                                 </span>
-                                <div class="list-ico ic2"><i class="bi bi-cash-coin" style="font-size:12px"></i>
+                                <div class="list-ico ic2"><i class="bi bi-wallet2" style="font-size:12px"></i>
                                 </div>
                                 <div class="list-main">
                                     <div class="list-name">
@@ -919,8 +919,8 @@ new class extends Component {
                                         {{ $trx->created_at->diffForHumans() }} · Rp
                                         <b> Sisa - {{ number_format($trx->sisa_saldo, 0, ',', '.') }}</b>
                                     </div>
-                                </div><span class="bs bs-green" style="cursor:pointer">
-                                    Rp {{ number_format($trx->total_penarikan, 0, ',', '.') }}
+                                </div><span class="bs bs-err" style="cursor:pointer">
+                                    Rp - {{ number_format($trx->total_penarikan, 0, ',', '.') }}
                                 </span>
                             </div>
                         @endforeach
@@ -1061,11 +1061,11 @@ new class extends Component {
                 </div>
                 @if ($itemTrxDetail)
                     <div
-                        style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
+                        style="background:var(--red-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:14px;margin-bottom:16px;text-align:center">
                         <div
                             style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
                             Nilai Penarikan</div>
-                        <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--cyan)">Rp
+                        <div style="font-family:'Syne',sans-serif;font-size:32px;font-weight:700;color:var(--red)">Rp
                             {{ number_format($itemTrxDetail->total_penarikan, 0, ',', '.') ?? 0 }}</div>
                     </div>
                     <div class="detail-field"><span class="df-key">No. Transaksi</span><span
@@ -1074,7 +1074,8 @@ new class extends Component {
                     <div class="detail-field"><span class="df-key">Nasabah</span>
                         <span class="df-val">{{ ucfirst($itemTrxDetail->owner->name) }}</span>
                     </div>
-                    <div class="detail-field"><span class="df-key">Sisa Saldo</span><span class="df-val">
+                    <div class="detail-field">
+                        <span class="df-key">Sisa Saldo</span><span class="df-val">
                             Rp {{ number_format($itemTrxDetail->sisa_saldo, 0, ',', '.') ?? 0 }}
                         </span>
                     </div>

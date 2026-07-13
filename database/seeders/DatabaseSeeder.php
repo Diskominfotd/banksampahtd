@@ -17,6 +17,7 @@ use App\Models\Trash;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -330,7 +331,7 @@ class DatabaseSeeder extends Seeder
             'Yeni Suhastri',
             'NOFI HENDRI',
             'Puskesmas sungayang(dr iranovitha dewy)',
-            'Nadea Annisa'
+            'Nadea Annisa',
         ];
 
         $nikStart = 1234567890123501;
@@ -981,19 +982,28 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $nasabahnarik = [
-        ['nama' => 'POM TK Permata Bunda', 'tanggal' => '08/08/25', 'total' => 180000,'admin'=>'Naya'],
-        ['nama' => 'Jusdawenti', 'tanggal' => '24/10/25', 'total' => 150000,'admin'=>'Adrian'],
-        ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '06/02/26', 'total' => 780000,'admin'=>'Adrian'],
-        ['nama' => 'POM TK Permata Bunda', 'tanggal' => '02/07/26', 'total' => 550000,'admin'=>'Adrian'],
-        ];
-      
-        foreach ($nasabahnarik as $index => $nbr) {
-         $nsb = User::with(['unit.gudang'])->where('name', $nbr['nama'])->first();
-         $adm = User::where('name', $nbr['admin'].' '.'daring')->first();
-         $bt = BukuTabungan::where('user_id', $nsb->id)->first();
-         $tanggal2 = \Carbon\Carbon::createFromFormat('d/m/y', $nbr['tanggal']);
-         $trans = Transaksi::create([
+        $nasabahnarik = [['nama' => 'POM TK Permata Bunda', 'tanggal' => '08/08/25', 'total' => 180000, 'admin' => 'Naya'], ['nama' => 'Jusdawenti', 'tanggal' => '24/10/25', 'total' => 150000, 'admin' => 'Adrian'], ['nama' => 'DEDI TRIWIDONO S.STP (KOMINFO)', 'tanggal' => '06/02/26', 'total' => 780000, 'admin' => 'Adrian'], ['nama' => 'POM TK Permata Bunda', 'tanggal' => '02/07/26', 'total' => 550000, 'admin' => 'Adrian']];
+
+        foreach ($nasabahnarik as $nbr) {
+            $nsb = User::with(['unit.gudang'])
+                ->where('name', $nbr['nama'])
+                ->first();
+
+            $adm = User::where('name', $nbr['admin'] . ' daring')->first();
+
+            if (!$nsb || !$adm || !$nsb->unit?->gudang) {
+                continue;
+            }
+
+            $bt = BukuTabungan::where('user_id', $nsb->id)->first();
+
+            if (!$bt || $bt->saldo < $nbr['total']) {
+                continue;
+            }
+
+            $tanggal2 = Carbon::createFromFormat('d/m/y', $nbr['tanggal']);
+
+            $trans = Transaksi::create([
                 'total_penarikan' => $nbr['total'],
                 'sisa_saldo' => $bt->saldo - $nbr['total'],
                 'tanggal_transaksi' => $tanggal2,
@@ -1004,15 +1014,17 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => $tanggal2,
             ]);
 
-         $bt->decrement('saldo', $nbr['total']);
-           Pengeluaran::create([
+            $bt->decrement('saldo', $nbr['total']);
+
+            Pengeluaran::create([
                 'total_penarikan' => $trans->total_penarikan,
                 'keterangan' => 'Penarikan tabungan oleh nasabah dengan nomor Rekening : ' . $bt->nomor_rekening,
                 'admin_id' => $adm->id,
                 'gudang_id' => $nsb->unit->gudang->id,
-          ]);
+                               'created_at' => $tanggal2,
+                'updated_at' => $tanggal2,
+            ]);
         }
-
 
         $gdgTrx = [
             ['total' => 2923000, 'ket' => 'Penjualan sampah ke BSI', 'admin' => 'Adrian daring', 'tanggal' => '01/09/25'],
@@ -1026,42 +1038,35 @@ class DatabaseSeeder extends Seeder
             ['total' => 2603000, 'ket' => 'Penjualan Sampah ke BSI', 'admin' => 'Adrian daring', 'tanggal' => '20/04/26'],
             ['total' => 70000, 'ket' => 'Bayar memilah sampah', 'admin' => 'Adrian daring', 'tanggal' => '25/05/26'],
         ];
-   
+
         foreach ($gdgTrx as $index => $g) {
-        $tanggal3 = \Carbon\Carbon::createFromFormat('d/m/y', $g['tanggal']);
-         $admg = User::where('name', $g['admin'])->first();
-         $gdg = Gudang::where('bank_id', 2)->first();
-         $tgd = TransaksiBongkarGudang::create([
+            $tanggal3 = \Carbon\Carbon::createFromFormat('d/m/y', $g['tanggal']);
+            $admg = User::where('name', $g['admin'])->first();
+            $gdg = Gudang::where('bank_id', 2)->first();
+            $tgd = TransaksiBongkarGudang::create([
                 'keterangan' => $g['ket'],
                 'total_penarikan' => $g['total'],
                 'admin_id' => $admg->id,
                 'gudang_id' => $gdg->id,
                 'created_at' => $tanggal3,
                 'updated_at' => $tanggal3,
-         ]);
+            ]);
+        }
 
-         $pengl = [
-          ['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian daring', 'tanggal' => '11/02/26'],
-          ['total' => 150000, 'ket' => 'Bayar rambahan dan PLN', 'admin' => 'Adrian daring', 'tanggal' => '27/03/26'],
-          ['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian daring', 'tanggal' => '11/02/26'],
-         ];
+        $pengl = [['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian daring', 'tanggal' => '11/02/26'], ['total' => 150000, 'ket' => 'Bayar rambahan dan PLN', 'admin' => 'Adrian daring', 'tanggal' => '27/03/26'], ['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian daring', 'tanggal' => '11/02/26']];
 
-         foreach ($pengl as $pg) {
-        $tanggal4 = \Carbon\Carbon::createFromFormat('d/m/y', $pg['tanggal']);
-         $admg = User::where('name', $g['admin'])->first();
-         $gdg = Gudang::where('bank_id', 2)->first();
+        foreach ($pengl as $pg) {
+            $tanggal4 = \Carbon\Carbon::createFromFormat('d/m/y', $pg['tanggal']);
+            $admg = User::where('name', $g['admin'])->first();
+            $gdg = Gudang::where('bank_id', 2)->first();
             Pengeluaran::create([
                 'total_penarikan' => $pg['total'],
                 'keterangan' => $pg['ket'],
                 'admin_id' => $admg->id,
                 'gudang_id' => $gdg->id,
-                 'created_at' => $tanggal4,
+                'created_at' => $tanggal4,
                 'updated_at' => $tanggal4,
             ]);
-         }
-
-          
-
         }
     }
 }

@@ -595,7 +595,7 @@ new class extends Component {
                                     <div class="col-3">
                                         <a class="w-svc" wire:click="getBukuTabungan" data-bs-toggle="modal"
                                             data-bs-target="#wm-saldo-nasabah">
-                                            <div class="w-svc-icon ic1"><i class="bi bi-wallet2"></i></div><span
+                                            <div class="w-svc-icon ic1"><i class="bi bi-wallet"></i></div><span
                                                 class="w-svc-lbl">Saldo</span>
                                         </a>
                                     </div>
@@ -605,9 +605,10 @@ new class extends Component {
                                                 class="w-svc-lbl">Setoran</span>
                                         </a>
                                     </div>
-                                    <div class="col-3"><a class="w-svc" wire:click="getTrxByAuthUser"
-                                            data-bs-toggle="modal" data-bs-target="#wm-trx-nasabah">
-                                            <div class="w-svc-icon ic1"><i class="bi bi-cash-stack"></i></div><span
+                                    <div class="col-3">
+                                        <a class="w-svc" wire:click="getTrxByAuthUser" data-bs-toggle="modal"
+                                            data-bs-target="#wm-trx-nasabah">
+                                            <div class="w-svc-icon ic1"> <i class="bi bi-wallet2"></i></div><span
                                                 class="w-svc-lbl">Penarikan</span>
                                         </a>
                                     </div>
@@ -620,8 +621,9 @@ new class extends Component {
                                         @foreach ($data['trxNasabahByLimit'] as $trxbl)
                                             <div class="w-row" wire:click="trxDetail('{{ encrypt($trxbl->id) }}')"
                                                 data-bs-toggle="modal" data-bs-target="#wm-detail-trx-id">
-                                                <div class="w-row-ico ic2"><i class="bi bi-newspaper"
-                                                        style="font-size:13px"></i></div>
+                                                <div class="w-row-ico ic2">
+                                                    <i class="bi bi-wallet2" style="font-size:13px"></i>
+                                                </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <div class="w-row-title">
                                                         {{ $trxbl->created_at->format('d M Y') }} —
@@ -762,12 +764,12 @@ new class extends Component {
                     @if ($itemTrxDetail)
                         <div class="w-modal-body">
                             <div
-                                style="background:var(--cyan-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:18px;text-align:center;margin-bottom:20px">
+                                style="background:var(--red-10);border:1px solid var(--cyan-bd);border-radius:14px;padding:18px;text-align:center;margin-bottom:20px">
                                 <div
                                     style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
                                     Nilai Penarikan</div>
                                 <div
-                                    style="font-family:'Syne',sans-serif;font-size:36px;font-weight:700;color:var(--cyan)">
+                                    style="font-family:'Syne',sans-serif;font-size:36px;font-weight:700;color:var(--red)">
                                     Rp
                                     {{ number_format($itemTrxDetail->total_penarikan, 0, ',', '.') ?? 0 }}
                                 </div>
@@ -984,13 +986,10 @@ new class extends Component {
                                             <span class="bs bs-green">
                                                 + Rp {{ number_format($stn->total_saldo, 0, ',', '.') }}
                                             </span>
-
-                                            <i class="bi ms-2" :class="open ? 'bi-chevron-up' : 'bi-chevron-down'"
-                                                style="font-size:11px;color:var(--muted)"></i>
                                         </div>
 
                                         {{-- Detail Drop Down --}}
-                                        <div x-show="open" x-collapse
+                                        <div
                                             style="border:1px solid var(--cyan-bd);border-radius:12px 12px 12px 12px;background:var(--cyan-10);padding:14px 16px;margin-top:-2px;font-size:12px">
                                             <div style="display:flex;flex-direction:column;gap:6px">
                                                 <table class="w-tbl">
@@ -1092,19 +1091,21 @@ new class extends Component {
                                     @foreach ($trxNasabah as $trx)
                                         <div class="list-item fade-up"><span
                                                 class="list-num">{{ $loop->iteration }}</span>
-                                            <div class="list-ico ic2"><i class="bi bi-cash-coin"
-                                                    style="font-size:12px"></i>
+                                            <div class="list-ico ic2">
+                                                <i class="bi bi-wallet2" style="font-size:12px"></i>
                                             </div>
                                             <div class="list-main">
                                                 <div class="list-name">{{ $trx->created_at->format('d M Y') }} —
-                                                    {{ $trx->bukutabungan->nomor_rekening }}</div>
+                                                    {{ $trx->bukutabungan->nomor_rekening }} - Petugas : {{ $trx->admin->name  }}
+                                                </div>
                                                 <div class="list-sub">{{ $trx->bukutabungan->bank->nama }} ·
                                                     {{ $trx->created_at->diffForHumans() }} ·
                                                     <b> Sisa - Rp
                                                         {{ number_format($trx->sisa_saldo, 0, ',', '.') }}</b>
                                                 </div>
-                                            </div><span class="bs bs-green" style="cursor:pointer">
-                                                Rp {{ number_format($trx->total_penarikan, 0, ',', '.') }}
+                                            </div>
+                                            <span class="bs bs-err" style="cursor:pointer">
+                                                - Rp {{ number_format($trx->total_penarikan, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     @endforeach

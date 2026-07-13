@@ -82,6 +82,11 @@ new class extends Component {
 
     public function simpanPenarikan()
     {
+        if (!$this->selectedNasabah) {
+            session()->flash('error', 'Pilih minimal 1 nasabah');
+            $this->alertPopUp();
+            return;
+        }
         $this->validate(
             [
                 'selectedNasabah.*.jumlah' => 'required|numeric|min:10000',
@@ -90,7 +95,6 @@ new class extends Component {
                 'selectedNasabah.*.jumlah.min' => 'minimal Rp 10.000.',
             ],
         );
-
         foreach ($this->selectedNasabah as $i => $item) {
             if ($item['jumlah'] > $item['saldo']) {
                 $this->addError("selectedNasabah.{$i}.jumlah", 'Jumlah melebihi saldo.');

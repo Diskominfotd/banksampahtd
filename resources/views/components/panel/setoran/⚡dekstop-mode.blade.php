@@ -133,11 +133,9 @@ new class extends Component {
                         <div class="d-flex justify-content-end gap-2">
                             <button wire:click="simpanSetoran" wire:loading.attr="disabled" class="w-btn w-btn-primary"
                                 style="width:auto;padding:7px 16px">
-
                                 <span wire:loading.remove wire:target="simpanSetoran">
                                     <i class="bi bi-check2-circle me-1"></i> Simpan Setoran
                                 </span>
-
                                 <span wire:loading wire:target="simpanSetoran">
                                     <span class="spinner-border spinner-border-sm me-1"></span>
                                     Menyimpan...

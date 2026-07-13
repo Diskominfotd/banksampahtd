@@ -166,6 +166,7 @@ class SetoranServiceImpl implements SetoranService
     {
         return Setoran::with(['bukutabungan.bank', 'penyetor'])
             ->where('penyetor_id', $this->checkUser()->id)
+            ->whereDate('created_at', today())
             ->latest()
             ->limit(5)
             ->get();

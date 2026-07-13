@@ -47,7 +47,7 @@ new class extends Component {};
                             <div class="prof-field"><label>No. HP</label>
                                 <span>{{ Auth::user()->nomor_hp }}</span>
                             </div>
-                            <div class="prof-field"><label>Kode Unit</label>
+                            <div class="prof-field"><label>Kode Unit Pendaftaran</label>
                                 <span>{{ Auth::user()->unit->kode_bank }}</span>
                             </div>
                             <div class="prof-field"><label>Bergabung</label>

@@ -131,6 +131,7 @@ class TransaksiServiceImpl implements TransaksiService
     {
         return Transaksi::with(['bukutabungan.bank'])
             ->where('owner_id', $this->checkUser()->id)
+            ->whereDate('created_at', today())
             ->latest()
             ->limit(5)
             ->get();
