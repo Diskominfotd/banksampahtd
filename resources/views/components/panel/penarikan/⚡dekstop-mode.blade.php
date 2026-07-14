@@ -160,6 +160,16 @@ new class extends Component {
                             </div>
                         @endforelse
                     </div>
+                    @if (count($this->nasabah) >= 10)
+                        <button type="button" wire:click="loadMoreNasabah"
+                            style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                            <span wire:loading.remove wire:target="loadMoreNasabah">Tampilkan lebih banyak</span>
+                            <span wire:loading wire:target="loadMoreNasabah">
+                                <span class="spinner-border spinner-border-sm"
+                                    style="width:12px;height:12px;border-width:1.5px;"></span>
+                            </span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

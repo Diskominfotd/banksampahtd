@@ -96,7 +96,7 @@ new class extends Component {
             </div>
             <div class="m-search mb-3">
                 <i class="bi bi-search si"></i>
-                <input type="text" wire:model.live="searchNasabah" placeholder="Cari nama jenis sampah...">
+                <input type="text" wire:model.live="searchNasabah" placeholder="Cari nama atau rekening...">
             </div>
         </div>
         <div wire:loading.flex wire:target="getNasabah" class="justify-content-center align-items-center"
