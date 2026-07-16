@@ -132,7 +132,7 @@ new class extends Component {
                         @endphp
                         <div class="m-pill c">
                             <span
-                                class="m-pill-n">{{ convertRupiahToString($data['totalSaldoSetoran']['total']) }}</span>
+                                class="m-pill-n">{{ number_format($data['totalSaldoSetoran']['total'], 0, ',', '.') }}</span>
                             <span class="m-pill-l">Setoran</span>
                             <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
@@ -148,7 +148,7 @@ new class extends Component {
                         @endphp
                         <div class="m-pill">
                             <span
-                                class="m-pill-n">{{ convertRupiahToString($data['totalPenarikanSaldoNasabah']['total']) }}</span>
+                                class="m-pill-n">{{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}</span>
                             <span class="m-pill-l">Tarik</span>
                             <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
@@ -228,7 +228,7 @@ new class extends Component {
                             </div>
                             <div class="flex-grow-1 overflow-hidden">
                                 <div class="tx-name text-truncate">{{ ucfirst($stl->penyetor->name) }} —
-                                    {{ number_format($stl->total_berat, 0, ',', '.') }} Kg</div>
+                                    {{ number_format($stl->total_berat, 1, ',', '.') }} Kg</div>
                                 <div class="tx-date">
                                     <i class="bi bi-clock me-1"></i>
                                     {{ $stl->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
@@ -434,7 +434,8 @@ new class extends Component {
             <div class="m-header">
                 <div class="m-topbar">
                     <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
-                        <div class="avatar avatar-md" wire:click="movePage('profile')">{{ Auth::user()->initials() }}</div>
+                        <div class="avatar avatar-md" wire:click="movePage('profile')">{{ Auth::user()->initials() }}
+                        </div>
                         <div>
                             <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat datang
                             </div>
@@ -462,7 +463,7 @@ new class extends Component {
                         $persen = $data['totalSaldoNasabah']['persentase'];
                     @endphp
                     <div class="m-summary-num">
-                        Rp {{ convertRupiahToString($data['totalSaldoNasabah']['today']) }}
+                        Rp {{ number_format($data['totalSaldoNasabah']['today'], 0, ',', '.') }}
                         <i class="bi {{ $arah === 'down' ? 'bi-arrow-down-short text-danger' : ($arah === 'up' ? 'bi-arrow-up-short' : 'bi-dash') }}"
                             style="font-size:0.6em;"></i>
                         <span class="m-summary-percent {{ $arah === 'down' ? 'text-danger' : '' }}"
@@ -483,7 +484,7 @@ new class extends Component {
                         @endphp
                         <div class="m-pill c">
                             <span
-                                class="m-pill-n">{{ convertRupiahToString($data['totalSetoranNasabah']['total']) }}</span>
+                                class="m-pill-n">{{ number_format($data['totalSetoranNasabah']['total'], 0, ',', '.') }}</span>
                             <span class="m-pill-l">Setoran</span>
                             <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
@@ -498,7 +499,7 @@ new class extends Component {
                         @endphp
                         <div class="m-pill">
                             <span
-                                class="m-pill-n">{{ convertRupiahToString($data['totalPenarikanNasabah']['today']) }}</span>
+                                class="m-pill-n">{{ number_format($data['totalPenarikanNasabah']['today'], 0, ',', '.') }}</span>
                             <span class="m-pill-l">Tarik</span>
                             <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                                 style="display:inline-flex; align-items:center; gap:1px;">
@@ -549,7 +550,7 @@ new class extends Component {
                                 <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
                                 <div class="list-main">
                                     <div class="list-name">{{ $snbl->created_at->format('d M Y') }} —
-                                        {{ number_format($snbl->total_berat, 0, ',', '.') }} Kg
+                                        {{ number_format($snbl->total_berat, 1, ',', '.') }} Kg
                                     </div>
                                     <div class="list-sub">{{ $snbl->bukutabungan->bank->nama }} ·
                                         {{ $snbl->created_at->diffForHumans() }}
@@ -803,7 +804,7 @@ new class extends Component {
                                     </div>
                                     <div class="list-main">
                                         <div class="list-name">{{ $stn->created_at->format('d M Y') }} —
-                                            {{ number_format($stn->total_berat, 0, ',', '.') }} Kg
+                                            {{ number_format($stn->total_berat, 1, ',', '.') }} Kg
                                         </div>
                                         <div class="list-sub">{{ $stn->bukutabungan->bank->nama }} ·
                                             {{ $stn->created_at->diffForHumans() }}
@@ -1009,7 +1010,7 @@ new class extends Component {
                                         <td style="padding:8px 10px;text-align:right">Rp.
                                             {{ number_format($di['harga'], 0, ',', '.') }}</td>
                                         <td style="padding:8px 10px;text-align:right">
-                                            {{ number_format($di['berat'], 0, ',', '.') }} Kg</td>
+                                            {{ number_format($di['berat'], 1, ',', '.') }} Kg</td>
                                         <td
                                             style="padding:8px 10px;text-align:right;color:var(--cyan);font-weight:600">
                                             Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
@@ -1020,7 +1021,7 @@ new class extends Component {
                                 <tr style="background:var(--cyan-10);border-top:1px solid var(--cyan-bd)">
                                     <td colspan="3" style="padding:8px 10px;font-weight:700">Total</td>
                                     <td style="padding:8px 10px;text-align:right;font-weight:700">
-                                        {{ number_format($itemSetoranDetail['total_berat'] ?? 0, 0, ',', '.') }}
+                                        {{ number_format($itemSetoranDetail['total_berat'] ?? 1, 0, ',', '.') }}
                                         Kg
                                     </td>
                                     <td style="padding:8px 10px;text-align:right;font-weight:700;color:var(--cyan)">

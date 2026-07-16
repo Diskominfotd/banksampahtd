@@ -22,7 +22,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Total Sampah</div>
                                 <div class="w-m-val" style="color:var(--cyan)">
-                                    {{ number_format($data['totalBeratSetoran']['total'], 0, ',', '.') }} kg
+                                    {{ number_format($data['totalBeratSetoran']['total'], 1, ',', '.') }} kg
                                 </div>
                                 @php
                                     $persentase = $data['totalBeratSetoran']['persentase'];
@@ -61,7 +61,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Setoran</div>
                                 <div class="w-m-val" style="color:var(--blue)">Rp
-                                    {{ convertRupiahToString($data['totalSaldoSetoran']['total']) }}
+                                    {{ number_format($data['totalSaldoSetoran']['total'],0,',','.') }}
                                 </div>
                                 @php
                                     $persentase = $data['totalBeratSetoran']['persentase'];
@@ -136,7 +136,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Penarikan Nasabah</div>
                                 <div class="w-m-val" style="color:var(--blue)">
-                                    {{ convertRupiahToString($data['totalPenarikanSaldoNasabah']['total']) }}
+                                    {{ number_format($data['totalPenarikanSaldoNasabah']['total'],0,',','.') }}
                                 </div>
                                 @php
                                     $persentase = $data['totalPenarikanSaldoNasabah']['persentase'];
@@ -275,7 +275,7 @@ new class extends Component {
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <div class="w-row-title">{{ ucfirst($stb->penyetor->name) }} —
-                                                        {{ number_format($stb->total_berat, 0, ',', '.') }} kg</div>
+                                                        {{ number_format($stb->total_berat, 1, ',', '.') }} kg</div>
                                                     <div class="w-row-meta">
                                                         {{ $stb->bukutabungan->bank->nama }} ·
                                                         {{ $stb->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
@@ -348,7 +348,7 @@ new class extends Component {
                                             <td>{{ $index + 1 }}</td>
                                             <td style="font-size:11px;font-weight:600">{{ $di['trash']['nama'] }}</td>
                                             <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
-                                            <td>{{ number_format($di['berat'], 0, ',', '.') }} KG</td>
+                                            <td>{{ number_format($di['berat'], 1, ',', '.') }} KG</td>
                                             <td>Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
                                         </tr>
                                     @endforeach
@@ -358,7 +358,7 @@ new class extends Component {
                                         <td colspan="3"><strong>Total</strong></td>
                                         <td>
                                             <strong>
-                                                {{ number_format($itemSetoranDetail['total_berat'] ?? 0, 0, ',', '.') }}
+                                                {{ number_format($itemSetoranDetail['total_berat'] ?? 1, 0, ',', '.') }}
                                                 KG
                                             </strong>
                                         </td>
@@ -451,7 +451,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Total Saldo Anda</div>
                                 <div class="w-m-val" style="color:var(--blue)">Rp
-                                    {{ convertRupiahToString($data['totalSaldoNasabah']['today']) }}
+                                    {{ number_format($data['totalSaldoNasabah']['today'], 0,',','.') }}
                                 </div>
                                 @php
                                     $persentase = $data['totalSaldoNasabah']['persentase'];
@@ -505,7 +505,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Setoran</div>
                                 <div class="w-m-val" style="color:var(--blue)">Rp
-                                    {{ convertRupiahToString($data['totalSetoranNasabah']['total']) }}
+                                    {{ number_format($data['totalSetoranNasabah']['total'], 0,',','.') }}
                                 </div>
                                 @php
                                     $persentase = $data['totalSetoranNasabah']['persentase'];
@@ -544,7 +544,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Penarikan</div>
                                 <div class="w-m-val">
-                                    {{ convertRupiahToString($data['totalPenarikanNasabah']['today']) }}</div>
+                                    {{ number_format($data['totalPenarikanNasabah']['today'], 0,',','.') }}</div>
                                 @php
                                     $persentase = $data['totalPenarikanNasabah']['persentase'];
                                     $arah = match (true) {
@@ -664,7 +664,7 @@ new class extends Component {
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <div class="w-row-title">{{ $snbl->created_at->format('d M Y') }}
                                                         —
-                                                        {{ number_format($snbl->total_berat, 0, ',', '.') }} Kg</div>
+                                                        {{ number_format($snbl->total_berat, 1, ',', '.') }} Kg</div>
                                                     <div class="w-row-meta">{{ $snbl->bukutabungan->bank->nama }} ·
                                                         {{ $snbl->created_at->diffForHumans() }}</div>
                                                 </div><span class="bs bs-green">
@@ -858,7 +858,7 @@ new class extends Component {
                                             <td style="font-size:11px;font-weight:600">{{ $di['trash']['nama'] }}
                                             </td>
                                             <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
-                                            <td>{{ number_format($di['berat'], 0, ',', '.') }} KG</td>
+                                            <td>{{ number_format($di['berat'], 1, ',', '.') }} KG</td>
                                             <td>Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
                                         </tr>
                                     @endforeach
@@ -868,7 +868,7 @@ new class extends Component {
                                         <td colspan="3"><strong>Total</strong></td>
                                         <td>
                                             <strong>
-                                                {{ number_format($itemSetoranDetail['total_berat'] ?? 0, 0, ',', '.') }}
+                                                {{ number_format($itemSetoranDetail['total_berat'] ?? 1, 0, ',', '.') }}
                                                 KG
                                             </strong>
                                         </td>
@@ -974,7 +974,7 @@ new class extends Component {
                                             <div class="list-main">
                                                 <div class="list-name">
                                                     {{ $stn->created_at->format('d M Y') }}
-                                                    &mdash; {{ number_format($stn->total_berat, 0, ',', '.') }} Kg
+                                                    &mdash; {{ number_format($stn->total_berat, 1, ',', '.') }} Kg
                                                     &mdash; Petugas: {{ ucfirst($stn->admin->name) }}
                                                 </div>
                                                 <div class="list-sub">

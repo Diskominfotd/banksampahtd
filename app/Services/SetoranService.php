@@ -18,4 +18,5 @@ interface SetoranService
     public function getSetoranByUniLimit();
     public function totalStokGudang();
     public function getGudangByUnit();
+    public function pendapatanBersih();
 }

@@ -54,10 +54,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $bk2 = BankSampah::create([
-            'nama' => 'Bank Sampah Unit Daring',
+            'nama' => 'Bank Sampah Unit Darling',
             'jenis' => 'unit',
             'parent_id' => $induk->id,
-            'alamat' => 'Jl. Daring No. 2',
+            'alamat' => 'Jl. Darling No. 2',
             'telepon' => '081234567891',
             'kode_bank' => 'DRI',
             'jam_buka' => '08:00',
@@ -114,8 +114,8 @@ class DatabaseSeeder extends Seeder
 
         // for ($i = 2; $i <= 10; $i++) {
         $user2 = User::factory()->create([
-            'name' => 'Admin Unit Daring',
-            'email' => 'admindaring@example.com',
+            'name' => 'Admin Unit Darling',
+            'email' => 'adminDarling@example.com',
             'password' => bcrypt('rahasia'),
             'nik' => '1234567890123451',
             'nik_hash' => hash('sha256', '1234567890123451'),
@@ -224,15 +224,15 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $adminUnitDaringName = ['Adrian daring', 'Naya daring', 'Nova daring', 'Tari daring', 'Tuti daring', 'Miza daring', 'Oca daring', 'lusy daring', 'yeni daring', 'Eka daring'];
+        $adminUnitDarlingName = ['Adrian Darling', 'Naya Darling', 'Nova Darling', 'Tari Darling', 'Tuti Darling', 'Miza Darling', 'Oca Darling', 'lusy Darling', 'yeni Darling', 'Eka Darling'];
 
-        foreach ($adminUnitDaringName as $index => $name) {
+        foreach ($adminUnitDarlingName as $index => $name) {
             $nik = '12345678901235' . str_pad($index + 2, 2, '0', STR_PAD_LEFT);
             $hp = '08123456789' . str_pad($index + 2, 2, '0', STR_PAD_LEFT);
 
             $user = User::factory()->create([
                 'name' => $name,
-                'email' => 'admindaring' . ($index + 1) . '@example.com',
+                'email' => 'adminDarling' . ($index + 1) . '@example.com',
                 'password' => bcrypt('rahasia'),
                 'nik' => $nik,
                 'nik_hash' => hash('sha256', $nik),
@@ -989,7 +989,7 @@ class DatabaseSeeder extends Seeder
                 ->where('name', $nbr['nama'])
                 ->first();
 
-            $adm = User::where('name', $nbr['admin'] . ' daring')->first();
+            $adm = User::where('name', $nbr['admin'] . ' Darling')->first();
 
             if (!$nsb || !$adm || !$nsb->unit?->gudang) {
                 continue;
@@ -1027,16 +1027,16 @@ class DatabaseSeeder extends Seeder
         }
 
         $gdgTrx = [
-            ['total' => 2923000, 'ket' => 'Penjualan sampah ke BSI', 'admin' => 'Adrian daring', 'tanggal' => '01/09/25'],
-            ['total' => 2095000, 'ket' => 'Penjualan sampah ke BSI', 'admin' => 'Adrian daring', 'tanggal' => '03/10/25'],
-            ['total' => 130000, 'ket' => 'Narsum Batu Basa', 'admin' => 'Adrian daring', 'tanggal' => '03/10/25'],
-            ['total' => 4300, 'ket' => 'Sisa Arus Kas Operasional', 'admin' => 'Adrian daring', 'tanggal' => '05/10/25'],
-            ['total' => 70000, 'ket' => 'Donasi narasumber', 'admin' => 'Adrian daring', 'tanggal' => '14/10/25'],
-            ['total' => 150000, 'ket' => 'Narsum di Padang magek', 'admin' => 'Adrian daring', 'tanggal' => '16/10/25'],
-            ['total' => 210000, 'ket' => 'Donasi Narasumber dan Penjualan Prelove', 'admin' => 'Adrian daring', 'tanggal' => '31/10/25'],
-            ['total' => 75000, 'ket' => 'Penjualan Prelove ke TK', 'admin' => 'Adrian daring', 'tanggal' => '09/01/26'],
-            ['total' => 2603000, 'ket' => 'Penjualan Sampah ke BSI', 'admin' => 'Adrian daring', 'tanggal' => '20/04/26'],
-            ['total' => 70000, 'ket' => 'Bayar memilah sampah', 'admin' => 'Adrian daring', 'tanggal' => '25/05/26'],
+            ['total' => 2923000, 'ket' => 'Penjualan sampah ke BSI', 'admin' => 'Adrian Darling', 'tanggal' => '01/09/25'],
+            ['total' => 2095000, 'ket' => 'Penjualan sampah ke BSI', 'admin' => 'Adrian Darling', 'tanggal' => '03/10/25'],
+            ['total' => 130000, 'ket' => 'Narsum Batu Basa', 'admin' => 'Adrian Darling', 'tanggal' => '03/10/25'],
+            ['total' => 4300, 'ket' => 'Sisa Arus Kas Operasional', 'admin' => 'Adrian Darling', 'tanggal' => '05/10/25'],
+            ['total' => 70000, 'ket' => 'Donasi narasumber', 'admin' => 'Adrian Darling', 'tanggal' => '14/10/25'],
+            ['total' => 150000, 'ket' => 'Narsum di Padang magek', 'admin' => 'Adrian Darling', 'tanggal' => '16/10/25'],
+            ['total' => 210000, 'ket' => 'Donasi Narasumber dan Penjualan Prelove', 'admin' => 'Adrian Darling', 'tanggal' => '31/10/25'],
+            ['total' => 75000, 'ket' => 'Penjualan Prelove ke TK', 'admin' => 'Adrian Darling', 'tanggal' => '09/01/26'],
+            ['total' => 2603000, 'ket' => 'Penjualan Sampah ke BSI', 'admin' => 'Adrian Darling', 'tanggal' => '20/04/26'],
+            ['total' => 70000, 'ket' => 'Bayar memilah sampah', 'admin' => 'Adrian Darling', 'tanggal' => '25/05/26'],
         ];
 
         foreach ($gdgTrx as $index => $g) {
@@ -1053,7 +1053,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $pengl = [['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian daring', 'tanggal' => '11/02/26'], ['total' => 150000, 'ket' => 'Bayar rambahan dan PLN', 'admin' => 'Adrian daring', 'tanggal' => '27/03/26'], ['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian daring', 'tanggal' => '11/02/26']];
+        $pengl = [['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian Darling', 'tanggal' => '11/02/26'], ['total' => 150000, 'ket' => 'Bayar rambahan dan PLN', 'admin' => 'Adrian Darling', 'tanggal' => '27/03/26'], ['total' => 100000, 'ket' => 'Konsumsi botol sampah', 'admin' => 'Adrian Darling', 'tanggal' => '11/02/26']];
 
         foreach ($pengl as $pg) {
             $tanggal4 = \Carbon\Carbon::createFromFormat('d/m/y', $pg['tanggal']);

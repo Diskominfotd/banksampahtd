@@ -5,7 +5,7 @@
     <link rel="icon" type="image/png" href="{{ asset('logotanahdatar.png') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — Bank Sampah Nusantara</title>
+    <title>Login — B-Star - Bank Sampah Tanah Datar Pintar · Kabupaten Tanah Datar</title>
     <!-- Bootstrap 5.3 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -14,13 +14,15 @@
         rel="stylesheet">
     <style>
         :root {
+            --bs-blue: #1976d2;
             --bs-primary: #2e7d32;
             --bs-primary-rgb: 46, 125, 50;
             --bg-deep: #f0f7f2;
+            --blue: #1976d2;
+            --blue-10: color-mix(in srgb, var(--blue) 10%, white);
             --cyan: #2e7d32;
             --cyan-10: rgba(46, 125, 50, .10);
             --cyan-bd: rgba(46, 125, 50, .35);
-            --blue: #1b5e20;
             --border: rgba(46, 125, 50, .18);
             --muted: rgba(20, 60, 30, .45);
             --text-main: #0d2113;

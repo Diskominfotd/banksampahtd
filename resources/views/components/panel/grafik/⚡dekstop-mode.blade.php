@@ -29,24 +29,32 @@ new class extends Component {
                 </div>
                 <div class="row g-3">
                     <div class="col-8">
-                        <div class="w-panel" x-data="{
-                            months: {{ Js::from($data['grafik']->pluck('bulan')) }},
-                            kgData: {{ Js::from($data['grafik']->pluck('total_berat')) }},
-                            nilaiData: {{ Js::from($data['grafik']->pluck('total_saldo')) }},
-                            activeIdx: null,
-                            get maxKg() { return Math.max(...this.kgData) },
-                            get maxNilai() { return Math.max(...this.nilaiData) },
-                            barH(val, max) { return val ? Math.round((val / max) * 110) : 4 },
-                            opacity(val) { return val ? '.9' : '.25' },
-                            fmtKg(val) { return val >= 1000 ? (val / 1000).toFixed(1) + ' ton' : val + ' kg' },
-                            fmtNilai(val) {
-                                if (val >= 1000000) return 'Rp' + (val / 1000000).toFixed(1) + 'jt';
-                                if (val >= 1000) return 'Rp' + (val / 1000).toFixed(0) + 'rb';
-                                return 'Rp' + val;
-                            }
-                        }">
-                            <div class="w-panel-title">Total Sampah Masuk per Bulan (kg & nilai)</div>
-
+                        <div class="w-panel" wire:key="grafik-total-sampah-{{ $tahunTotalSampah }}"
+                            x-data="{
+                                months: {{ Js::from($data['grafik']->pluck('bulan')) }},
+                                kgData: {{ Js::from($data['grafik']->pluck('total_berat')) }},
+                                nilaiData: {{ Js::from($data['grafik']->pluck('total_saldo')) }},
+                                activeIdx: null,
+                                get maxKg() { return Math.max(...this.kgData) },
+                                get maxNilai() { return Math.max(...this.nilaiData) },
+                                barH(val, max) { return val ? Math.round((val / max) * 110) : 4 },
+                                opacity(val) { return val ? '.9' : '.25' },
+                                fmtKg(val) { return val >= 1000 ? (val / 1000).toFixed(1) + ' ton' : val + ' kg' },
+                                fmtNilai(val) {
+                                    if (val >= 1000000) return 'Rp' + (val / 1000000).toFixed(1) + 'jt';
+                                    if (val >= 1000) return 'Rp' + (val / 1000).toFixed(0) + 'rb';
+                                    return 'Rp' + val;
+                                }
+                            }">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="w-panel-title">Total Sampah Masuk per Bulan (kg & nilai)</div>
+                                <select wire:model.live="tahunTotalSampah" class="form-select form-select-sm"
+                                    style="font-size:11px;width:auto">
+                                    @foreach ($data['komposisi']['tahuns'] as $t)
+                                        <option value="{{ $t }}">{{ $t }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="w-cb" style="height:140px">
                                 <template x-for="(m, i) in months" :key="i">
                                     <div class="w-cb-col" style="position:relative" x-on:mouseenter="activeIdx = i"
@@ -63,14 +71,14 @@ new class extends Component {
 
                                         <div style="display:flex;gap:2px;align-items:flex-end;flex:1;width:100%">
                                             <div :style="`flex:1;height:${barH(kgData[i], maxKg)}px;background:#2e7d32;
-                                                                                 border-radius:3px 3px 0 0;opacity:${opacity(kgData[i])};
-                                                                                 transition:opacity .15s`"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         border-radius:3px 3px 0 0;opacity:${opacity(kgData[i])};
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         transition:opacity .15s`"
                                                 :class="activeIdx === i ? 'opacity-100' : ''">
                                             </div>
                                             <div
                                                 :style="`flex:1;height:${barH(nilaiData[i], maxNilai)}px;background:#1b5e20;
-                                                                                     border-radius:3px 3px 0 0;opacity:${opacity(nilaiData[i])};
-                                                                                     transition:opacity .15s`">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     border-radius:3px 3px 0 0;opacity:${opacity(nilaiData[i])};
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     transition:opacity .15s`">
                                             </div>
                                         </div>
                                         <span class="w-cb-lbl" x-text="m"></span>
@@ -92,7 +100,15 @@ new class extends Component {
                     </div>
                     <div class="col-4">
                         <div class="w-panel h-100">
-                            <div class="w-panel-title">Ringkasan Tahun 2026</div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="w-panel-title mb-0">Ringkasan Tahun {{ $tahunTotalRingkasan }}</div>
+                                <select wire:model.live="tahunTotalRingkasan" class="form-select form-select-sm"
+                                    style="font-size:11px;width:auto">
+                                    @foreach ($data['komposisi']['tahuns'] as $t)
+                                        <option value="{{ $t }}">{{ $t }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             <div class="d-flex flex-column gap-3">
                                 <div>
                                     <div
@@ -101,11 +117,6 @@ new class extends Component {
                                     <div
                                         style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--cyan)">
                                         {{ convertBeratToString($data['ringkasan']['total_berat']) }}
-                                    </div>
-                                    <div style="font-size:10px;color:var(--muted)">
-                                        <div style="font-size:10px;color:var(--muted)">
-                                            Jan–{{ \Carbon\Carbon::now()->locale('id')->isoFormat('MMM YYYY') }}
-                                        </div>
                                     </div>
                                 </div>
                                 <div>
@@ -125,7 +136,9 @@ new class extends Component {
                                         style="font-family:'Syne',sans-serif;font-size:22px;font-weight:700;color:var(--orange)">
                                         {{ $data['nasabah']['total'] }}</div>
                                     <div style="font-size:10px;color:var(--muted)">+
-                                        {{ $data['nasabah']['difference'] }} nasabah baru</div>
+                                        {{ $data['nasabah']['difference'] }}
+                                        nasabah baru
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +147,7 @@ new class extends Component {
                 <div class="row g-3">
                     <div class="col-6">
                         <div class="w-panel">
-                            <div class="w-panel-title">Top Nasabah Bulan Ini</div>
+                            <div class="w-panel-title">5 Top Nasabah</div>
                             <div class="d-flex flex-column gap-2">
                                 @foreach ($data['topNasabah']['top_nasabah'] as $i => $tpn)
                                     <div class="d-flex align-items-center gap-2 p-2"
@@ -160,17 +173,33 @@ new class extends Component {
                     </div>
                     <div class="col-6">
                         <div class="w-panel">
-                            <div class="w-panel-title">Komposisi Sampah Bulan Ini</div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="w-panel-title mb-0">Komposisi Sampah</div>
+                                <div class="d-flex gap-1">
+                                    <select wire:model.live="tahun" class="form-select form-select-sm"
+                                        style="font-size:11px;width:auto">
+                                        @foreach ($data['komposisi']['tahuns'] as $t)
+                                            <option value="{{ $t }}">{{ $t }}</option>
+                                        @endforeach
+                                    </select>
+                                    <select wire:model.live="bulan" class="form-select form-select-sm"
+                                        style="font-size:11px;width:auto">
+                                        <option value="">Semua Bulan</option>
+                                        @foreach (range(1, 12) as $b)
+                                            <option value="{{ $b }}">
+                                                {{ \Carbon\Carbon::create()->month($b)->translatedFormat('F') }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
                             <div class="d-flex flex-column gap-2">
-                                @foreach ($data['komposisi'] as $kmp)
-                                    <div>
-                                        <div class="d-flex justify-content-between mb-1"><span
-                                                style="font-size:11px;font-weight:600">{{ $kmp['nama'] }}</span><span
-                                                style="font-size:10px;color:var(--blue);font-weight:700">{{ $kmp['persen'] }}%
-                                                · {{ convertBeratToString($kmp['total']) }}</span></div>
-                                        <div class="prog-wrap">
-                                            <div class="prog-fill"
-                                                style="width:{{ $kmp['persen'] }}%;background:var(--blue)"></div>
+                                @foreach ($data['komposisi']['kategori'] as $kmp)
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <span style="font-size:11px;font-weight:600">{{ $kmp['nama'] }}</span>
+                                            <span
+                                                style="font-size:10px;color:var(--blue);font-weight:700">{{ convertBeratToString($kmp['total']) }}</span>
                                         </div>
                                     </div>
                                 @endforeach

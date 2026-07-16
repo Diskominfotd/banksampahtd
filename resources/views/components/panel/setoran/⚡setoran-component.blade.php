@@ -101,7 +101,7 @@ new class extends Component {
                                     class="bi bi-recycle" style="font-size:14px"></i></div>
                             <div class="flex-grow-1 overflow-hidden">
                                 <div class="tx-name text-truncate">{{ ucfirst($st->penyetor->name) }} —
-                                    {{ number_format($st->total_berat, 0, ',', '.') }} Kg</div>
+                                    {{ number_format($st->total_berat, 1, ',', '.') }} Kg</div>
                                 <div class="tx-date"><i class="bi bi-clock me-1"></i>
                                     {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
                                     {{ $st->bukutabungan->bank->nama }}
@@ -167,7 +167,7 @@ new class extends Component {
                     <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
                     <div class="list-main">
                         <div class="list-name">{{ $di['trash']['nama'] }} —
-                            {{ number_format($di['berat'], 0, ',', '.') }} Kg</div>
+                            {{ number_format($di['berat'], 1, ',', '.') }} Kg</div>
                         <div class="list-sub">Rp. {{ number_format($di['harga'], 0, ',', '.') }} - {{ $di['type'] }}
                         </div>
                     </div><span class="bs bs-green" style="cursor:pointer">Rp.
@@ -278,7 +278,7 @@ new class extends Component {
                                             </span>
                                         </td>
                                         <td style="font-weight:600">
-                                            {{ number_format($st->total_berat, 0, ',', '.') }} kg
+                                            {{ number_format($st->total_berat, 1, ',', '.') }} kg
                                         </td>
                                         <td style="font-weight:700;color:var(--cyan)">Rp
                                             {{ number_format($st->total_saldo, 0, ',', '.') }}
@@ -347,7 +347,7 @@ new class extends Component {
                                     <td>{{ $index + 1 }}</td>
                                     <td style="font-size:11px;font-weight:600">{{ $di['trash']['nama'] }}</td>
                                     <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
-                                    <td>{{ number_format($di['berat'], 0, ',', '.') }} KG</td>
+                                    <td>{{ number_format($di['berat'], 1, ',', '.') }} KG</td>
                                     <td>Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
                                 </tr>
                             @endforeach
@@ -357,7 +357,7 @@ new class extends Component {
                                 <td colspan="3"><strong>Total</strong></td>
                                 <td>
                                     <strong>
-                                        {{ number_format($detailItems['total_berat'] ?? 0, 0, ',', '.') }}
+                                        {{ number_format($detailItems['total_berat'] ?? 1, 1, ',', '.') }}
                                         KG
                                     </strong>
                                 </td>

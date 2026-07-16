@@ -119,7 +119,9 @@ new class extends Component {
             ->latest()
             ->paginate($this->pageTrx, ['*'], 'trxPage'); // <- pageName unik
         $totalPendapatan = $this->transaksiService->totalPendapatan();
+        $pendapatanbersih = $this->setoranService->pendapatanBersih();
 
+        
         return [
             'totalStokGudang' => $totalStokGudang,
             'pengeluaran' => $pengeluaran,
@@ -127,6 +129,7 @@ new class extends Component {
             'totalBeratSetoran' => $totalBeratSetoran,
             'trx' => $trx,
             'totalPendapatan' => $totalPendapatan,
+            'pendapatanbersih' => $pendapatanbersih
         ];
     }
 };

@@ -85,7 +85,7 @@ new class extends Component {
                         $persen = $data['totalPendapatan']['persentase'];
                     @endphp
                     <div class="m-pill c">
-                        <span class="m-pill-n">{{ convertRupiahToString($data['totalPendapatan']['total']) }}</span>
+                        <span class="m-pill-n">{{ number_format($data['totalPendapatan']['total'], 0,',','.') }}</span>
                         <span class="m-pill-l">Pendapatan</span>
                         <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                             style="display:inline-flex; align-items:center; gap:1px;">
@@ -99,7 +99,7 @@ new class extends Component {
                     @endphp
                     <div class="m-pill c">
                         <span
-                            class="m-pill-n">{{ convertRupiahToString($data['totalPenarikanSaldoNasabah']['total']) }}</span>
+                            class="m-pill-n">{{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',','.') }}</span>
                         <span class="m-pill-l">Pengeluaran</span>
                         <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
                             style="display:inline-flex; align-items:center; gap:1px;">

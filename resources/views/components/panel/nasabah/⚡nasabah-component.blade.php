@@ -8,6 +8,7 @@ use Livewire\WithPagination;
 use Livewire\Attributes\On;
 use App\Livewire\TraitComponent;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 new class extends Component {
     use WithPagination;
     use TraitComponent;
@@ -50,6 +51,7 @@ new class extends Component {
 
     public array $bukuTabungan = [];
     public int $unitBukuTabungan;
+
     public function logout()
     {
         Auth::logout();
@@ -240,10 +242,12 @@ new class extends Component {
                 });
         }
         $nasabah = $nasabahQuery->latest()->paginate($this->perPage);
+        $roles = Role::whereNotIn('name', ['supervisor'])->get();
         return [
             'organisasi' => Organisasi::query()->get(),
             'banksampah' => BankSampah::query()->get(),
             'nasabah' => $nasabah,
+            'roles' => $roles,
         ];
     }
     #[On('doDelete')]

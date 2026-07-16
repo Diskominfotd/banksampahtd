@@ -58,7 +58,7 @@ new class extends Component {
                         <div class="w-metric">
                             <div class="w-m-lbl">Pendapatan</div>
                             <div class="w-m-val" style="color:var(--cyan)">
-                                Rp {{ convertRupiahToString($data['totalPendapatan']['total']) }}
+                                Rp {{ number_format($data['totalPendapatan']['total'], 0, ',', '.') }}
                             </div>
                             @php
                                 $persentase = $data['totalPendapatan']['persentase'];
@@ -97,7 +97,7 @@ new class extends Component {
                         <div class="w-metric">
                             <div class="w-m-lbl">Pengeluaran</div>
                             <div class="w-m-val" style="color:var(--blue)">
-                                {{ convertRupiahToString($data['totalPenarikanSaldoNasabah']['total']) }}
+                                Rp {{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}
                             </div>
                             @php
                                 $persentase = $data['totalPenarikanSaldoNasabah']['persentase'];
@@ -119,6 +119,46 @@ new class extends Component {
                             </div>
                             @php
                                 $persen = $data['totalPenarikanSaldoNasabah']['persentase'];
+                                $barColor = match (true) {
+                                    $persen < 50 => 'var(--red)',
+                                    $persen < 75 => 'var(--orange)',
+                                    default => 'var(--green)',
+                                };
+                            @endphp
+
+                            <div class="w-bar">
+                                <div class="w-bar-fill"
+                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Total Pendapatan</div>
+                            <div class="w-m-val" style="color:var(--blue)">
+                                Rp {{ number_format($data['pendapatanbersih']['total'], 0, ',', '.') }}
+                            </div>
+                            @php
+                                $persentase = $data['pendapatanbersih']['persentase'];
+                                $arah = match (true) {
+                                    $persentase > 0 => 'up',
+                                    $persentase < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+
+                            <div class="w-m-delta {{ $arah }}">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                @else
+                                    <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                @endif
+                            </div>
+                            @php
+                                $persen = $data['pendapatanbersih']['persentase'];
                                 $barColor = match (true) {
                                     $persen < 50 => 'var(--red)',
                                     $persen < 75 => 'var(--orange)',
@@ -157,7 +197,7 @@ new class extends Component {
                                             </div>
                                         </div>
                                         <span class="bs bs-new">
-                                            Rp{{ convertRupiahToString($tb->total_penarikan) }}
+                                            Rp{{ number_format($tb->total_penarikan, 0, ',', '.') }}
                                         </span>
                                     </div>
                                 @empty
@@ -199,7 +239,7 @@ new class extends Component {
                                                 </div>
                                             </div>
                                             <span class="bs bs-err">
-                                               - Rp{{ convertRupiahToString($pg->total_penarikan) }}
+                                                - Rp{{ number_format($pg->total_penarikan, 0, ',', '.') }}
                                             </span>
                                         </div>
                                     @endforeach
@@ -412,8 +452,7 @@ new class extends Component {
                             <div
                                 style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">
                                 Nilai Transaksi</div>
-                            <div
-                                style="font-family:'Syne',sans-serif;font-size:36px;font-weight:700;color:var(--red)">
+                            <div style="font-family:'Syne',sans-serif;font-size:36px;font-weight:700;color:var(--red)">
                                 Rp
                                 {{ number_format($itemTrxPengeluaran->total_penarikan, 0, ',', '.') ?? 0 }}
                             </div>

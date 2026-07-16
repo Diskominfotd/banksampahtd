@@ -3,7 +3,9 @@ namespace App\Services\Impl;
 
 use App\Models\BukuTabungan;
 use App\Models\Gudang;
+use App\Models\Pengeluaran;
 use App\Models\Setoran;
+use App\Models\TransaksiBongkarGudang;
 use App\Models\User;
 use App\Services\SetoranService;
 use Illuminate\Support\Facades\Auth;
@@ -34,8 +36,7 @@ class SetoranServiceImpl implements SetoranService
             try {
                 $totalSaldoSetoran = collect($cart)->sum(fn($c) => $c['harga'] * $c['berat']);
 
-                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])
-                ->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
+                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
                 $setoran = Setoran::create([
                     'penyetor_id' => $nasabah['id'],
                     'total_berat' => collect($cart)->sum('berat'),
@@ -76,8 +77,7 @@ class SetoranServiceImpl implements SetoranService
         if (!$parent) {
             return Setoran::with(['penyetor', 'bukutabungan.bank', 'items']);
         }
-        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])
-        ->whereHas('bukutabungan', function ($q) use ($unitId) {
+        return Setoran::with(['penyetor', 'bukutabungan.bank', 'items'])->whereHas('bukutabungan', function ($q) use ($unitId) {
             $q->where('bank_id', $unitId);
         });
     }
@@ -144,10 +144,8 @@ class SetoranServiceImpl implements SetoranService
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
-        $today = $this->setoranByAuthUser()
-        ->whereDate('created_at', $todayDate)->sum('total_saldo');
-        $yesterday = $this->setoranByAuthUser()
-        ->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
+        $today = $this->setoranByAuthUser()->whereDate('created_at', $todayDate)->sum('total_saldo');
+        $yesterday = $this->setoranByAuthUser()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
 
         return [
             'total' => $total,
@@ -159,8 +157,7 @@ class SetoranServiceImpl implements SetoranService
 
     public function getSetoranByAuthUser()
     {
-        return Setoran::with(['bukutabungan.bank', 'penyetor'])
-        ->where('penyetor_id', $this->checkUser()->id);
+        return Setoran::with(['bukutabungan.bank', 'penyetor'])->where('penyetor_id', $this->checkUser()->id);
     }
     public function getSetoranByUserByLimit()
     {
@@ -200,6 +197,24 @@ class SetoranServiceImpl implements SetoranService
         $total = $this->getGudangByUnit()->sum('berat');
         return [
             'total' => $total,
+        ];
+    }
+
+    public function pendapatanBersih()
+    {
+        $pendapatan = TransaksiBongkarGudang::sum('total_penarikan');
+        $pengeluaran = Pengeluaran::sum('total_penarikan');
+
+        $total = $pendapatan - $pengeluaran;
+        $todayDate = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
+        $today = TransaksiBongkarGudang::whereDate('created_at', $todayDate)->sum('total_penarikan');
+        $yesterday = Pengeluaran::whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+        return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
 }
