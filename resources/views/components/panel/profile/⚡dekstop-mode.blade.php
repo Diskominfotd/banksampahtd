@@ -18,7 +18,14 @@ new class extends Component {};
                         <div class="prof-card">
                             <div class="d-flex align-items-center gap-3 mb-4">
                                 <div class="avatar" style="width:56px;height:56px;font-size:20px">
-                                    {{ strtoupper(Auth::user()->initials()) }}</div>
+                                    @if (Auth::user()->avatar)
+                                        <img src="{{ Storage::url(Auth::user()->avatar) }}"
+                                            alt="{{ Auth::user()->name }}"
+                                            style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+                                    @else
+                                        {{ strtoupper(Auth::user()->initials()) }}
+                                    @endif
+                                </div>
                                 <div>
                                     <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700">
                                         {{ ucfirst(Auth::user()->name) }}

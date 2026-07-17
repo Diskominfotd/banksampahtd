@@ -18,8 +18,14 @@ new class extends Component {
         <div class="m-body" style="padding-top:16px">
             <div class="d-flex align-items-center gap-3 p-3 mb-4"
                 style="background:#fff;border:1px solid var(--border);border-radius:16px">
-                <div class="avatar" style="width:52px;height:52px;font-size:18px">
-                    {{ strtoupper(Auth::user()->initials()) }}</div>
+                <div class="avatar" style="width:52px;height:52px;font-size:18px;overflow:hidden;padding:0">
+                    @if (Auth::user()->avatar)
+                        <img src="{{ Storage::url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}"
+                            style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+                    @else
+                        {{ strtoupper(Auth::user()->initials()) }}
+                    @endif
+                </div>
                 <div class="flex-grow-1">
                     <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700">
                         {{ ucfirst(Auth::user()->name) }}</div>
@@ -92,6 +98,42 @@ new class extends Component {
                     style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                     <div class="spinner-border text-success"></div>
                 </div>
+
+                {{-- FOTO PROFILE --}}
+                <div class="d-flex flex-column align-items-center gap-2 mb-3">
+                    <div style="position:relative;width:90px;height:90px">
+                        @if ($fotoProfile)
+                            <img src="{{ $fotoProfile->temporaryUrl() }}"
+                                style="width:90px;height:90px;border-radius:50%;object-fit:cover;">
+                        @elseif ($fotoProfileLama)
+                            <img src="{{ Storage::url($fotoProfileLama) }}"
+                                style="width:90px;height:90px;border-radius:50%;object-fit:cover;">
+                        @else
+                            <div
+                                style="width:90px;height:90px;border-radius:50%;background:var(--bg-muted,#e9ecef);display:flex;align-items:center;justify-content:center">
+                                <i class="bi bi-person-fill" style="font-size:32px;color:var(--text-muted,#adb5bd)"></i>
+                            </div>
+                        @endif
+
+                        <label for="fotoProfileInput"
+                            style="position:absolute;bottom:0;right:0;width:30px;height:30px;border-radius:50%;background:var(--primary,#198754);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg-card,#fff)">
+                            <i class="bi bi-camera-fill" style="font-size:13px"></i>
+                        </label>
+                        <input type="file" id="fotoProfileInput" class="d-none" wire:model="fotoProfile"
+                            accept="image/*">
+                    </div>
+
+                    <div wire:loading wire:target="fotoProfile" style="font-size:12px;color:var(--text-muted,#6c757d)">
+                        <span class="spinner-border spinner-border-sm me-1" style="width:12px;height:12px"></span>
+                        Mengunggah...
+                    </div>
+
+                    @error('fotoProfile')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                {{-- END FOTO PROFILE --}}
+
                 <div class="f-group"><label>Nama Lengkap</label>
                     <input class="f-input" type="text" wire:model="namaLengkap">
                     @error('namaLengkap')

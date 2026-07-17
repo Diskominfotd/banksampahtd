@@ -55,7 +55,14 @@ new class extends Component {
             <div class="m-header">
                 <div class="m-topbar">
                     <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
-                        <div class="avatar avatar-md">{{ strtoupper(Auth::user()->initials()) }}</div>
+                        <div class="avatar avatar-md">
+                            @if (Auth::user()->avatar)
+                                <img src="{{ Storage::url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}"
+                                    style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+                            @else
+                                {{ strtoupper(Auth::user()->initials()) }}
+                            @endif
+                        </div>
                         <div>
                             <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat
                                 datang</strong>

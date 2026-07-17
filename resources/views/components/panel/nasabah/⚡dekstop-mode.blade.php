@@ -60,7 +60,13 @@ new class extends Component {
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="avatar" style="width:28px;height:28px;font-size:10px">
-                                                {{ strtoupper($nasabah->initials()) }}
+                                                @if ($nasabah->avatar)
+                                                    <img src="{{ Storage::url($nasabah->avatar) }}"
+                                                        alt="{{ $nasabah->name }}"
+                                                        style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+                                                @else
+                                                    {{ strtoupper($nasabah->initials()) }}
+                                                @endif
                                             </div>
                                             <div style="font-size:11px;font-weight:600">
                                                 {{ ucfirst($nasabah->name) ?? '-' }}
@@ -109,9 +115,9 @@ new class extends Component {
                             @endforeach
                         </tbody>
                     </table>
-                  <div class="mt-2">
-                      {{ $data['nasabah']->links() }}
-                  </div>
+                    <div class="mt-2">
+                        {{ $data['nasabah']->links() }}
+                    </div>
                 </div>
             </div>
         </div>

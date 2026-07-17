@@ -69,6 +69,7 @@ new class extends Component {
         $this->nik = $item->nik;
         $this->email = $item->email;
         $this->nomorTeleponNasabah = $item->nomor_hp;
+        $this->fotoProfileLama = $item->avatar;
     }
 
     public function editBankSampah()
@@ -113,6 +114,7 @@ new class extends Component {
             ],
             'email' => ['required', 'string'],
             'nomorTeleponNasabah' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
+            'fotoProfile' => ['nullable', 'image','max:2048'],
         ]);
 
         $this->userService->updateProfile(Auth::user()->id, [
@@ -120,8 +122,9 @@ new class extends Component {
             'email' => $this->email,
             'nomor_hp' => $this->nomorTeleponNasabah,
             'nik' => $this->nik,
+            'avatar' => $this->fotoProfile
         ]);
-        $this->reset(['namaLengkap', 'email', 'nomorTeleponNasabah', 'nik']);
+        $this->reset(['namaLengkap', 'email', 'nomorTeleponNasabah', 'nik','fotoProfile']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }

@@ -2,9 +2,7 @@
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
-new class extends Component {
-
-};
+new class extends Component {};
 ?>
 
 <div>
@@ -29,7 +27,12 @@ new class extends Component {
                 <div x-data="{ open: false }" class="position-relative">
                     <div class="avatar avatar-sm" @click="open = !open" @click.outside="open = false"
                         style="cursor: pointer; user-select: none;">
-                        {{ strtoupper(Auth::user()->initials()) }}
+                        @if (Auth::user()->avatar)
+                            <img src="{{ Storage::url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}"
+                                style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+                        @else
+                            {{ strtoupper(Auth::user()->initials()) }}
+                        @endif
                     </div>
 
                     <div x-show="open" x-transition

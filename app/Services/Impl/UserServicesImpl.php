@@ -12,6 +12,7 @@ use App\Services\UserServices;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Throwable;
 use Illuminate\Support\Str;
 
@@ -297,12 +298,22 @@ class UserServicesImpl implements UserServices
     {
         $hashedNik = hash('sha256', $data['nik']);
         $user = User::findOrFail($id);
+        $avatarPath = $user->avatar;
+        $folder = 'image/';
+        if (!empty($data['avatar']) && $data['avatar'] instanceof \Illuminate\Http\UploadedFile) {
+            if ($avatarPath && Storage::disk('public')->exists($avatarPath)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+            $filename = Str::uuid() . '.' . $data['avatar']->getClientOriginalExtension();
+            $avatarPath = $data['avatar']->storeAs($folder, $filename, 'public');
+        }
         $user->update([
             'nama' => $data['nama'],
             'email' => $data['email'],
             'nomor_hp' => $data['nomor_hp'],
             'nik' => $data['nik'],
             'nik_hash' => $hashedNik,
+            'avatar' => $avatarPath,
         ]);
         session()->flash('success', 'Behasil');
     }

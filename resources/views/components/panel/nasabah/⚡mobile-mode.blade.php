@@ -33,7 +33,12 @@ new class extends Component {
                     <div class="tx-card d-flex align-items-start gap-2 fade-up">
                         <div class="tx-ico" style="background:rgba(27,94,32,.10);color:var(--blue)">
                             <div class="avatar" style="width:36px;height:36px;font-size:12px;flex-shrink:0">
-                                {{ strtoupper($nasabah->initials()) }}
+                                @if ($nasabah->avatar)
+                                    <img src="{{ Storage::url($nasabah->avatar) }}" alt="{{ $nasabah->name }}"
+                                        style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+                                @else
+                                    {{ strtoupper($nasabah->initials()) }}
+                                @endif
                             </div>
                         </div>
                         <div class="flex-grow-1 overflow-hidden">
@@ -359,7 +364,7 @@ new class extends Component {
                     @enderror
                 </div>
                 <div class="f-group">
-                    <label>Unit - {{$namaUnitNasabah ?? '-'}}</label>
+                    <label>Unit - {{ $namaUnitNasabah ?? '-' }}</label>
 
                     <div x-data="{
                         search: '',
