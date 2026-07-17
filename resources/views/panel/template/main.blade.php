@@ -23,7 +23,7 @@
             --blue: #1b5e20;
             --orange: #e65100;
             --purple: #5c35a8;
-             --red: #d32f2f;
+            --red: #d32f2f;
             --red-10: rgba(211, 47, 47, .10);
             --yellow: #f57f17;
             --green: #2e7d32;
@@ -34,6 +34,27 @@
             --muted: rgba(20, 60, 30, .45);
             --dim: rgba(10, 50, 20, .70);
             --text-main: #0d2113;
+        }
+        /* Pengelola / admin bank sampah = biru */
+        body[data-role="admin"] {
+            --bg-deep: #f0f4f9;
+            --cyan: #1565c0;
+            --blue: #0d47a1;
+            --cyan-10: rgba(21, 101, 192, .10);
+            --cyan-bd: rgba(21, 101, 192, .35);
+            --border: rgba(21, 101, 192, .18);
+            --border-light: rgba(21, 101, 192, .10);
+        }
+
+        /* Admin dinas / super admin = ungu */
+        body[data-role="supervisor"] {
+            --bg-deep: #f4f0f9;
+            --cyan: #5c35a8;
+            --blue: #4527a0;
+            --cyan-10: rgba(92, 53, 168, .10);
+            --cyan-bd: rgba(92, 53, 168, .35);
+            --border: rgba(92, 53, 168, .18);
+            --border-light: rgba(92, 53, 168, .10);
         }
 
         *,
@@ -111,12 +132,12 @@
 
         .bs-green {
             background: rgba(46, 125, 50, .10);
-            color: var(--green);
+            color: var(--cyan);
         }
 
         .bs-purple {
             background: rgba(92, 53, 168, .10);
-            color: var(--purple);
+            color: var(--cyan);
         }
 
         .bs-orange {
@@ -228,7 +249,7 @@
 
         /* ── MOBILE HEADER ── */
         .m-header {
-            background: linear-gradient(160deg, #1b5e20 0%, #2e7d32 55%, #388e3c 100%);
+            background: linear-gradient(135deg, var(--cyan), #1b5e20);
             padding: 28px 20px 40px;
             position: relative;
             overflow: hidden;
@@ -1939,14 +1960,15 @@
             flex-direction: column;
         }
     </style>
-      <style>
+    <style>
         a {
             text-decoration: none;
         }
     </style>
 </head>
 
-<body class="is-mobile-layout">
+<body class="is-mobile-layout" data-role="{{ auth()->user()?->getRoleNames()->first() ?? 'nasabah' }}">
+    {{-- <body class="is-mobile-layout"> --}}
     @yield('content')
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -2024,7 +2046,6 @@
                 this.classList.add('active');
             });
         });
-
     </script>
 
 </body>

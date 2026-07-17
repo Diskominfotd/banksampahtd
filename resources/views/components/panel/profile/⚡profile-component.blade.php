@@ -5,9 +5,15 @@ use App\Services\UserServices;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Livewire\TraitComponent;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 new class extends Component {
+    use WithFileUploads;
     protected UserServices $userService;
     use TraitComponent;
+    public $fotoProfile; 
+    public $fotoProfileLama;
+    
     //unit properties
     public ?string $namaBank = '';
     public ?string $kodeBank = '';

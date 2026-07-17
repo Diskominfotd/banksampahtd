@@ -14,6 +14,12 @@ new class extends Component {
 
     public array $detailItems = [];
 
+    public $perPage = 10;
+
+    public function loadPerpage()
+    {
+        $this->perPage += 10;
+    }
     public function logout()
     {
         Auth::logout();
@@ -54,7 +60,7 @@ new class extends Component {
         if ($this->date) {
             $builder->whereDate('created_at', $this->date);
         }
-        $setoran = $builder->latest()->paginate(10);
+        $setoran = $builder->latest()->paginate($this->perPage);
         return [
             'setoran' => $setoran,
         ];
@@ -129,9 +135,16 @@ new class extends Component {
                 @endif
                 </tbody>
             </div>
-            <div class="mt-2">
-                {{ $data['setoran']->links() }}
-            </div>
+            @if ($data['setoran']->count() >= 10)
+                <button type="button" wire:click="loadPerpage"
+                    style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:var(--cyan);margin-top:8px;">
+                    <span wire:loading.remove wire:target="loadPerpage">Tampilkan lebih banyak</span>
+                    <span wire:loading wire:target="loadPerpage">
+                        <span class="spinner-border spinner-border-sm"
+                            style="width:12px;height:12px;border-width:1.5px;"></span>
+                    </span>
+                </button>
+            @endif
         </div>
         @include('components.⚡mobile-bottombar')
     </div>

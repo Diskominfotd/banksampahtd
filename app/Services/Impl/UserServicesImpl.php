@@ -72,7 +72,7 @@ class UserServicesImpl implements UserServices
         return DB::transaction(function () use ($data) {
             try {
                 $hashedNik = hash('sha256', $data['nik']);
-                User::create([
+                $user = User::create([
                     'nik' => $data['nik'],
                     'nik_hash' => $hashedNik,
                     'name' => $data['name'],
@@ -83,6 +83,7 @@ class UserServicesImpl implements UserServices
                     'bank_sampah_id' => $data['bank_sampah_id'],
                     'password' => Hash::make($data['password']),
                 ]);
+                $user->assignRole('nasabah');
                 session()->flash('success', 'Berhasil');
             } catch (Throwable $th) {
                 session()->flash('error', 'Terjadi Kesalahan');

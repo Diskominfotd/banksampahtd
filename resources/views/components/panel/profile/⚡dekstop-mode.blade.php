@@ -161,6 +161,43 @@ new class extends Component {};
                 <form wire:submit="editProfile">
                     <div class="w-modal-body">
                         <div class="d-flex flex-column gap-3">
+
+                            {{-- FOTO PROFILE --}}
+                            <div class="d-flex flex-column align-items-center gap-2">
+                                <div class="position-relative">
+                                    @if ($fotoProfile)
+                                        <img src="{{ $fotoProfile->temporaryUrl() }}" class="rounded-circle"
+                                            style="width:100px;height:100px;object-fit:cover;">
+                                    @elseif ($fotoProfileLama)
+                                        <img src="{{ Storage::url($fotoProfileLama) }}" class="rounded-circle"
+                                            style="width:100px;height:100px;object-fit:cover;">
+                                    @else
+                                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center"
+                                            style="width:100px;height:100px;">
+                                            <i class="bi bi-person-fill text-white fs-2"></i>
+                                        </div>
+                                    @endif
+
+                                    <label for="fotoProfileInput"
+                                        class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                        style="width:32px;height:32px;cursor:pointer;">
+                                        <i class="bi bi-camera-fill"></i>
+                                    </label>
+                                    <input type="file" id="fotoProfileInput" class="d-none"
+                                        wire:model="fotoProfile" accept="image/*">
+                                </div>
+
+                                <div wire:loading wire:target="fotoProfile" class="text-muted small">
+                                    <span class="spinner-border spinner-border-sm me-1"></span>
+                                    Mengunggah...
+                                </div>
+
+                                @error('fotoProfile')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                            {{-- END FOTO PROFILE --}}
+
                             <div>
                                 <label class="w-form-label">Nama Lengkap</label>
                                 <input class="w-form-input" type="text" wire:model="namaLengkap">

@@ -89,15 +89,20 @@ new class extends Component {
         }
         $this->validate(
             [
-                'selectedNasabah.*.jumlah' => 'required|numeric|min:10000',
+                'selectedNasabah.*.jumlah' => 'required|numeric|min:5000',
             ],
             [
-                'selectedNasabah.*.jumlah.min' => 'minimal Rp 10.000.',
+                'selectedNasabah.*.jumlah.min' => 'minimal Rp 50.000.',
             ],
         );
         foreach ($this->selectedNasabah as $i => $item) {
             if ($item['jumlah'] > $item['saldo']) {
                 $this->addError("selectedNasabah.{$i}.jumlah", 'Jumlah melebihi saldo.');
+                return;
+            }
+
+            if ($item['jumlah'] > $item['saldo'] - 5000) {
+                $this->addError("selectedNasabah.{$i}.jumlah", 'Saldo minimal yang harus tersisa adalah Rp 5.000.');
                 return;
             }
         }
