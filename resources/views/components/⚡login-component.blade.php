@@ -68,7 +68,7 @@ new class extends Component {
             <div class="brand-logo">
                 <img src="{{ asset('logotanahdatar.png') }}" alt="Logo" width="40" height="40">
             </div>
-            <div class="brand-name">B-Star</div>
+            <div class="brand-name">B-STAR</div>
             <p class="brand-tagline">
                 Platform pengelolaan bank sampah digital yang membantu memantau setoran, nasabah, dan laporan keuangan
                 secara real-time.
@@ -88,7 +88,7 @@ new class extends Component {
                 </div>
             </div>
             <div class="left-footer mt-auto">
-                © 2026 B-Star - Bank Sampah Tanah Datar Pintar · Kabupaten Tanah Datar
+                © 2026 B-STAR - Bank Sampah Tanah Datar Pintar · Kabupaten Tanah Datar
             </div>
         </div>
 
