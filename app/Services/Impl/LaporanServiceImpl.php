@@ -65,30 +65,41 @@ class LaporanServiceImpl implements LaporanService
         $auth = $this->checkUser();
         $unit = $auth->unit;
         $unitId = $unit->id;
+        $parent = $unit->parent_id;
+        $topNasabahQuery = User::query();
+        if ($parent) {
+            $topNasabahQuery
+                ->withCount([
+                    'setorans as setorans_count' => function ($q) use ($unitId) {
+                        $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
+                    },
+                ])
+                ->withSum(
+                    [
+                        'setorans as setorans_sum_total_berat' => function ($q) use ($unitId) {
+                            $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
+                        },
+                    ],
+                    'total_berat',
+                )
+                ->withSum(
+                    [
+                        'setorans as setorans_sum_total_saldo' => function ($q) use ($unitId) {
+                            $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
+                        },
+                    ],
+                    'total_saldo',
+                )->whereHas('bukutabungans', fn($q) => $q->where('bank_id', $unitId));
+                }
+             else {
+            $topNasabahQuery
+                ->withCount('setorans as setorans_count')
+                ->withSum('setorans as setorans_sum_total_berat', 'total_berat')
+                ->withSum('setorans as setorans_sum_total_saldo', 'total_saldo')
+                ->whereHas('bukutabungans');
+        }
 
-        $topNasabah = User::query()
-            ->withCount([
-                'setorans as setorans_count' => function ($q) use ($unitId) {
-                    $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
-                },
-            ])
-            ->withSum(
-                [
-                    'setorans as setorans_sum_total_berat' => function ($q) use ($unitId) {
-                        $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
-                    },
-                ],
-                'total_berat',
-            )
-            ->withSum(
-                [
-                    'setorans as setorans_sum_total_saldo' => function ($q) use ($unitId) {
-                        $q->whereHas('bukutabungan', fn($q2) => $q2->where('bank_id', $unitId));
-                    },
-                ],
-                'total_saldo',
-            )
-            ->whereHas('bukutabungans', fn($q) => $q->where('bank_id', $unitId))
+        $topNasabah = $topNasabahQuery
             ->having('setorans_sum_total_berat', '>', 0)
             ->orderByDesc('setorans_sum_total_berat')
             ->limit(5)

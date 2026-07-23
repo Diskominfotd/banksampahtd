@@ -21,9 +21,6 @@ new class extends Component {
                         </div>
                     </div>
                     <div class="d-flex gap-2">
-                        {{-- <button class="w-btn w-btn-ghost" style="font-size:11px">
-                            <i class="bi bi-download me-1"></i>Export
-                        </button> --}}
                         <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
                             data-bs-target="#wm-tambah-nasabah">
                             <i class="bi bi-person-plus me-1"></i>Tambah Nasabah
@@ -198,38 +195,42 @@ new class extends Component {
                             <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">Unit</label>
-                                    <div x-data="{
+                                    <div wire:key="unit-select-{{ $unitNasabah }}" x-data="{
                                         search: '',
                                         open: false,
-                                        selected: '',
-                                        selectedLabel: 'Pilih Unit',
+                                        selected: {{ Js::from($unitNasabah ?? '') }},
+                                        selectedLabel: {{ Js::from(collect($data['banksampah'])->firstWhere('id', $unitNasabah)['nama'] ?? 'Pilih Unit') }},
                                         all: {{ Js::from($data['banksampah']) }},
+                                        locked: {{ Js::from($lock ?? false) }},
                                         get filtered() {
                                             if (this.search === '') return this.all.slice(0, 10);
                                             return this.all.filter(o => o.nama.toLowerCase().includes(this.search.toLowerCase())).slice(0, 10);
                                         },
                                         select(id, label) {
+                                            if (this.locked) return;
                                             this.selected = id;
                                             this.selectedLabel = label;
                                             this.open = false;
                                             this.search = '';
                                             $wire.set('unit', id);
                                         }
-                                    }" x-on:click.outside="open = false"
-                                        class="position-relative">
+                                    }"
+                                        x-on:click.outside="open = false" class="position-relative">
 
                                         {{-- Trigger --}}
-                                        <button type="button" x-on:click="open = !open"
+                                        <button type="button" x-on:click="if (!locked) open = !open"
+                                            :disabled="locked"
                                             class="form-select text-start d-flex align-items-center justify-content-between w-100"
                                             style="height: 42px; border-radius: 8px; border: 1.5px solid #dee2e6; background: #fff; transition: border-color .2s;"
+                                            :class="locked ? 'bg-light' : ''"
                                             :style="open ?
                                                 'border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,.12);' :
-                                                ''">
+                                                (locked ? 'cursor: not-allowed; opacity: .75;' : '')">
                                             <span
                                                 :class="selected === '' ? 'text-muted' : 'text-dark fw-medium'"
                                                 style="font-size: 14px;" x-text="selectedLabel"></span>
                                             <i class="ti ti-chevron-down text-muted"
-                                                style="font-size: 15px; transition: transform .2s;"
+                                                style="font-size: 15px; transition: transform .2s;" x-show="!locked"
                                                 :style="open ? 'transform: rotate(180deg)' : ''"></i>
                                         </button>
 

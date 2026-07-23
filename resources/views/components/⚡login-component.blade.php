@@ -65,14 +65,23 @@ new class extends Component {
 
         <!-- ══ LEFT PANEL ══ -->
         <div class="left-panel">
-            <div class="brand-logo">
-                <img src="{{ asset('logotanahdatar.png') }}" alt="Logo" width="40" height="40">
+            <div class="brand-top">
+                <div>
+                    <div class="stat-chips">
+                        <div class="brand-logo">
+                            <img src="{{ asset('logotanahdatar.png') }}" alt="Logo" width="40" height="40">
+                        </div>
+                    </div>
+                    <div class="brand-name">B-STAR</div>
+                    <p class="brand-tagline">
+                        Platform pengelolaan bank sampah digital yang membantu memantau setoran, nasabah, dan laporan
+                        keuangan
+                        secara real-time.
+                    </p>
+                </div>
+                {{-- Ilustrasi versi desktop, otomatis disembunyikan di mobile lewat CSS --}}
+                <img src="{{ asset('bup.png') }}" alt="Ilustrasi" class="brand-illustration">
             </div>
-            <div class="brand-name">B-STAR</div>
-            <p class="brand-tagline">
-                Platform pengelolaan bank sampah digital yang membantu memantau setoran, nasabah, dan laporan keuangan
-                secara real-time.
-            </p>
             <div class="stat-chips">
                 <div class="stat-chip">
                     <div class="stat-chip-n">{{ $data['nasabah'] }}</div>

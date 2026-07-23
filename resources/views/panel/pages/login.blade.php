@@ -28,10 +28,15 @@
             --text-main: #0d2113;
         }
 
+        html,
+        body {
+            height: 100%;
+        }
+
         body {
             font-family: 'DM Sans', sans-serif;
             background: var(--bg-deep);
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         /* BG */
@@ -113,18 +118,30 @@
             position: relative;
             z-index: 1;
             display: flex;
-            height: 100vh;
+            min-height: 100vh;
             align-items: stretch;
         }
 
         /* LEFT */
         .left-panel {
             flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 48px 52px;
+            padding: clamp(32px, 4vw, 48px) clamp(28px, 4vw, 52px);
             color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-top {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
         }
 
         .brand-logo {
@@ -138,12 +155,13 @@
             justify-content: center;
             font-size: 26px;
             margin-bottom: 32px;
+            flex-shrink: 0;
             animation: fadeUp .5s ease both;
         }
 
         .brand-name {
             font-family: 'Syne', sans-serif;
-            font-size: 32px;
+            font-size: clamp(24px, 2.4vw, 32px);
             font-weight: 800;
             line-height: 1.15;
             letter-spacing: -1px;
@@ -164,6 +182,8 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
             animation: fadeUp .5s .20s ease both;
         }
 
@@ -172,7 +192,7 @@
             border: 1px solid rgba(255, 255, 255, .25);
             border-radius: 14px;
             padding: 12px 18px;
-            min-width: 110px;
+            min-width: clamp(88px, 10vw, 110px);
         }
 
         .stat-chip-n {
@@ -195,24 +215,48 @@
             margin-top: auto;
             font-size: 11px;
             color: rgba(255, 255, 255, .45);
+            position: relative;
+            z-index: 1;
             animation: fadeUp .5s .26s ease both;
+        }
+
+        /* Ilustrasi versi DESKTOP — nempel di panel kiri */
+        .brand-illustration {
+            position: absolute;
+            top: -10px;
+            right: 0;
+            width: clamp(200px, 26vw, 390px);
+            height: auto;
+            opacity: .95;
+            filter: drop-shadow(0 8px 20px rgba(0, 0, 0, .25));
+            pointer-events: none;
+            z-index: 0;
+            padding: 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .14);
+            border: 1px solid rgba(255, 255, 255, .25);
+            box-sizing: border-box;
+        }
+
+        /* Ilustrasi versi MOBILE dimatikan — di layar kecil foto tidak ditampilkan sama sekali */
+        .brand-illustration-mobile {
+            display: none !important;
         }
 
         /* RIGHT */
         .right-panel {
-            width: 460px;
+            width: clamp(380px, 34vw, 460px);
             flex-shrink: 0;
             background: #fff;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 52px 44px;
+            padding: clamp(36px, 5vw, 52px) clamp(28px, 4vw, 44px);
             box-shadow: -8px 0 40px rgba(0, 0, 0, .18);
             overflow-y: auto;
             animation: slideIn .5s .1s ease both;
         }
 
-        /* Override Bootstrap form colours to match green theme */
         .form-control:focus,
         .form-select:focus {
             border-color: var(--cyan);
@@ -266,7 +310,6 @@
             border-color: var(--cyan);
         }
 
-        /* Eyebrow / titles */
         .form-eyebrow {
             font-size: 10px;
             font-weight: 700;
@@ -303,7 +346,6 @@
             color: var(--cyan);
         }
 
-        /* Success state */
         .success-state {
             display: none;
             flex-direction: column;
@@ -391,33 +433,40 @@
             }
         }
 
-        @media (max-width:768px) {
+        /* ===== Tablet & bawah: stack panel ===== */
+        @media (max-width: 991.98px) {
             body {
-                overflow: auto;
+                overflow-x: hidden;
+                overflow-y: auto;
             }
 
             .login-wrap {
                 flex-direction: column;
-                height: auto;
                 min-height: 100vh;
             }
 
             .left-panel {
-                padding: 36px 24px 32px;
+                padding: 36px 24px 24px;
                 flex: none;
             }
 
-            .brand-name {
-                font-size: 24px;
+            .brand-top {
+                align-items: center !important;
+                text-align: center;
             }
 
-            .stat-chip {
-                padding: 10px 14px;
-                min-width: 90px;
+            /* ilustrasi disembunyikan total di layar sempit */
+            .brand-illustration {
+                display: none;
             }
 
-            .stat-chip-n {
-                font-size: 18px;
+            .brand-tagline {
+                max-width: 100%;
+                margin: 0 auto 20px;
+            }
+
+            .stat-chips {
+                justify-content: center;
             }
 
             .left-footer {
@@ -426,13 +475,30 @@
 
             .right-panel {
                 width: 100%;
+                flex: 1 1 auto;
                 box-shadow: none;
                 border-top: 1px solid var(--border);
                 border-radius: 24px 24px 0 0;
-                padding: 32px 24px 40px;
+                padding: 28px 24px 40px;
                 margin-top: -20px;
                 z-index: 2;
                 position: relative;
+            }
+        }
+
+        /* ===== HP kecil ===== */
+        @media (max-width: 420px) {
+            .brand-name {
+                font-size: 22px;
+            }
+
+            .stat-chip {
+                padding: 10px 14px;
+                min-width: 84px;
+            }
+
+            .stat-chip-n {
+                font-size: 18px;
             }
         }
     </style>

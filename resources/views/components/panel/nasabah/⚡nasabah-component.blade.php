@@ -52,14 +52,23 @@ new class extends Component {
     public array $bukuTabungan = [];
     public int $unitBukuTabungan;
 
+    public bool $lock = false;
+    
     public function logout()
     {
         Auth::logout();
-
         session()->invalidate();
         session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+    public function mount()
+    {
+        $user = Auth::user();
+        if ($user->hasRole('admin')) {
+            $this->unitNasabah = $user->bank_sampah_id;
+            $this->lock = true;
+        }
     }
     public function loadPerpage()
     {

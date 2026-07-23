@@ -35,6 +35,7 @@
             --dim: rgba(10, 50, 20, .70);
             --text-main: #0d2113;
         }
+
         /* Pengelola / admin bank sampah = biru */
         body[data-role="admin"] {
             --bg-deep: #f0f4f9;
@@ -44,18 +45,30 @@
             --cyan-bd: rgba(21, 101, 192, .35);
             --border: rgba(21, 101, 192, .18);
             --border-light: rgba(21, 101, 192, .10);
+
+            .bs-ok {
+                background: rgba(46, 125, 50, .12);
+                color: #1565c0;
+            }
         }
 
-        /* Admin dinas / super admin = ungu */
         body[data-role="supervisor"] {
-            --bg-deep: #f4f0f9;
-            --cyan: #5c35a8;
-            --blue: #4527a0;
-            --cyan-10: rgba(92, 53, 168, .10);
-            --cyan-bd: rgba(92, 53, 168, .35);
-            --border: rgba(92, 53, 168, .18);
-            --border-light: rgba(92, 53, 168, .10);
+            --bg-deep: #ffffff;
+            --cyan: #6d28d9;
+            --blue: #5b21b6;
+            --cyan-10: #f3effc;
+            --cyan-bd: #c4b0e8;
+            --border: #e4dcf5;
+            --border-light: #eee8fa;
+
+            .bs-ok {
+                background: rgba(46, 125, 50, .12);
+                color: #6d28d9;
+            }
+
         }
+
+
 
         *,
         *::before,
