@@ -53,18 +53,18 @@
         }
 
         body[data-role="supervisor"] {
-            --bg-deep: #ffffff;
-            --cyan: #6d28d9;
-            --blue: #5b21b6;
-            --cyan-10: #f3effc;
-            --cyan-bd: #c4b0e8;
-            --border: #e4dcf5;
-            --border-light: #eee8fa;
+              --bg-deep: #ffffff;
+    --cyan: #45A9A9;
+    --blue: #2E8B8B;
+    --cyan-10: #eafbfa;
+    --cyan-bd: #98E8DE;
+    --border: #d5f2ee;
+    --border-light: #e8f9f6;
 
-            .bs-ok {
-                background: rgba(46, 125, 50, .12);
-                color: #6d28d9;
-            }
+    .bs-ok {
+        background: rgba(69, 169, 169, .12);
+        color: #45A9A9;
+    }
 
         }
 
