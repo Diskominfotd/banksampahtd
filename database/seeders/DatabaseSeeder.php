@@ -44,7 +44,7 @@ class DatabaseSeeder extends Seeder
             'jenis' => 'induk',
             'alamat' => 'Jl. Sudirman No. 1',
             'telepon' => '081234567890',
-            'kode_bank' => 'IDK',
+            'kode_bank' => 'IDK-001',
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
         ]);
@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
             'parent_id' => $induk->id,
             'alamat' => 'Jl. Darling No. 2',
             'telepon' => '081234567891',
-            'kode_bank' => 'DRI',
+            'kode_bank' => 'DRI-001',
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
         ]);

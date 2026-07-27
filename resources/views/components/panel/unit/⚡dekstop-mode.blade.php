@@ -93,6 +93,7 @@ new class extends Component {
                                         for (let i = 0; i < 3; i++) {
                                             hasil += huruf.charAt(Math.floor(Math.random() * huruf.length));
                                         }
+                                        hasil += '-';
                                         for (let i = 0; i < 3; i++) {
                                             hasil += angka.charAt(Math.floor(Math.random() * angka.length));
                                         }
@@ -103,9 +104,9 @@ new class extends Component {
                                 })">
                                     <label class="w-form-label">Kode Unit</label>
                                     <div class="d-flex gap-2">
-                                        <input class="w-form-input" type="text" x-model="kode" maxlength="6"
-                                            placeholder="ABC123" style="text-transform: uppercase;"
-                                            @input="kode = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
+                                        <input class="w-form-input" type="text" x-model="kode" maxlength="7"
+                                            placeholder="ABC-123" style="text-transform: uppercase;"
+                                            @input="kode = $event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')"
                                             disabled>
                                         <button type="button" class="btn-tx" @click="generateKode()"
                                             title="Generate Kode">
