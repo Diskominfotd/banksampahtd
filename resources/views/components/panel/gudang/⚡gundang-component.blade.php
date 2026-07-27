@@ -111,13 +111,13 @@ new class extends Component {
         $pengeluaran = $this->transaksiService
             ->getPengeluaran()
             ->latest()
-            ->paginate($this->pagePgn, ['*'], 'pgnPage'); // <- pageName unik
+            ->paginate($this->pagePgn, ['*'], 'pgnPage');
         $totalStokGudang = $this->setoranService->totalBeratSetoran();
         $totalPenarikanSaldoNasabah = $this->transaksiService->totalPengeluaranByUnit();
         $trx = $this->transaksiService
             ->getTrxGudang()
             ->latest()
-            ->paginate($this->pageTrx, ['*'], 'trxPage'); // <- pageName unik
+            ->paginate($this->pageTrx, ['*'], 'trxPage');
         $totalPendapatan = $this->transaksiService->totalPendapatan();
         $pendapatanbersih = $this->setoranService->pendapatanBersih();
 

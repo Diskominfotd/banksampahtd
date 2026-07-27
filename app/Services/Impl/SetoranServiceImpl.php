@@ -202,10 +202,20 @@ class SetoranServiceImpl implements SetoranService
 
     public function pendapatanBersih()
     {
-        $pendapatan = TransaksiBongkarGudang::sum('total_penarikan');
-        $pengeluaran = Pengeluaran::sum('total_penarikan');
-
-        $total = $pendapatan - $pengeluaran;
+        $auth = $this->checkUser();
+        $parent = $auth->unit->parent_id;
+        $unitId = $auth->unit->id;
+        $pendapatan = TransaksiBongkarGudang::with('gudang');
+        $pengeluaran = Pengeluaran::with('gudang');
+        if ($parent) {
+            $pendapatan->whereHas('gudang', function ($q) use ($unitId) {
+                $q->where('bank_id', $unitId);
+            });
+            $pengeluaran->whereHas('gudang', function ($q) use ($unitId) {
+                $q->where('bank_id', $unitId);
+            });
+        }
+        $total = $pendapatan->sum('total_penarikan') - $pengeluaran->sum('total_penarikan');
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
         $today = TransaksiBongkarGudang::whereDate('created_at', $todayDate)->sum('total_penarikan');

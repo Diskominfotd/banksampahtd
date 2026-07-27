@@ -44,7 +44,7 @@ new class extends Component {
                                 $barColor = match (true) {
                                     $persen < 50 => 'var(--red)',
                                     $persen < 75 => 'var(--orange)',
-                                    default => 'var(--green)',
+                                      default => 'var(--cyan)',
                                 };
                             @endphp
                             <div class="w-bar">
@@ -83,7 +83,7 @@ new class extends Component {
                                 $barColor = match (true) {
                                     $persen < 50 => 'var(--red)',
                                     $persen < 75 => 'var(--orange)',
-                                    default => 'var(--green)',
+                                     default => 'var(--cyan)',
                                 };
                             @endphp
                             <div class="w-bar">
@@ -122,7 +122,7 @@ new class extends Component {
                                 $barColor = match (true) {
                                     $persen < 50 => 'var(--red)',
                                     $persen < 75 => 'var(--orange)',
-                                    default => 'var(--green)',
+                                     default => 'var(--cyan)',
                                 };
                             @endphp
 
@@ -162,7 +162,7 @@ new class extends Component {
                                 $barColor = match (true) {
                                     $persen < 50 => 'var(--red)',
                                     $persen < 75 => 'var(--orange)',
-                                    default => 'var(--green)',
+                                    default => 'var(--cyan)',
                                 };
                             @endphp
 
@@ -477,7 +477,6 @@ new class extends Component {
                         </div>
                     </div>
                 @endif
-
             </div>
         </div>
     </div>
