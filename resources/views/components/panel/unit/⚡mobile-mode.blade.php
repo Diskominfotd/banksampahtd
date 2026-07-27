@@ -86,18 +86,21 @@ new class extends Component {
                     for (let i = 0; i < 3; i++) {
                         hasil += huruf.charAt(Math.floor(Math.random() * huruf.length));
                     }
+                    hasil += '-';
                     for (let i = 0; i < 3; i++) {
                         hasil += angka.charAt(Math.floor(Math.random() * angka.length));
                     }
                     this.kode = hasil;
                 }
-            }"x-init="$watch('$store.sheet.active', val => {
-                if (val === 'tambah-unit') generateKode();
+            }" x-init="document.getElementById('wm-tambah-unit').addEventListener('show.bs.modal', () => {
+                generateKode();
             })">
                 <label>Kode Unit</label>
                 <div class="d-flex gap-2">
                     <input class="f-input" type="text" wire:model="kode" x-model="kode" maxlength="6"
-                        placeholder="ABC123">
+                         placeholder="ABC-123" style="text-transform: uppercase;"
+                                            @input="kode = $event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')"
+                                            disabled>
                     <button type="button" class="btn btn-success" @click="generateKode()" title="Generate Kode">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
@@ -179,7 +182,7 @@ new class extends Component {
                 style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                 <div class="spinner-border text-success"></div>
             </div>
-            <div class="f-group" x-data="{
+            {{-- <div class="f-group" x-data="{
                 kodeUnit: @entangle('kodeUnit'),
                 generateKode() {
                     const huruf = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -205,7 +208,7 @@ new class extends Component {
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-            </div>
+            </div> --}}
             <div class="f-group">
                 <label>Nama</label>
                 <input class="f-input" type="text" wire:model="namaUnit" placeholder="ex : Bank Unit Satu">
