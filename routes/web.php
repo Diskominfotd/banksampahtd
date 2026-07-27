@@ -8,6 +8,14 @@ use App\Http\Middleware\MultiLevel;
 use Illuminate\Support\Facades\Route;
 
 // Route::middleware(['throttle:global'])->group(function () {
+// taruh sementara di routes/web.php paling atas
+Route::get('/debug-scheme', function () {
+    return [
+        'scheme' => request()->getScheme(),
+        'secure' => request()->isSecure(),
+        'x_fwd_proto' => request()->header('X-Forwarded-Proto'),
+    ];
+});
 Route::get('/login', [PanelController::class, 'login'])->name('login');
 Route::middleware(Authenticate::class)->group(function (): void {
     Route::get('/', [PanelController::class, 'home'])->name('home');
