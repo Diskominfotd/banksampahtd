@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Http\Controllers\CustomLivewireController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 class LivewireOverrideServiceProvider extends ServiceProvider
 {
@@ -15,8 +16,8 @@ class LivewireOverrideServiceProvider extends ServiceProvider
 
     public function overrideRoutes(): void
     {
-        Route::post('/livewire/upload-file', [CustomLivewireController::class, 'handle'])
-            ->name('livewire.upload-file')
-            ->middleware('web');
+        Livewire::setUploadRoute(function ($handle) {
+            return Route::post('/livewire/upload-file', [CustomLivewireController::class, 'handle'])->middleware(['web']);
+        });
     }
 }
