@@ -108,6 +108,11 @@ class UserServicesImpl implements UserServices
                     'organisasi_id' => $data['organisasi_id'] ?? null,
                     'bank_sampah_id' => $data['bank_sampah_id'],
                 ]);
+                if ($data['is_admin']) {
+                    $user->syncRoles('admin');
+                } else {
+                    $user->syncRoles('nasabah');
+                }
                 session()->flash('success', 'Berhasil');
             } catch (Throwable $th) {
                 session()->flash('error', 'Terjadi Kesalahan');

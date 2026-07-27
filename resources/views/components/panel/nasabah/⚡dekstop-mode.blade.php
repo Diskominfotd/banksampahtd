@@ -333,6 +333,218 @@ new class extends Component {
         </div>
     </div>
 
+    {{-- ======= MODAL DESKTOP: EDIT NASABAH ======= --}}
+    <div wire:ignore.self class="modal fade" id="wm-edit-nasabah" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Edit Nasabah {{ $nasabahId }}</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <form wire:submit="editNasabah">
+                    <div class="w-modal-body">
+                        <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
+                            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                            <div class="spinner-border text-success"></div>
+                        </div>
+                        <div class="d-flex flex-column gap-3">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">Nama Lengkap / Nama Usaha</label>
+                                    <input class="w-form-input" type="text" wire:model="namaNasabah">
+                                    @error('namaNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">NIK</label>
+                                    <input class="w-form-input" type="text" wire:model="nikNasabah"
+                                        placeholder="16 digit NIK KTP" maxlength="16">
+                                    @error('nikNasabah')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">Email</label>
+                                    <input class="w-form-input" type="email" wire:model="emailNasabah">
+                                    @error('emailNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">Jenis Nasabah</label>
+                                    <select class="w-form-input" wire:model.live="jenisNasabah">
+                                        <option value="perorangan">Perorangan</option>
+                                        <option value="kelompok">Kelompok</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">Organisasi</label>
+                                    <select class="w-form-input" wire:model="organisasiNasabah"
+                                        @disabled($jenisNasabah === 'perorangan')>
+                                        <option value="">Pilih Organisasi</option>
+                                        @foreach ($data['organisasi'] as $org)
+                                            <option value="{{ $org->id }}">{{ $org->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('editOrganisasi')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">Unit - {{ $namaUnitNasabah ?? '-' }}</label>
+                                    <div x-data="{
+                                        search: '',
+                                        open: false,
+                                        selected: $wire.entangle('unitNasabah'),
+                                        selectedLabel: 'Pilih Unit',
+                                        all: {{ Js::from($data['banksampah']) }},
+                                        locked: {{ Js::from($lock ?? false) }},
+                                        init() {
+                                            if (this.selected) {
+                                                const found = this.all.find(o => o.id == this.selected);
+                                                if (found) this.selectedLabel = found.nama;
+                                            }
+                                        },
+                                        get filtered() {
+                                            if (this.search === '') return this.all.slice(0, 10);
+                                            return this.all.filter(o => o.nama.toLowerCase().includes(this.search.toLowerCase())).slice(0, 10);
+                                        },
+                                        select(id, label) {
+                                            this.selected = id;
+                                            this.selectedLabel = label;
+                                            this.open = false;
+                                            this.search = '';
+                                            $wire.set('unit', id);
+                                        }
+                                    }" x-on:click.outside="open = false"
+                                        class="position-relative">
+
+                                        {{-- Trigger --}}
+                                        <button type="button" x-on:click="if (!locked) open = !open"
+                                            :disabled="locked"
+                                            class="form-select text-start d-flex align-items-center justify-content-between w-100"
+                                            style="height: 42px; border-radius: 8px; border: 1.5px solid #dee2e6; background: #fff; transition: border-color .2s;"
+                                            :class="locked ? 'bg-light' : ''"
+                                            :style="open ?
+                                                'border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,.12);' :
+                                                (locked ? 'cursor: not-allowed; opacity: .75;' : '')">
+                                            <span
+                                                :class="selected === '' ? 'text-muted' : 'text-dark fw-medium'"
+                                                style="font-size: 14px;" x-text="selectedLabel"></span>
+                                            <i class="ti ti-chevron-down text-muted"
+                                                style="font-size: 15px; transition: transform .2s;" x-show="!locked"
+                                                :style="open ? 'transform: rotate(180deg)' : ''"></i>
+                                        </button>
+
+                                        {{-- Dropdown (ke ATAS) --}}
+                                        <div x-show="open" x-transition:enter="transition ease-out duration-150"
+                                            x-transition:enter-start="opacity-0 translate-y-1"
+                                            x-transition:enter-end="opacity-100 translate-y-0"
+                                            x-transition:leave="transition ease-in duration-100"
+                                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                                            style="position: absolute; bottom: calc(100% + 6px); left: 0; right: 0; z-index: 1050;
+                                            background: #fff; border: 1.5px solid #dee2e6;
+                                            border-radius: 10px; overflow: hidden;
+                                            box-shadow: 0 -4px 24px rgba(0,0,0,.08), 0 -1px 6px rgba(0,0,0,.04);">
+
+                                            {{-- Search box --}}
+                                            <div style="padding: 10px 10px 6px;">
+                                                <div class="position-relative">
+                                                    <i class="bi bi-search position-absolute text-muted"
+                                                        style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 15px;"></i>
+                                                    <input type="text" x-model="search" x-on:click.stop
+                                                        placeholder="Cari unit..." class="form-control"
+                                                        style="padding-left: 34px; font-size: 13px; border-radius: 6px;
+                                                        border: 1.5px solid #e9ecef; background: #f8f9fa; height: 36px;">
+                                                </div>
+                                            </div>
+
+                                            <div style="height: 1px; background: #f0f0f0; margin: 0 10px;"></div>
+
+                                            {{-- Options --}}
+                                            <div style="max-height: 180px; overflow-y: auto; padding: 6px;">
+                                                <template x-if="filtered.length === 0">
+                                                    <div class="text-center text-muted py-3" style="font-size: 13px;">
+                                                        <i class="bi bi-inbox d-block mb-1"
+                                                            style="font-size: 22px;"></i>
+                                                        Tidak ditemukan
+                                                    </div>
+                                                </template>
+                                                <template x-for="option in filtered" :key="option.id">
+                                                    <div x-on:click="select(option.id, option.nama)"
+                                                        style="padding: 8px 10px; font-size: 13px; border-radius: 6px;
+                                                        cursor: pointer; transition: background .15s; display: flex;
+                                                        align-items: center; justify-content: space-between;"
+                                                        :style="selected == option.id ?
+                                                            'background: #e7f0ff; color: #0d6efd; font-weight: 500;' :
+                                                            'color: #212529;'"
+                                                        x-on:mouseenter="if(selected != option.id) $el.style.background = '#f8f9fa'"
+                                                        x-on:mouseleave="if(selected != option.id) $el.style.background = 'transparent'">
+                                                        <span x-text="option.nama"></span>
+                                                        <i class="ti ti-check" style="font-size: 14px;"
+                                                            x-show="selected == option.id"></i>
+                                                    </div>
+                                                </template>
+                                            </div>
+
+                                            {{-- Footer count --}}
+                                            <div style="padding: 6px 12px 8px; border-top: 1px solid #f0f0f0;">
+                                                <small class="text-muted" style="font-size: 11px;"
+                                                    x-text="`Menampilkan ${filtered.length} dari ${all.length} unit`"></small>
+                                            </div>
+                                        </div>
+
+                                        <input type="hidden" wire:model="unitNasabah" :value="selected">
+                                    </div>
+
+                                    @error('unitNasabah')
+                                        <small class="text-danger mt-1 d-block">
+                                            <i class="ti ti-alert-circle me-1"></i>{{ $message }}
+                                        </small>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <label class="w-form-label">No. HP</label>
+                                    <input class="w-form-input" type="tel" wire:model="nomorHpNasabah">
+                                    @error('nomorHpNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">Jadikan Admin</label>
+                                    <div class="d-flex align-items-center" style="height: 42px;">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch"
+                                                wire:model.live="isAdmin" id="checkIsAdmin" style="cursor:pointer;">
+                                            <label class="form-check-label" for="checkIsAdmin"
+                                                style="font-size:13px;">
+                                                <span x-text="$wire.isAdmin ? 'Ya' : 'Tidak'"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-modal-footer">
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="editNasabah">
+                            <span wire:loading.remove wire:target="editNasabah">Simpan</span>
+                            <span wire:loading wire:target="editNasabah">Loading...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     {{-- ======= MODAL DESKTOP: DETAIL NASABAH ======= --}}
     <div wire:ignore.self class="modal fade" id="wm-detail-nasabah" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -415,202 +627,6 @@ new class extends Component {
                         Buat Penarikan
                     </button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ======= MODAL DESKTOP: EDIT NASABAH ======= --}}
-    <div wire:ignore.self class="modal fade" id="wm-edit-nasabah" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content w-modal">
-                <div class="w-modal-header">
-                    <div class="w-modal-title">Edit Nasabah {{ $unitNasabah }}</div>
-                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
-                </div>
-                <form wire:submit="editNasabah">
-                    <div class="w-modal-body">
-                        <div wire:loading.flex wire:target="detail" class="justify-content-center align-items-center"
-                            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
-                            <div class="spinner-border text-success"></div>
-                        </div>
-                        <div class="d-flex flex-column gap-3">
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="w-form-label">Nama Lengkap / Nama Usaha</label>
-                                    <input class="w-form-input" type="text" wire:model="namaNasabah">
-                                    @error('namaNasabah')
-                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-6">
-                                    <label class="w-form-label">NIK</label>
-                                    <input class="w-form-input" type="text" wire:model="nikNasabah"
-                                        placeholder="16 digit NIK KTP" maxlength="16">
-                                    @error('nikNasabah')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="w-form-label">Email</label>
-                                    <input class="w-form-input" type="email" wire:model="emailNasabah">
-                                    @error('emailNasabah')
-                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-6">
-                                    <label class="w-form-label">Jenis Nasabah</label>
-                                    <select class="w-form-input" wire:model.live="jenisNasabah">
-                                        <option value="perorangan">Perorangan</option>
-                                        <option value="kelompok">Kelompok</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="w-form-label">Organisasi</label>
-                                    <select class="w-form-input" wire:model="organisasiNasabah"
-                                        @disabled($jenisNasabah === 'perorangan')>
-                                        <option value="">Pilih Organisasi</option>
-                                        @foreach ($data['organisasi'] as $org)
-                                            <option value="{{ $org->id }}">{{ $org->nama }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('editOrganisasi')
-                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-6">
-                                    <label class="w-form-label">Unit - {{ $namaUnitNasabah ?? '-' }}</label>
-                                    <div x-data="{
-                                        search: '',
-                                        open: false,
-                                        selected: $wire.entangle('unitNasabah'),
-                                        selectedLabel: 'Pilih Unit',
-                                        all: {{ Js::from($data['banksampah']) }},
-                                        init() {
-                                            if (this.selected) {
-                                                const found = this.all.find(o => o.id == this.selected);
-                                                if (found) this.selectedLabel = found.nama;
-                                            }
-                                        },
-                                        get filtered() {
-                                            if (this.search === '') return this.all.slice(0, 10);
-                                            return this.all.filter(o => o.nama.toLowerCase().includes(this.search.toLowerCase())).slice(0, 10);
-                                        },
-                                        select(id, label) {
-                                            this.selected = id;
-                                            this.selectedLabel = label;
-                                            this.open = false;
-                                            this.search = '';
-                                            $wire.set('unit', id);
-                                        }
-                                    }" x-on:click.outside="open = false"
-                                        class="position-relative">
-
-                                        {{-- Trigger --}}
-                                        <button type="button" x-on:click="open = !open"
-                                            class="form-select text-start d-flex align-items-center justify-content-between w-100"
-                                            style="height: 42px; border-radius: 8px; border: 1.5px solid #dee2e6; background: #fff; transition: border-color .2s;"
-                                            :style="open ?
-                                                'border-color: #0d6efd; box-shadow: 0 0 0 3px rgba(13,110,253,.12);' :
-                                                ''">
-                                            <span
-                                                :class="selected === '' ? 'text-muted' : 'text-dark fw-medium'"
-                                                style="font-size: 14px;" x-text="selectedLabel"></span>
-                                            <i class="ti ti-chevron-down text-muted"
-                                                style="font-size: 15px; transition: transform .2s;"
-                                                :style="open ? 'transform: rotate(180deg)' : ''"></i>
-                                        </button>
-
-                                        {{-- Dropdown (ke ATAS) --}}
-                                        <div x-show="open" x-transition:enter="transition ease-out duration-150"
-                                            x-transition:enter-start="opacity-0 translate-y-1"
-                                            x-transition:enter-end="opacity-100 translate-y-0"
-                                            x-transition:leave="transition ease-in duration-100"
-                                            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-                                            style="position: absolute; bottom: calc(100% + 6px); left: 0; right: 0; z-index: 1050;
-                                            background: #fff; border: 1.5px solid #dee2e6;
-                                            border-radius: 10px; overflow: hidden;
-                                            box-shadow: 0 -4px 24px rgba(0,0,0,.08), 0 -1px 6px rgba(0,0,0,.04);">
-
-                                            {{-- Search box --}}
-                                            <div style="padding: 10px 10px 6px;">
-                                                <div class="position-relative">
-                                                    <i class="bi bi-search position-absolute text-muted"
-                                                        style="left: 10px; top: 50%; transform: translateY(-50%); font-size: 15px;"></i>
-                                                    <input type="text" x-model="search" x-on:click.stop
-                                                        placeholder="Cari unit..." class="form-control"
-                                                        style="padding-left: 34px; font-size: 13px; border-radius: 6px;
-                                                        border: 1.5px solid #e9ecef; background: #f8f9fa; height: 36px;">
-                                                </div>
-                                            </div>
-
-                                            <div style="height: 1px; background: #f0f0f0; margin: 0 10px;"></div>
-
-                                            {{-- Options --}}
-                                            <div style="max-height: 180px; overflow-y: auto; padding: 6px;">
-                                                <template x-if="filtered.length === 0">
-                                                    <div class="text-center text-muted py-3" style="font-size: 13px;">
-                                                        <i class="bi bi-inbox d-block mb-1"
-                                                            style="font-size: 22px;"></i>
-                                                        Tidak ditemukan
-                                                    </div>
-                                                </template>
-                                                <template x-for="option in filtered" :key="option.id">
-                                                    <div x-on:click="select(option.id, option.nama)"
-                                                        style="padding: 8px 10px; font-size: 13px; border-radius: 6px;
-                                                        cursor: pointer; transition: background .15s; display: flex;
-                                                        align-items: center; justify-content: space-between;"
-                                                        :style="selected == option.id ?
-                                                            'background: #e7f0ff; color: #0d6efd; font-weight: 500;' :
-                                                            'color: #212529;'"
-                                                        x-on:mouseenter="if(selected != option.id) $el.style.background = '#f8f9fa'"
-                                                        x-on:mouseleave="if(selected != option.id) $el.style.background = 'transparent'">
-                                                        <span x-text="option.nama"></span>
-                                                        <i class="ti ti-check" style="font-size: 14px;"
-                                                            x-show="selected == option.id"></i>
-                                                    </div>
-                                                </template>
-                                            </div>
-
-                                            {{-- Footer count --}}
-                                            <div style="padding: 6px 12px 8px; border-top: 1px solid #f0f0f0;">
-                                                <small class="text-muted" style="font-size: 11px;"
-                                                    x-text="`Menampilkan ${filtered.length} dari ${all.length} unit`"></small>
-                                            </div>
-                                        </div>
-
-                                        <input type="hidden" wire:model="unitNasabah" :value="selected">
-                                    </div>
-
-                                    @error('unitNasabah')
-                                        <small class="text-danger mt-1 d-block">
-                                            <i class="ti ti-alert-circle me-1"></i>{{ $message }}
-                                        </small>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-6">
-                                    <label class="w-form-label">No. HP</label>
-                                    <input class="w-form-input" type="tel" wire:model="nomorHpNasabah">
-                                    @error('nomorHpNasabah')
-                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="w-modal-footer">
-                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
-                            wire:target="editNasabah">
-                            <span wire:loading.remove wire:target="editNasabah">Simpan</span>
-                            <span wire:loading wire:target="editNasabah">Loading...</span>
-                        </button>
-                    </div>
-                </form>
             </div>
         </div>
     </div>

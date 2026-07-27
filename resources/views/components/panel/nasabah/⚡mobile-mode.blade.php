@@ -165,9 +165,10 @@ new class extends Component {
                     <div x-data="{
                         search: '',
                         open: false,
-                        selected: '',
-                        selectedLabel: 'Pilih Unit',
+                        selected: {{ Js::from($unitNasabah ?? '') }},
+                        selectedLabel: {{ Js::from(collect($data['banksampah'])->firstWhere('id', $unitNasabah)['nama'] ?? 'Pilih Unit') }},
                         all: {{ Js::from($data['banksampah']) }},
+                        locked: {{ Js::from($lock ?? false) }},
                         get filtered() {
                             if (this.search === '') return this.all.slice(0, 10);
                             return this.all.filter(o => o.nama.toLowerCase().includes(this.search.toLowerCase())).slice(0, 10);
@@ -182,13 +183,13 @@ new class extends Component {
                     }" x-on:click.outside="open = false" class="position-relative">
 
                         {{-- Trigger --}}
-                        <button type="button" x-on:click="open = !open"
+                        <button type="button" x-on:click="!locked && (open = !open)" :disabled="locked"
                             class="f-input d-flex align-items-center justify-content-between w-100 text-start"
-                            style="cursor: pointer;">
+                            :class="locked ? 'locked-input' : ''" style="cursor: pointer;">
                             <span x-text="selectedLabel" :class="selected === '' ? 'text-muted' : ''"></span>
-                            <i class="bi bi-chevron-down"
+                            <i class="bi" :class="locked ? 'bi-lock-fill' : 'bi-chevron-down'"
                                 style="font-size: 15px; transition: transform .2s; flex-shrink: 0;"
-                                :style="open ? 'transform: rotate(180deg)' : ''"></i>
+                                :style="open && !locked ? 'transform: rotate(180deg)' : ''"></i>
                         </button>
 
                         {{-- Dropdown --}}
@@ -372,6 +373,7 @@ new class extends Component {
                         selected: $wire.entangle('unitNasabah'),
                         selectedLabel: 'Pilih Unit',
                         all: {{ Js::from($data['banksampah']) }},
+                        locked: {{ Js::from($lock ?? false) }},
                         get filtered() {
                             if (this.search === '') return this.all.slice(0, 10);
                             return this.all.filter(o => o.nama.toLowerCase().includes(this.search.toLowerCase())).slice(0, 10);
@@ -386,13 +388,13 @@ new class extends Component {
                     }" x-on:click.outside="open = false" class="position-relative">
 
                         {{-- Trigger --}}
-                        <button type="button" x-on:click="open = !open"
+                        <button type="button" x-on:click="!locked && (open = !open)" :disabled="locked"
                             class="f-input d-flex align-items-center justify-content-between w-100 text-start"
-                            style="cursor: pointer;">
+                            :class="locked ? 'locked-input' : ''" style="cursor: pointer;">
                             <span x-text="selectedLabel" :class="selected === '' ? 'text-muted' : ''"></span>
-                            <i class="ti ti-chevron-down"
+                            <i class="bi" :class="locked ? 'bi-lock-fill' : 'bi-chevron-down'"
                                 style="font-size: 15px; transition: transform .2s; flex-shrink: 0;"
-                                :style="open ? 'transform: rotate(180deg)' : ''"></i>
+                                :style="open && !locked ? 'transform: rotate(180deg)' : ''"></i>
                         </button>
 
                         {{-- Dropdown --}}
@@ -459,6 +461,18 @@ new class extends Component {
                             <i class="ti ti-alert-circle me-1"></i>{{ $message }}
                         </small>
                     @enderror
+                </div>
+                <div class="f-group">
+                    <label class="w-form-label">Jadikan Admin</label>
+                    <div class="d-flex align-items-center" style="height: 42px;">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" wire:model.live="isAdmin"
+                                id="checkIsAdmin" style="cursor:pointer;">
+                            <label class="form-check-label" for="checkIsAdmin" style="font-size:13px;">
+                                <span x-text="$wire.isAdmin ? 'Ya' : 'Tidak'"></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <div class="d-flex gap-2 mt-2">
                     <button type="button" class="btn-outline w-100" @click="$store.sheet.hide()">

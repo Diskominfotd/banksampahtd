@@ -334,10 +334,9 @@ class DatabaseSeeder extends Seeder
             'Nadea Annisa',
         ];
 
-        $nikStart = 1234567890123501;
+       $nikStart = 1234567890124000;
         $hpStart = 8120001001;
-
-        foreach ($names as $index => $name) {
+            foreach ($names as $index => $name) {
             $nik = (string) ($nikStart + $index);
             $hp = '0' . ($hpStart + $index);
 
@@ -350,7 +349,7 @@ class DatabaseSeeder extends Seeder
                 'nomor_hp' => $hp,
                 'bank_sampah_id' => 2,
             ]);
-            $exists = BukuTabungan::where('user_id', $user->id)->where('bank_id', $nasabah->bank_sampah_id)->exists();
+
             $bank = BankSampah::findOrFail(2);
             do {
                 $nomorRekening = $bank->kode_bank . '-' . str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);

@@ -30,7 +30,7 @@ new class extends Component {
     public ?int $unit = null;
 
     // Properti detail nasabah
-    public string $nasabahId;
+    public int $nasabahId;
     public ?string $namaNasabah = '';
     public ?string $nikNasabah = '';
     public ?string $nomorHpNasabah = '';
@@ -48,12 +48,13 @@ new class extends Component {
     public ?string $tglLastWd = '';
     public ?string $userId = '';
     public ?string $namaUnitNasabah = '';
+    public bool $isAdmin = false;
 
     public array $bukuTabungan = [];
     public int $unitBukuTabungan;
 
     public bool $lock = false;
-    
+
     public function logout()
     {
         Auth::logout();
@@ -118,6 +119,7 @@ new class extends Component {
             : 'Tidak Ada';
         $this->userId = $user->id;
         $this->namaUnitNasabah = $user->unit->nama;
+       $this->isAdmin = $user->hasRole('admin');
     }
 
     public function editNasabah()
@@ -149,6 +151,7 @@ new class extends Component {
             'mewakili' => $this->jenisNasabah,
             'organisasi_id' => $this->organisasiNasabah,
             'bank_sampah_id' => $this->unitNasabah,
+            'is_admin' => $this->isAdmin,
         ]);
         $this->reset(['namaNasabah', 'nikNasabah', 'nomorHpNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'unitNasabah']);
         $this->dispatch('close-modal');
@@ -230,16 +233,19 @@ new class extends Component {
         $user = $this->userService->userBuilder();
         $nasabahQuery = $user->with(['organisasi', 'bukutabungans', 'setorans']);
 
-        if ($this->keyword) {
-            $nasabahQuery
-                ->where('name', 'like', "%{$this->keyword}%")
-                ->orWhereHas('unit', function ($q) {
-                    $q->where('nama', 'like', "%{$this->keyword}%");
+      if ($this->keyword) {
+    $nasabahQuery
+        ->where(function ($q) {
+            $q->where('name', 'like', "%{$this->keyword}%")
+                ->orWhere('nik_hash', hash('sha256', $this->keyword))
+                ->orWhereHas('unit', function ($q2) {
+                    $q2->where('nama', 'like', "%{$this->keyword}%");
                 })
-                ->orWhereHas('bukutabungans', function ($q) {
-                    $q->where('nomor_rekening', 'like', "%{$this->keyword}%");
+                ->orWhereHas('bukutabungans', function ($q2) {
+                    $q2->where('nomor_rekening', 'like', "%{$this->keyword}%");
                 });
-        }
+        });
+}
 
         if ($parent) {
             $nasabahQuery
