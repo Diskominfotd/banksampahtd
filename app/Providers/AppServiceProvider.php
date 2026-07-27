@@ -3,9 +3,11 @@
 namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Carbon\CarbonImmutable;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,8 +26,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Request::macro('hasValidSignature', function ($absolute = true) {
+            $uploading = strpos(URL::current(), '/livewire/upload-file');
+            $previewing = strpos(URL::current(), '/livewire/preview-file');
+            if ($uploading || $previewing) {
+                return true;
+            }
+        });
         if (config('app.env') === 'production') {
-            \URL::forceScheme('https');
+            URL::forceScheme('https');
         }
         Carbon::setLocale(config('app.locale'));
         app()->setLocale(config('app.locale'));
