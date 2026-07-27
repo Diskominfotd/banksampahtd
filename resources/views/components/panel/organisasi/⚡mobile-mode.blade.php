@@ -80,7 +80,7 @@ new class extends Component {
         <form wire:submit="createOrganisasi">
             <div class="f-group">
                 <label>Nama</label>
-                <input class="f-input" type="text" wire:model="nama" placeholder="Ormas..">
+                <input class="f-input" type="text" wire:model="nama" placeholder="Organisasi...">
                 @error('nama')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
@@ -126,7 +126,7 @@ new class extends Component {
             </div>
             <div class="f-group">
                 <label>Nama</label>
-                <input class="f-input" type="text" wire:model="namaOrganisasi" placeholder="Ormas..">
+                <input class="f-input" type="text" wire:model="namaOrganisasi" placeholder="Organisasi...">
                 @error('namaOrganisasi')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
