@@ -42,6 +42,11 @@ new class extends Component {
         $setoranId = decrypt($setoranId);
         $item = $this->setoranService->getSetoranByIdNasabah($setoranId);
         $this->detailItems = $item->toArray();
+        // dd(json_encode($this->detailItems, JSON_PRETTY_PRINT));
+    }
+    
+    public function editSetoran() {
+
     }
 
     public function getData()
@@ -308,6 +313,13 @@ new class extends Component {
                                                 data-bs-toggle="modal" data-bs-target="#wm-detail-setoran">
                                                 <i class="bi bi-eye-fill"></i>
                                             </button>
+
+                                            <button wire:click="detailSetoran('{{ encrypt($st->id) }}')"
+                                                class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                                data-bs-toggle="modal" data-bs-target="#wm-edit-setoran">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+
                                         </td>
                                     </tr>
                                 @endforeach
@@ -390,6 +402,93 @@ new class extends Component {
                     </table>
                 </div>
                 <div class="w-modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- ======= MODAL DESKTOP: FORM EDIT Setoran ======= --}}
+    <div wire:ignore.self class="modal fade" id="wm-edit-setoran" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Edit Setoran - {{ $detailItems['kode'] ?? 'STR-XXX-XXX-XXX' }}</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <div class="w-modal-body" style="position:relative">
+                    <div wire:loading.flex wire:target="detailSetoran,updateBerat,simpanSetoran"
+                        class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
+                    </div>
+
+                    <form wire:submit.prevent="simpanSetoran">
+                        <table class="w-tbl">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Jenis Sampah</th>
+                                    <th>Harga</th>
+                                    <th style="width:130px">Berat</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($detailItems['items'] ?? [] as $index => $di)
+                                    <tr wire:key="setoran-item-{{ $index }}">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td style="font-size:11px;font-weight:600">
+                                            {{ $di['trash']['nama'] }}
+                                        </td>
+                                        <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
+                                        <td>
+                                            <div class="input-group input-group-sm">
+                                                <input type="number" step="0.1" min="0"
+                                                    class="form-control @error("detailItems.items.$index.berat") is-invalid @enderror"
+                                                    wire:model.live.debounce.400ms="detailItems.items.{{ $index }}.berat"
+                                                    wire:change="hitungSubtotal({{ $index }})">
+                                                <span class="input-group-text">KG</span>
+                                            </div>
+                                            @error("detailItems.items.$index.berat")
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </td>
+                                        <td>
+                                            Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3"><strong>Total</strong></td>
+                                    <td>
+                                        <strong>
+                                            {{ number_format($detailItems['total_berat'] ?? 0, 1, ',', '.') }}
+                                            KG
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <strong>
+                                            Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="5">
+                                        Petugas -
+                                        <strong>{{ ucfirst(data_get($detailItems, 'admin.name', '-')) }}</strong>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </form>
+                </div>
+                <div class="w-modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-success" wire:click="simpanSetoran"
+                        wire:loading.attr="disabled" wire:target="simpanSetoran">
+                        Simpan Perubahan
+                    </button>
                 </div>
             </div>
         </div>

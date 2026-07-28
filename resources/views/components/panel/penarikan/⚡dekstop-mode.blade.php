@@ -121,7 +121,7 @@ new class extends Component {
                 </div>
                 <div class="px-3 py-2 border-bottom">
                     <input type="text" wire:model.live="searchNasabah" class="form-control form-control-sm"
-                        placeholder="Cari nama atau unit..." />
+                        placeholder="Cari Nomor Rekening..." />
                 </div>
                 <div wire:loading.flex wire:target="getNasabah" class="justify-content-center align-items-center"
                     style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">

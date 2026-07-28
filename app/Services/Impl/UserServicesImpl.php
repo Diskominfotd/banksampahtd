@@ -313,7 +313,7 @@ class UserServicesImpl implements UserServices
             $avatarPath = $data['avatar']->storeAs($folder, $filename, 'public');
         }
         $user->update([
-            'nama' => $data['nama'],
+            'name' => $data['nama'],
             'email' => $data['email'],
             'nomor_hp' => $data['nomor_hp'],
             'nik' => $data['nik'],

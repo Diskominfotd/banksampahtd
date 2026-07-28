@@ -19,4 +19,5 @@ interface SetoranService
     public function totalStokGudang();
     public function getGudangByUnit();
     public function pendapatanBersih();
+    public function editSetoran(int $setoranId, array $data);
 }

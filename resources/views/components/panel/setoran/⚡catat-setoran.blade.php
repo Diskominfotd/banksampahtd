@@ -7,6 +7,7 @@ use App\Models\Price;
 use App\Models\BankSampah;
 use Livewire\WithPagination;
 use App\Livewire\TraitComponent;
+use Illuminate\Support\Facades\Auth;
 
 new class extends Component {
     use WithPagination;
@@ -67,15 +68,18 @@ new class extends Component {
     }
     public function getNasabah()
     {
+        $unit = Auth::user();
         $builder = $this->userService->getUserByUnitAndBook();
         if ($this->searchNasabah) {
-            $builder->where(function ($q) {
-                $q->where('name', 'like', "%{$this->searchNasabah}%")->orWhereHas('bukutabungans', function ($q) {
+            $builder->where(function ($q) use ($unit) {
+                $q->whereHas('bukutabungans', function ($q) use ($unit) {
                     $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%");
+                    if ($unit->unit->parent_id) {
+                        $q->where('bank_id', $unit->unit->id);
+                    }
                 });
             });
         }
-
         $data = $builder->latest()->paginate($this->pageNasabah);
         $this->nasabah = $data->items();
     }

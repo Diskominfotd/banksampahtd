@@ -119,7 +119,7 @@ new class extends Component {
             : 'Tidak Ada';
         $this->userId = $user->id;
         $this->namaUnitNasabah = $user->unit->nama;
-       $this->isAdmin = $user->hasRole('admin');
+        $this->isAdmin = $user->hasRole('admin');
     }
 
     public function editNasabah()
@@ -233,27 +233,31 @@ new class extends Component {
         $user = $this->userService->userBuilder();
         $nasabahQuery = $user->with(['organisasi', 'bukutabungans', 'setorans']);
 
-      if ($this->keyword) {
-    $nasabahQuery
-        ->where(function ($q) {
-            $q->where('name', 'like', "%{$this->keyword}%")
-                ->orWhere('nik_hash', hash('sha256', $this->keyword))
-                ->orWhereHas('unit', function ($q2) {
-                    $q2->where('nama', 'like', "%{$this->keyword}%");
-                })
-                ->orWhereHas('bukutabungans', function ($q2) {
-                    $q2->where('nomor_rekening', 'like', "%{$this->keyword}%");
-                });
-        });
-}
-
+        if ($this->keyword) {
+            $nasabahQuery->where(function ($q) {
+                $q->where('name', 'like', "%{$this->keyword}%")
+                    ->orWhere('nik_hash', hash('sha256', $this->keyword))
+                    ->orWhereHas('unit', function ($q2) {
+                        $q2->where('nama', 'like', "%{$this->keyword}%");
+                    })
+                    ->orWhereHas('bukutabungans', function ($q2) {
+                        $q2->where('nomor_rekening', 'like', "%{$this->keyword}%");
+                    });
+            });
+        }
         if ($parent) {
             $nasabahQuery
                 ->whereDoesntHave('roles', function ($q) {
-                    $q->whereIn('name', ['supervisor']);
+                    $q->whereIn('name', ['supervisor', 'admin']);
                 })
-                ->whereHas('unit', function ($q) use ($unit) {
-                    $q->where('id', $unit);
+                ->where(function ($query) use ($unit) {
+                    $query
+                        ->whereHas('unit', function ($q) use ($unit) {
+                            $q->where('id', $unit);
+                        })
+                        ->orWhereHas('bukutabungans', function ($q) use ($unit) {
+                            $q->where('bank_id', $unit);
+                        });
                 });
         }
         $nasabah = $nasabahQuery->latest()->paginate($this->perPage);
