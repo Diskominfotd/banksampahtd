@@ -14,6 +14,11 @@ new class extends Component {
     public ?string $date = '';
     public $itemTrxDetail = null;
 
+    public string $trxId;
+    public string $trxKode;
+    public int $jumlah;
+    public int $saldo;
+
     public function logout()
     {
         Auth::logout();
@@ -44,6 +49,31 @@ new class extends Component {
         $this->itemTrxDetail = $item;
     }
 
+    public function editTrxDetail($id)
+    {
+        $id = decrypt($id);
+        $item = $this->transaksiService->trxDetail($id);
+        $this->trxId = $item->id;
+        $this->jumlah = $item->total_penarikan;
+        $this->trxKode = $item->kode;
+        $this->saldo = $item->sisa_saldo;
+    }
+
+    public function editTrx()
+    {
+        $this->validate([
+            'jumlah' => 'required|numeric|min:50000',
+        ]);
+
+        if ($this->jumlah > $this->saldo - 5000) {
+            $this->addError('jumlah', 'Saldo minimal yang harus tersisa adalah Rp 5.000');
+            return;
+        }
+        $this->transaksiService->trxEdit($this->trxId, [
+            'total_penarikan' => $this->jumlah,
+        ]);
+    }
+
     public function getData()
     {
         $builder = $this->transaksiService->getTransaksis();
@@ -60,9 +90,9 @@ new class extends Component {
         if ($this->date) {
             $builder->whereDate('created_at', $this->date);
         }
-        $nasabah = $builder->latest()->paginate($this->perPage);
+        $trx = $builder->latest()->paginate($this->perPage);
         return [
-            'nasabah' => $nasabah,
+            'trx' => $trx,
         ];
     }
 };
@@ -106,31 +136,31 @@ new class extends Component {
         </div>
         <div class="m-body">
             <div class="d-flex flex-column gap-2 mt-2">
-                @forelse ($data['nasabah'] as $index => $nasabah)
+                @forelse ($data['trx'] as $index => $trx)
                     @php
-                        $bukutabungan = $nasabah->owner->bukutabungans->first();
+                        $bukutabungan = $trx->owner->bukutabungans->first();
                     @endphp
-                    <div class="list-item fade-up" wire:click="trxDetail('{{ encrypt($nasabah->id) }}')"
+                    <div class="list-item fade-up" wire:click="trxDetail('{{ encrypt($trx->id) }}')"
                         @click="$store.sheet.show('detail-trx-id')">
 
                         <span class="list-num">{{ $index + 1 }}</span>
                         <div class="list-ico ic1"><i class="bi bi-cash" style="font-size:12px"></i></div>
                         <div class="list-main">
                             <div class="list-name">
-                                {{ ucfirst($nasabah->owner->name) }} —
+                                {{ ucfirst($trx->owner->name) }} —
                                 {{ $bukutabungan?->nomor_rekening ?? '-' }}
                             </div>
                             <div class="list-sub">
                                 {{ $bukutabungan?->bank?->nama ?? '-' }} ·
-                                {{ $nasabah->tanggal_transaksi->diffForHumans() }}
+                                {{ $trx->tanggal_transaksi->diffForHumans() }}
                             </div>
                             <div class="list-sub">
-                                <b>Sisa - Rp {{ number_format($nasabah->sisa_saldo ?? 0, 0, ',', '.') }}</b>
+                                <b>Sisa - Rp {{ number_format($trx->sisa_saldo ?? 0, 0, ',', '.') }}</b>
                             </div>
                         </div>
 
                         <span class="bs bs-green" style="cursor:pointer" onclick="openDetail('m-detail-setoran')">
-                            Rp {{ number_format($nasabah->total_penarikan ?? 0, 0, ',', '.') }}
+                            Rp {{ number_format($trx->total_penarikan ?? 0, 0, ',', '.') }}
                         </span>
                     </div>
                 @empty
@@ -140,7 +170,7 @@ new class extends Component {
                     </div>
                 @endforelse
             </div>
-            @if (count($data['nasabah']) >= 10)
+            @if (count($data['trx']) >= 10)
                 <button type="button" wire:click="loadMore"
                     style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
                     <span wire:loading.remove wire:target="loadMore">Tampilkan lebih banyak</span>
@@ -174,7 +204,7 @@ new class extends Component {
         </div>
         <div class="f-group"><label>Keyword</label>
             <input class="f-input" type="text" wire:model.live="keyword"
-                placeholder="Cari no rekening, nama nasabah..."P>
+                placeholder="Cari no rekening, nama trx..."P>
         </div>
         <div class="f-group"><label>Tanggal</label>
             <input class="f-input" type="date" wire:model.live="date">
@@ -215,7 +245,7 @@ new class extends Component {
                 </div>
                 <div class="detail-field"><span class="df-key">No. Transaksi</span><span
                         class="df-val">{{ $itemTrxDetail->kode ?? '-' }}</span></div>
-                <div class="detail-field"><span class="df-key">Nasabah</span>
+                <div class="detail-field"><span class="df-key">trx</span>
                     <span class="df-val">{{ ucfirst($itemTrxDetail->owner->name) }}</span>
                 </div>
                 <div class="detail-field"><span class="df-key">Sisa Saldo</span><span class="df-val">
@@ -264,7 +294,7 @@ new class extends Component {
                         <div class="w-search flex-grow-1">
                             <i class="bi bi-search si"></i>
                             <input type="text" wire:model.live="keyword"
-                                placeholder="Cari rekening atau nama nasabah..." style="width:100%">
+                                placeholder="Cari rekening atau nama trx..." style="width:100%">
                         </div>
                         <div class="d-flex gap-1">
                             <input class="w-form-input" type="date" wire:model.live='date' />
@@ -285,26 +315,33 @@ new class extends Component {
                             </tr>
                         </thead>
                         <tbody>
-                            @if (count($data['nasabah']) > 0)
-                                @foreach ($data['nasabah'] as $index => $nasabah)
+                            @if (count($data['trx']) > 0)
+                                @foreach ($data['trx'] as $index => $trx)
                                     <tr>
                                         <td style="font-size:10px;color:var(--muted)">{{ $index + 1 }}</td>
-                                        <td style="font-size:10px;color:var(--muted)">{{ $nasabah->kode }}</td>
-                                        <td style="font-weight:600">{{ ucfirst($nasabah->owner->name) }}</td>
+                                        <td style="font-size:10px;color:var(--muted)">{{ $trx->kode }}</td>
+                                        <td style="font-weight:600">{{ ucfirst($trx->owner->name) }}</td>
                                         <td><span class="bs bs-ok">
-                                                {{ $nasabah->owner->bukutabungans->first()->nomor_rekening }}
+                                                {{ $trx->owner->bukutabungans->first()->nomor_rekening }}
                                             </span>
                                         </td>
-                                        <td>Rp {{ number_format($nasabah->total_penarikan ?? 0, 0, ',', '.') }}</td>
-                                        <td>Rp {{ number_format($nasabah->sisa_saldo ?? 0, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($trx->total_penarikan ?? 0, 0, ',', '.') }}</td>
+                                        <td>Rp {{ number_format($trx->sisa_saldo ?? 0, 0, ',', '.') }}</td>
                                         <td style="font-size:10px;color:var(--muted)">
-                                            {{ $nasabah->owner->bukutabungans->first()->bank->nama }}
+                                            {{ $trx->owner->bukutabungans->first()->bank->nama }}
                                         </td>
                                         <td style="font-size:10px;color:var(--muted)">
-                                            {{ $nasabah->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
+                                            {{ $trx->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
                                         </td>
                                         <td style="font-size:10px;color:var(--muted)">
-                                            {{ ucfirst($nasabah->admin->name) ?? '-' }}
+                                            {{ ucfirst($trx->admin->name) ?? '-' }}
+                                        </td>
+                                        <td>
+                                            <button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                                wire:click="editTrxDetail('{{ encrypt($trx->id) }}')"
+                                                data-bs-toggle="modal" data-bs-target="#wm-edit-trx">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -321,10 +358,86 @@ new class extends Component {
                         </tbody>
                     </table>
                     <div class="mt-2">
-                        {{ $data['nasabah']->links() }}
+                        {{ $data['trx']->links() }}
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    {{-- ======= MODAL DESKTOP: FORM EDIT Setoran ======= --}}
+    <div wire:ignore.self class="modal fade" id="wm-edit-trx" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Edit Trx - {{ $trxKode ?? 'TRX-XXX-XXX-XX' }}
+                    </div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <div class="w-modal-body" style="position:relative">
+                    <div wire:loading.flex wire:target="detailEdit,hitungSubtotal,editSetoran"
+                        class="justify-content-center align-items-center"
+                        style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                        <div class="spinner-border text-success"></div>
+                    </div>
+
+                    <form wire:submit.prevent="simpanSetoran">
+                        <table class="w-tbl">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Kode</th>
+                                    <th style="width:300px">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-size:10px;color:var(--muted)">
+                                        1
+                                    </td>
+                                    <td style="font-size:10px;color:var(--muted)">
+                                        {{ $trxKode ?? '-' }}
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text">Rp</span>
+                                            <input type="text" inputmode="numeric"
+                                                class="form-control @error('jumlah') is-invalid @enderror"
+                                                placeholder="0" x-data="{ display: '' }" x-init="display = @js($jumlah ?? '') ? Number(@js($jumlah ?? 0)).toLocaleString('id-ID') : ''"
+                                                x-model="display"
+                                                x-on:input="
+                                                    let raw = $event.target.value.replace(/\D/g,'');
+                                                    display = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                                                    $wire.set('jumlah', raw)
+                                                ">
+                                            @error('jumlah')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+                <div class="w-modal-footer">
+                    <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
+                        wire:loading.attr="disabled" wire:target="editSetoran">Batal</button>
+
+                    <button type="button" wire:click="editTrx" class="w-btn w-btn-primary"
+                        wire:loading.attr="disabled" wire:target="editTrx">
+                        <span wire:loading.remove wire:target="editSetoran">Simpan Perubahan</span>
+                        <span wire:loading wire:target="editTrx">Loading...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @script
+        <script>
+            $wire.on('close-modal', () => {
+                $('#wm-pilih-nasabah').modal('hide');
+                Alpine.store('sheet').hide();
+            });
+        </script>
+    @endscript
 </div>

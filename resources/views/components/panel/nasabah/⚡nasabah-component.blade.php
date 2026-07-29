@@ -270,8 +270,9 @@ new class extends Component {
         ];
     }
     #[On('doDelete')]
-    public function delete()
+    public function delete(string $userId)
     {
+        $this->userId = decrypt($userId);
         $this->userService->deleteUser($this->userId);
         $this->alert();
     }

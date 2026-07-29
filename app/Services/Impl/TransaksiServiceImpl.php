@@ -5,6 +5,7 @@ use App\Models\BankSampah;
 use App\Models\BukuTabungan;
 use App\Models\Gudang;
 use App\Models\Pengeluaran;
+use App\Models\Setoran;
 use App\Models\Transaksi;
 use App\Models\TransaksiBongkarGudang;
 use App\Services\TransaksiService;
@@ -188,11 +189,9 @@ class TransaksiServiceImpl implements TransaksiService
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
-        $today = $this->getTrxGudang()
-        ->whereDate('created_at', $todayDate)->sum('total_penarikan');
+        $today = $this->getTrxGudang()->whereDate('created_at', $todayDate)->sum('total_penarikan');
 
-        $yesterday = $this->getTrxGudang()
-        ->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+        $yesterday = $this->getTrxGudang()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
 
         return [
             'total' => $total,
@@ -204,13 +203,13 @@ class TransaksiServiceImpl implements TransaksiService
 
     public function getPengeluaran()
     {
-        return Pengeluaran::with('admin')
-        ->where('gudang_id', $this->checkUser()->unit->gudang->id);
+        return Pengeluaran::with('admin')->where('gudang_id', $this->checkUser()->unit->gudang->id);
     }
 
-    public function getPengeluaranByGudang(){
+    public function getPengeluaranByGudang()
+    {
         $gudang = $this->checkUser()->unit->gudang->id;
-        return Pengeluaran::where('gudang_id',$gudang);
+        return Pengeluaran::where('gudang_id', $gudang);
     }
 
     public function totalPengeluaranByUnit()
@@ -219,18 +218,15 @@ class TransaksiServiceImpl implements TransaksiService
         $todayDate = now()->startOfDay();
         $yesterdayDate = now()->subDay()->startOfDay();
 
-        $today = $this->getPengeluaranByGudang()
-        ->whereDate('created_at', $todayDate)->sum('total_penarikan');
-        $yesterday = $this->getPengeluaranByGudang()
-        ->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+        $today = $this->getPengeluaranByGudang()->whereDate('created_at', $todayDate)->sum('total_penarikan');
+        $yesterday = $this->getPengeluaranByGudang()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
 
-         return [
+        return [
             'total' => $total,
             'today' => $today,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
-
     }
     public function buatPengeluaran(array $data)
     {
@@ -247,7 +243,60 @@ class TransaksiServiceImpl implements TransaksiService
     }
     public function pengeluaranById(int $id)
     {
-        return Pengeluaran::with('admin')
-        ->where('id', $id)->first();
+        return Pengeluaran::with('admin')->where('id', $id)->first();
+    }
+
+    public function trxDetail(int $trxId)
+    {
+        $transaksi = Transaksi::with('bukutabungan')->where('id', $trxId)->first();
+        return $transaksi;
+    }
+
+  public function trxEdit(int $trxId, array $data)
+{
+    return DB::transaction(function () use ($trxId, $data) {
+        $transaksi = Transaksi::where('id', $trxId)->lockForUpdate()->first();
+
+        $transaksi->update([
+            'total_penarikan' => $data['total_penarikan'],
+        ]);
+
+        $this->recalcBukuTabungan($transaksi->buku_tabungan_id);
+    });
+}
+
+    private function recalcBukuTabungan(int $bukuTabunganId): float
+    {
+        $penarikan = Transaksi::where('buku_tabungan_id', $bukuTabunganId)->get()->map(
+            fn($t) => (object) [
+                'id' => $t->id,
+                'tanggal' => $t->tanggal_transaksi,
+                'jumlah' => -$t->total_penarikan,
+                'tipe' => 'penarikan',
+            ],
+        );
+
+        $setoran = Setoran::where('buku_tabungan_id', $bukuTabunganId)->get()->map(
+            fn($s) => (object) [
+                'id' => $s->id,
+                'tanggal' => $s->tanggal,
+                'jumlah' => $s->total_saldo,
+                'tipe' => 'setoran',
+            ],
+        );
+
+        $ledger = $penarikan->concat($setoran)->sortBy([['tanggal', 'asc'], ['id', 'asc']]);
+
+        $saldoBerjalan = 0;
+        foreach ($ledger as $entry) {
+            $saldoBerjalan += $entry->jumlah;
+            if ($entry->tipe === 'penarikan') {
+                Transaksi::where('id', $entry->id)->update(['sisa_saldo' => $saldoBerjalan]);
+            }
+        }
+
+        BukuTabungan::where('id', $bukuTabunganId)->update(['saldo' => $saldoBerjalan]);
+
+        return $saldoBerjalan;
     }
 }

@@ -21,4 +21,6 @@ interface TransaksiService
     public function buatPengeluaran(array $data);
     public function pengeluaranById(int $id);
     public function totalPengeluaranByUnit();
+    public function trxDetail(int $trxId);
+    public function trxEdit(int $trxId, array $data);
 }

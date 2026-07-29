@@ -3,18 +3,21 @@
 use Livewire\Component;
 use App\Services\SetoranService;
 use Livewire\WithPagination;
+use App\Livewire\TraitComponent;
+use Livewire\Attributes\On;
 
 new class extends Component {
     use WithPagination;
-
+    use TraitComponent;
     protected SetoranService $setoranService;
 
     public ?string $keyword = '';
     public ?string $date = '';
-
     public array $detailItems = [];
-
     public $perPage = 10;
+    public array $editItems = [];
+
+    public int $setoranId;
 
     public function loadPerpage()
     {
@@ -37,16 +40,86 @@ new class extends Component {
     {
         return redirect()->route($route);
     }
+    public function hitungSubtotal(int $index): void
+    {
+        $berat = (float) ($this->detailItems['items'][$index]['berat'] ?? 0);
+        $harga = (float) ($this->detailItems['items'][$index]['harga'] ?? 0);
+        $this->detailItems['items'][$index]['sub_total'] = $berat * $harga;
+
+        $this->detailItems['total_berat'] = collect($this->detailItems['items'])->sum('berat');
+        $this->detailItems['total_saldo'] = collect($this->detailItems['items'])->sum('sub_total');
+    }
+    public function updatedDetailItems($value, $key)
+    {
+        if (str_ends_with($key, '.berat')) {
+            preg_match('/items\.(\d+)\.berat/', $key, $m);
+            if (isset($m[1])) {
+                $index = (int) $m[1];
+                $berat = $this->detailItems['items'][$index]['berat'] ?? null;
+                if ($berat === '' || $berat === null || !is_numeric($berat)) {
+                    $this->detailItems['items'][$index]['berat'] = 0;
+                }
+
+                $this->hitungSubtotal($index);
+            }
+        }
+    }
     public function detailSetoran(string $setoranId)
     {
         $setoranId = decrypt($setoranId);
         $item = $this->setoranService->getSetoranByIdNasabah($setoranId);
+        $this->setoranId = $setoranId;
         $this->detailItems = $item->toArray();
-        // dd(json_encode($this->detailItems, JSON_PRETTY_PRINT));
     }
-    
-    public function editSetoran() {
+    public function detailEdit(string $setoranId)
+    {
+        $setoranId = decrypt($setoranId);
+        $setoran = $this->setoranService->getSetoranByIdNasabah($setoranId);
+        $this->setoranId = $setoranId;
+        $this->detailItems = [
+            'kode' => $setoran->kode,
+            'items' => $setoran->items
+                ->map(
+                    fn($d) => [
+                        'id' => $d->id,
+                        'trash' => ['nama' => $d->trash->nama],
+                        'harga' => $d->harga ?? 0,
+                        'berat' => $d->berat ?? 0,
+                        'sub_total' => $d->sub_total,
+                    ],
+                )
+                ->toArray(),
+            'total_berat' => $setoran->total_berat ?? 0,
+            'total_saldo' => $setoran->total_saldo ?? 0,
+            'admin' => optional($setoran->admin)->only('name'),
+        ];
+    }
 
+    public function editSetoran()
+    {
+        $this->validate([
+            'detailItems.items.*.berat' => ['required', 'numeric', 'min:0.1'],
+        ]);
+
+        $items = collect($this->detailItems['items'])
+            ->map(
+                fn($item) => [
+                    'id' => $item['id'],
+                    'berat' => $item['berat'],
+                ],
+            )
+            ->toArray();
+        $this->setoranService->editSetoran($this->setoranId, ['items' => $items]);
+        $this->alertPopUp();
+        $this->dispatch('close-modal');
+    }
+
+    #[On('doDelete')]
+    public function delete(string $setoranId)
+    {
+        $this->setoranId = decrypt($setoranId);
+        $this->setoranService->deleteSetoran($this->setoranId);
+        $this->alert();
     }
 
     public function getData()
@@ -118,16 +191,56 @@ new class extends Component {
                                     {{ $st->bukutabungan->bank->nama }}
                                 </div>
                                 <div class="d-flex gap-1 mt-2">
-                                    <button @click="$store.sheet.show('detail-setoran')"
-                                        wire:click="detailSetoran('{{ encrypt($st->id) }}')" class="btn-tx"> <i
-                                            class="bi bi-eye"></i>
-                                    </button>
                                     <span class="bs bs-green flex-shrink-0">
                                         Rp {{ number_format($st->total_saldo, 0, ',', '.') }}
                                     </span>
                                     <span class="bs bs-purple flex-shrink-0">
                                         Petugas - {{ ucfirst($st->admin->name) }}
                                     </span>
+
+                                </div>
+                                <div class="d-flex gap-1 mt-2">
+                                    <button @click="$store.sheet.show('detail-setoran')"
+                                        wire:click="detailSetoran('{{ encrypt($st->id) }}')" class="btn-tx"> <i
+                                            class="bi bi-eye"></i>
+                                    </button>
+                                    <button @click="$store.sheet.show('edit-setoran')"
+                                        wire:click="detailEdit('{{ encrypt($st->id) }}')" class="btn-tx"> <i
+                                            class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button type="button"
+                                        x-on:click="Swal.fire({
+                                        title: 'Hapus Data Setoran?',
+                                        html: '<span style=\'color:#6b7280;font-size:14px\'>Data yang dihapus <b>tidak bisa dikembalikan</b>. Pastikan Anda yakin sebelum melanjutkan.</span>',
+                                        icon: 'warning',
+                                        iconColor: '#d33',
+                                        showCancelButton: true,
+                                        confirmButtonText: '<i class=\'bi bi-trash3 me-1\'></i> Ya, Hapus',
+                                        cancelButtonText: 'Batal',
+                                        confirmButtonColor: '#d33',
+                                        cancelButtonColor: '#6b7280',
+                                        reverseButtons: true,
+                                        focusCancel: true,
+                                        buttonsStyling: true,
+                                        customClass: {
+                                        popup: 'rounded-4 shadow-lg',
+                                        title: 'fw-bold fs-5',
+                                        confirmButton: 'px-4 py-2 rounded-3',
+                                        cancelButton: 'px-4 py-2 rounded-3'
+                                        },
+                                        showClass: {
+                                        popup: 'animate__animated animate__zoomIn animate__faster'
+                                        },
+                                        hideClass: {
+                                        popup: 'animate__animated animate__zoomOut animate__faster'
+                                        }
+                                        }).then((result) => {
+                                        if (result.isConfirmed) {
+                                        Livewire.dispatch('doDelete', { setoranId: '{{ encrypt($st->id) }}' })
+                                        }
+                                        })"
+                                        class="btn-tx"> <i class="bi bi-trash3"></i>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -154,7 +267,7 @@ new class extends Component {
         @include('components.⚡mobile-bottombar')
     </div>
 
-    {{-- ======= MOBILE SHEET: DETAIL Setoran ======= --}}
+    {{-- ======= MOBILE SHEET: Detail Setoran ======= --}}
     <div x-show="$store.sheet.is('detail-setoran')" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
@@ -186,7 +299,7 @@ new class extends Component {
                     <div class="list-main">
                         <div class="list-name">{{ $di['trash']['nama'] }} —
                             {{ number_format($di['berat'], 1, ',', '.') }} Kg</div>
-                        <div class="list-sub">Rp. {{ number_format($di['harga'], 0, ',', '.') }} - {{ $di['type'] }}
+                        <div class="list-sub">Rp. {{ number_format($di['harga'], 0, ',', '.') }}
                         </div>
                     </div><span class="bs bs-green" style="cursor:pointer">Rp.
                         {{ number_format($di['sub_total'], 0, ',', '.') }}</span>
@@ -198,7 +311,7 @@ new class extends Component {
             <b> Total - Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}</b>
         </div>
     </div>
-
+    {{-- ======= MOBILE SHEET: Pencarian ======= --}}
     <div x-show="$store.sheet.is('pencarian')" x-transition:enter="transition ease-out duration-200"
         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
@@ -226,6 +339,88 @@ new class extends Component {
         <div class="f-group"><label>Tanggal</label>
             <input class="f-input" type="date" wire:model.live="date">
         </div>
+    </div>
+    {{-- ======= MOBILE SHEET: Edit Setoran ======= --}}
+    <div x-show="$store.sheet.is('edit-setoran')" x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
+        style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
+    </div>
+    <div x-show="$store.sheet.is('edit-setoran')" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
+        x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+        <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
+            <div class="sheet-handle"></div>
+            <div
+                style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
+                Edit - {{ $detailItems['kode'] ?? 'STR-XXX-XXX-XXX' }}
+            </div>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
+            <div wire:loading.flex wire:target="detailEdit,hitungSubtotal,editSetoran"
+                class="justify-content-center align-items-center"
+                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                <div class="spinner-border text-success"></div>
+            </div>
+            <div class="d-flex flex-column gap-2">
+                @foreach ($detailItems['items'] ?? [] as $index => $di)
+                    <div class="list-item fade-up" wire:key="setoran-item-mobile-{{ $index }}">
+                        <span class="list-num">{{ $index + 1 }}</span>
+                        <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
+
+                        <div class="list-main">
+                            <div class="list-name">{{ $di['trash']['nama'] }}</div>
+                            <div class="list-sub">Rp. {{ number_format($di['harga'], 0, ',', '.') }} / KG</div>
+                        </div>
+
+                        <div style="width:100px">
+                            <div class="input-group input-group-sm">
+                                <input type="number" step="0.1" min="0"
+                                    class="form-control @error("detailItems.items.$index.berat") is-invalid @enderror"
+                                    style="font-size:12px"
+                                    wire:model.live.debounce.400ms="detailItems.items.{{ $index }}.berat"
+                                    wire:change="hitungSubtotal({{ $index }})">
+                                <span class="input-group-text" style="font-size:11px">KG</span>
+                            </div>
+                            @error("detailItems.items.$index.berat")
+                                <div class="invalid-feedback d-block" style="font-size:10px">{{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end" style="margin-top:-6px;margin-bottom:4px">
+                        <span class="bs bs-green">Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</span>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span style="font-size:12px;color:var(--text-muted,#888)">
+                    Total {{ number_format($detailItems['total_berat'] ?? 0, 1, ',', '.') }} KG
+                </span>
+                <b>Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}</b>
+            </div>
+
+            <div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px">
+                Petugas - <strong>{{ ucfirst(data_get($detailItems, 'admin.name', '-')) }}</strong>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="button" class="btn-outline w-100" style="width:100%" @click="$store.sheet.hide()">
+                    Batal
+                </button>
+                <button type="button" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
+                    wire:click="editSetoran" wire:target="editSetoran">
+                    <span wire:loading.remove wire:target="editSetoran">
+                        Simpan Perubahan
+                    </span>
+                    <span wire:loading wire:target="editSetoran">Loading...</span>
+                </button>
+            </div>
+        </div>
+
     </div>
 
     {{-- ======= DEKSTOP ======= --}}
@@ -313,13 +508,48 @@ new class extends Component {
                                                 data-bs-toggle="modal" data-bs-target="#wm-detail-setoran">
                                                 <i class="bi bi-eye-fill"></i>
                                             </button>
+                                            @if (Auth::user()->hasRole('admin'))
+                                                <button wire:click="detailEdit('{{ encrypt($st->id) }}')"
+                                                    class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                                    data-bs-toggle="modal" data-bs-target="#wm-edit-setoran">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
 
-                                            <button wire:click="detailSetoran('{{ encrypt($st->id) }}')"
-                                                class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                                data-bs-toggle="modal" data-bs-target="#wm-edit-setoran">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-
+                                                <button type="button"
+                                                    x-on:click="Swal.fire({
+                                                    title: 'Hapus Data Setoran?',
+                                                    html: '<span style=\'color:#6b7280;font-size:14px\'>Data yang dihapus <b>tidak bisa dikembalikan</b>. Pastikan Anda yakin sebelum melanjutkan.</span>',
+                                                    icon: 'warning',
+                                                    iconColor: '#d33',
+                                                    showCancelButton: true,
+                                                    confirmButtonText: '<i class=\'bi bi-trash3 me-1\'></i> Ya, Hapus',
+                                                    cancelButtonText: 'Batal',
+                                                    confirmButtonColor: '#d33',
+                                                    cancelButtonColor: '#6b7280',
+                                                    reverseButtons: true,
+                                                    focusCancel: true,
+                                                    buttonsStyling: true,
+                                                    customClass: {
+                                                        popup: 'rounded-4 shadow-lg',
+                                                        title: 'fw-bold fs-5',
+                                                        confirmButton: 'px-4 py-2 rounded-3',
+                                                        cancelButton: 'px-4 py-2 rounded-3'
+                                                    },
+                                                    showClass: {
+                                                        popup: 'animate__animated animate__zoomIn animate__faster'
+                                                    },
+                                                    hideClass: {
+                                                        popup: 'animate__animated animate__zoomOut animate__faster'
+                                                    }
+                                                    }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        Livewire.dispatch('doDelete', { setoranId: '{{ encrypt($st->id) }}' })
+                                                    }
+                                                    })"
+                                                    class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach
@@ -415,7 +645,7 @@ new class extends Component {
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <div class="w-modal-body" style="position:relative">
-                    <div wire:loading.flex wire:target="detailSetoran,updateBerat,simpanSetoran"
+                    <div wire:loading.flex wire:target="detailEdit,hitungSubtotal,editSetoran"
                         class="justify-content-center align-items-center"
                         style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                         <div class="spinner-border text-success"></div>
@@ -484,10 +714,13 @@ new class extends Component {
                     </form>
                 </div>
                 <div class="w-modal-footer">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-success" wire:click="simpanSetoran"
-                        wire:loading.attr="disabled" wire:target="simpanSetoran">
-                        Simpan Perubahan
+                    <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
+                        wire:loading.attr="disabled" wire:target="editSetoran">Batal</button>
+
+                    <button type="button" wire:click="editSetoran" class="w-btn w-btn-primary"
+                        wire:loading.attr="disabled" wire:target="editSetoran">
+                        <span wire:loading.remove wire:target="editSetoran">Simpan Perubahan</span>
+                        <span wire:loading wire:target="editSetoran">Loading...</span>
                     </button>
                 </div>
             </div>
@@ -498,6 +731,7 @@ new class extends Component {
         <script>
             $wire.on('close-modal', () => {
                 Alpine.store('sheet').hide();
+                $('#wm-edit-setoran').modal('hide');
             });
         </script>
     @endscript

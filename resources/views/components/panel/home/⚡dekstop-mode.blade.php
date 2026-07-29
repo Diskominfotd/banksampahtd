@@ -688,7 +688,6 @@ new class extends Component {
                 </div>
             </div>
         </div>
-
         <div wire:ignore.self class="modal fade" id="wm-rekening-nasabah" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-m">
                 <div class="modal-content w-modal">
@@ -1135,6 +1134,5 @@ new class extends Component {
             </div>
         </div>
     @endif
-
 </div>
 </div>

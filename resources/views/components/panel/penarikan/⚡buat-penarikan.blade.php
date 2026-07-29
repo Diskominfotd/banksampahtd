@@ -94,7 +94,7 @@ new class extends Component {
         }
         $this->validate(
             [
-                'selectedNasabah.*.jumlah' => 'required|numeric|min:5000',
+                'selectedNasabah.*.jumlah' => 'required|numeric|min:50000',
             ],
             [
                 'selectedNasabah.*.jumlah.min' => 'minimal Rp 50.000.',

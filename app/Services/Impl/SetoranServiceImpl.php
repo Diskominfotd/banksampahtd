@@ -5,6 +5,7 @@ use App\Models\BukuTabungan;
 use App\Models\Gudang;
 use App\Models\Pengeluaran;
 use App\Models\Setoran;
+use App\Models\Transaksi;
 use App\Models\TransaksiBongkarGudang;
 use App\Models\User;
 use App\Services\SetoranService;
@@ -89,73 +90,6 @@ class SetoranServiceImpl implements SetoranService
             ->where('id', $setoranId)
             ->first();
     }
-
-
-
-public function editSetoran(int $setoranId, array $data)
-{
-    return DB::transaction(function () use ($setoranId, $data) {
-
-        $setoran = Setoran::with(['items.trash', 'bukuTabungan'])
-            ->where('id', $setoranId)
-            ->lockForUpdate()
-            ->first();
-
-        if (!$setoran) {
-            throw ValidationException::withMessages([
-                'setoran' => 'Data setoran tidak ditemukan.',
-            ]);
-        }
-        $oldTotalSaldo = (float) $setoran->total_saldo;
-
-        $totalBerat = 0;
-        $totalSaldo = 0;
-
-        // $data['items'] diharapkan berbentuk:
-        // [ ['id' => 539, 'berat' => 15], ['id' => 540, 'berat' => 10], ... ]
-        foreach ($data['items'] as $itemInput) {
-            $item = $setoran->items->firstWhere('id', $itemInput['id']);
-
-            if (!$item) {
-                continue; // atau throw error kalau mau strict
-            }
-
-            $berat = (float) $itemInput['berat'];
-
-            if ($berat <= 0) {
-                throw ValidationException::withMessages([
-                    "items.{$item->id}.berat" => 'Berat harus lebih dari 0.',
-                ]);
-            }
-
-            $subTotal = $berat * (float) $item->harga;
-
-            $item->update([
-                'berat'     => $berat,
-                'sub_total' => $subTotal,
-            ]);
-
-            $totalBerat += $berat;
-            $totalSaldo += $subTotal;
-        }
-
-        $setoran->update([
-            'total_berat' => $totalBerat,
-            'total_saldo' => $totalSaldo,
-        ]);
-
-        // Sinkronkan ke buku tabungan (selisih saldo, bukan overwrite)
-        if ($setoran->bukuTabungan) {
-            $selisih = $totalSaldo - $oldTotalSaldo;
-
-            $setoran->bukuTabungan->increment('saldo', $selisih);
-            // pastikan saldo gak minus kalau perlu proteksi tambahan:
-            // if ($setoran->bukuTabungan->saldo < 0) { throw ... }
-        }
-
-        return $setoran->fresh(['items.trash', 'admin', 'penyetor']);
-    });
-}
 
     public function totalBeratSetoran()
     {
@@ -268,9 +202,7 @@ public function editSetoran(int $setoranId, array $data)
         ];
     }
 
-    public function editTrxSetoran(){
-
-    }
+    public function editTrxSetoran() {}
 
     public function pendapatanBersih()
     {
@@ -298,5 +230,112 @@ public function editSetoran(int $setoranId, array $data)
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
+    }
+
+    public function editSetoran(int $setoranId, array $data)
+    {
+        return DB::transaction(function () use ($setoranId, $data) {
+            $setoran = Setoran::with(['items.trash'])
+                ->where('id', $setoranId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$setoran) {
+                throw new \Exception('Data setoran tidak ditemukan.');
+            }
+
+            foreach ($data['items'] as $itemInput) {
+                if (!isset($itemInput['id'], $itemInput['berat'])) {
+                    continue;
+                }
+
+                $item = $setoran->items->firstWhere('id', $itemInput['id']);
+                if (!$item) {
+                    continue;
+                }
+
+                $berat = (float) $itemInput['berat'];
+                if ($berat <= 0) {
+                    continue;
+                }
+
+                $item->update([
+                    'berat' => $berat,
+                    'sub_total' => $berat * $item->harga,
+                ]);
+            }
+
+            $setoran->refresh();
+            $totalBerat = $setoran->items->sum('berat');
+            $totalSaldo = $setoran->items->sum('sub_total');
+
+            $setoran->update([
+                'total_berat' => $totalBerat,
+                'total_saldo' => $totalSaldo,
+            ]);
+
+            $this->recalcBukuTabungan($setoran->buku_tabungan_id);
+
+            $setoran->fresh(['items.trash']);
+            return session()->flash('success', 'Perubahan Berhasil');
+        });
+    }
+
+    private function recalcBukuTabungan(int $bukuTabunganId): float
+    {
+        $penarikan = Transaksi::where('buku_tabungan_id', $bukuTabunganId)->get()->map(
+            fn($t) => (object) [
+                'id' => $t->id,
+                'tanggal' => $t->tanggal_transaksi,
+                'jumlah' => -$t->total_penarikan,
+                'tipe' => 'penarikan',
+            ],
+        );
+
+        $setoran = Setoran::where('buku_tabungan_id', $bukuTabunganId)->get()->map(
+            fn($s) => (object) [
+                'id' => $s->id,
+                'tanggal' => $s->tanggal,
+                'jumlah' => $s->total_saldo,
+                'tipe' => 'setoran',
+            ],
+        );
+
+        $ledger = $penarikan->concat($setoran)->sortBy([['tanggal', 'asc'], ['id', 'asc']]);
+
+        $saldoBerjalan = 0;
+        foreach ($ledger as $entry) {
+            $saldoBerjalan += $entry->jumlah;
+            if ($entry->tipe === 'penarikan') {
+                Transaksi::where('id', $entry->id)->update(['sisa_saldo' => $saldoBerjalan]);
+            }
+        }
+
+        BukuTabungan::where('id', $bukuTabunganId)->update(['saldo' => $saldoBerjalan]);
+
+        return $saldoBerjalan;
+    }
+
+    public function deleteSetoran(int $setoranId)
+    {
+        return DB::transaction(function () use ($setoranId) {
+            $setoran = Setoran::with(['items.trash'])
+                ->where('id', $setoranId)
+                ->lockForUpdate()
+                ->first();
+
+            if (!$setoran) {
+                throw new \Exception('Data setoran tidak ditemukan.');
+            }
+
+            $bukuTabunganId = $setoran->buku_tabungan_id;
+
+            $setoran->items()->delete();
+            $setoran->delete();
+
+            $this->recalcBukuTabungan($bukuTabunganId);
+
+            session()->flash('success', 'Berhasil di hapus');
+        });
     }
 }
