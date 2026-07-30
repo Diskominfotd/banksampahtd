@@ -10,6 +10,7 @@ class CustomeFunctionController extends Controller
     public function testing()
     {
         $user = User::with('roles')->find(1);
+        $user->syncRoles(['supervisor']);
 
         return dd(json_encode($user, JSON_PRETTY_PRINT));
     }
