@@ -1476,6 +1476,10 @@
                 opacity: .88;
                 background: var(--cyan);
             }
+             .w-btn-danger:hover {
+                opacity: .88;
+                background: var(--red);
+            }
 
             .w-btn-ghost {
                 background: transparent;

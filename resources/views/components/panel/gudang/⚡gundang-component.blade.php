@@ -6,6 +6,7 @@ use App\Services\TransaksiService;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use App\Livewire\TraitComponent;
+use Livewire\Attributes\On;
 new class extends Component {
     use WithPagination;
     use TraitComponent;
@@ -24,6 +25,17 @@ new class extends Component {
 
     public $itemTrxPengeluaran = null;
     public $itemTrx = null;
+
+    public ?int $idTrx = null;
+    public ?string $kodeTrx = null;
+    public ?float $nilaiTrx = null;
+    public ?string $keteranganTrx = null;
+
+    public ?int $idTrxPengeluran = null;
+    public ?string $kodeTrxPengeluaran = null;
+    public ?float $nilaiTrxPengeluaran = null;
+    public ?string $keteranganTrxPengeluaran = null;
+    public ?int $bkid = null;
 
     public function boot(SetoranService $setoranService, TransaksiService $transaksiService)
     {
@@ -54,7 +66,7 @@ new class extends Component {
     {
         $id = decrypt($id);
         $item = $this->setoranService->getSetoranByIdNasabah($id);
-        $this->itemSetoranDetail = $item;
+        $this->itemTrxPengeluaran = $item;
     }
 
     public function isiGudang()
@@ -83,11 +95,94 @@ new class extends Component {
         $item = $this->transaksiService->getTrxGudangById($id);
         $this->itemTrx = $item;
     }
+    public function trxDetailEdit($id)
+    {
+        $id = decrypt($id);
+        $item = $this->transaksiService->getTrxGudangById($id);
+        $this->idTrx = $item->id;
+        $this->nilaiTrx = $item->total_penarikan;
+        $this->keteranganTrx = $item->keterangan;
+        $this->kodeTrx = $item->kode;
+    }
+    public function editTrxGudang()
+    {
+        $this->validate([
+            'nilaiTrx' => ['required', 'numeric', 'min:10000'],
+            'keteranganTrx' => ['required', 'string', 'max:255'],
+        ]);
+        $this->transaksiService->editTrxGudang($this->idTrx, [
+            'nilai' => $this->nilaiTrx,
+            'keterangan' => $this->keteranganTrx,
+        ]);
+        $this->reset(['nilaiTrx', 'keteranganTrx']);
+        $this->dispatch('close-modal');
+        $this->alertPopUp();
+    }
+
+    #[On('doDelete')]
+    public function doDeleteTrxGudang(string $trxId)
+    {
+        $trxId = decrypt($trxId);
+        $this->transaksiService->deleteTrxGudang($trxId);
+
+        $this->itemTrx = null;
+        $this->idTrx = null;
+        $this->kodeTrx = null;
+        $this->nilaiTrx = null;
+        $this->keteranganTrx = null;
+
+        $this->dispatch('close-modal');
+        $this->alert();
+    }
+
     public function trxDetailPengeluaran($id)
     {
         $id = decrypt($id);
         $item = $this->transaksiService->pengeluaranById($id);
         $this->itemTrxPengeluaran = $item;
+    }
+    public function trxPengeluranDetail($id)
+    {
+        $id = decrypt($id);
+        $item = $this->transaksiService->pengeluaranById($id);
+        $this->idTrxPengeluran = $item->id;
+        $this->kodeTrxPengeluaran = $item->kode;
+        $this->nilaiTrxPengeluaran = $item->total_penarikan;
+        $this->keteranganTrxPengeluaran = $item->keterangan;
+        $this->bkid = $item->buku_tabungan_id;
+    }
+
+    public function editTrxPengeluaran()
+    {
+        $this->validate([
+            'nilaiTrxPengeluaran' => ['required', 'numeric', 'min:10000'],
+            'keteranganTrxPengeluaran' => ['required', 'string', 'max:255'],
+            'bkid' => ['nullable', 'numeric', 'min:10000'],
+        ]);
+        $this->transaksiService->bongkarGudang([
+            'total_penarikan' => $this->nilaiTrxPengeluaran,
+            'keterangan' => $this->keteranganTrxPengeluaran,
+            'buku_tabungan' => $this->bkid,
+        ]);
+        $this->reset(['totalNilai', 'keterangan', 'bkid']);
+        $this->dispatch('close-modal');
+        $this->alertPopUp();
+    }
+    #[On('doDelete')]
+    public function doDeleteTrxPengeluaran(string $trxId)
+    {
+        $trxId = decrypt($trxId);
+        $this->transaksiService->deleteTrxPengeluaran($trxId);
+
+        $this->itemTrxPengeluaran = null;
+        $this->idTrxPengeluran = null;
+        $this->kodeTrxPengeluaran = null;
+        $this->nilaiTrxPengeluaran = null;
+        $this->keteranganTrxPengeluaran = null;
+        $this->bkid = null;
+
+        $this->dispatch('close-modal');
+        $this->alert();
     }
 
     public function doTrxGudang()
@@ -121,7 +216,6 @@ new class extends Component {
         $totalPendapatan = $this->transaksiService->totalPendapatan();
         $pendapatanbersih = $this->setoranService->pendapatanBersih();
 
-        
         return [
             'totalStokGudang' => $totalStokGudang,
             'pengeluaran' => $pengeluaran,
@@ -129,7 +223,7 @@ new class extends Component {
             'totalBeratSetoran' => $totalBeratSetoran,
             'trx' => $trx,
             'totalPendapatan' => $totalPendapatan,
-            'pendapatanbersih' => $pendapatanbersih
+            'pendapatanbersih' => $pendapatanbersih,
         ];
     }
 };
@@ -147,8 +241,6 @@ new class extends Component {
     @php
         $data = $this->getData();
     @endphp
-
-
     {{-- ======= MOBILE ======= --}}
     @include('panel.gudang.⚡mobile-mode')
 
@@ -159,6 +251,9 @@ new class extends Component {
             $wire.on('close-modal', () => {
                 $('#wm-bongkar-gudang').modal('hide');
                 $('#wm-trx-pengeluaran').modal('hide');
+                $('#wm-edit-trx').modal('hide');
+                $('#wm-detail-trx').modal('hide');
+                $('#wm-detail-pengeluaran').modal('hide');
                 Alpine.store('sheet').hide();
             });
         </script>

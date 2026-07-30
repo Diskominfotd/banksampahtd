@@ -135,7 +135,7 @@ new class extends Component {
         is(name) { return this.active === name },
     })
 }">
-    {{-- Do what you can, with what you have, where you are. - Theodore Roosevelt --}}
+
     @include('components.panel.penarikan.⚡mobile-mode')
     @include('components.panel.penarikan.⚡dekstop-mode')
     @script

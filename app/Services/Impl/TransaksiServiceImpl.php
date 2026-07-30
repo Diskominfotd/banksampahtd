@@ -55,6 +55,7 @@ class TransaksiServiceImpl implements TransaksiService
                 'keterangan' => 'Penarikan tabungan oleh nasabah dengan nomor Rekening : ' . $bk->nomor_rekening,
                 'admin_id' => $trx->admin_id,
                 'gudang_id' => $this->checkUser()->unit->gudang->id,
+                'buku_tabungan_id' => $bk->id,
             ]);
             session()->flash('success', 'Berhasil');
         });
@@ -252,18 +253,18 @@ class TransaksiServiceImpl implements TransaksiService
         return $transaksi;
     }
 
-  public function trxEdit(int $trxId, array $data)
-{
-    return DB::transaction(function () use ($trxId, $data) {
-        $transaksi = Transaksi::where('id', $trxId)->lockForUpdate()->first();
+    public function trxEdit(int $trxId, array $data)
+    {
+        return DB::transaction(function () use ($trxId, $data) {
+            $transaksi = Transaksi::where('id', $trxId)->lockForUpdate()->first();
 
-        $transaksi->update([
-            'total_penarikan' => $data['total_penarikan'],
-        ]);
+            $transaksi->update([
+                'total_penarikan' => $data['total_penarikan'],
+            ]);
 
-        $this->recalcBukuTabungan($transaksi->buku_tabungan_id);
-    });
-}
+            $this->recalcBukuTabungan($transaksi->buku_tabungan_id);
+        });
+    }
 
     private function recalcBukuTabungan(int $bukuTabunganId): float
     {
@@ -298,5 +299,66 @@ class TransaksiServiceImpl implements TransaksiService
         BukuTabungan::where('id', $bukuTabunganId)->update(['saldo' => $saldoBerjalan]);
 
         return $saldoBerjalan;
+    }
+
+    public function deleteTrxGudang(int $trxId)
+    {
+        $trx = TransaksiBongkarGudang::find($trxId);
+        if (!$trx) {
+            return session()->flash('error', 'Transaksi Tidak Ditemukan');
+        }
+        $trx->delete();
+
+        return session()->flash('success', 'Berhasil Dihapus');
+    }
+    public function editTrxGudang(int $trxId, array $data)
+    {
+        return DB::transaction(function () use ($trxId, $data) {
+            $trx = TransaksiBongkarGudang::find($trxId);
+            if (!$trx) {
+                return session()->flash('error', 'Transaksi Tidak Ditemukan');
+            }
+            $trx->update([
+                'total_penarikan' => $data['nilai'],
+                'keterangan' => $data['keterangan'],
+            ]);
+            return session()->flash('success', 'Perubahan Berhasil');
+        });
+    }
+
+    public function deleteTrxPengeluaran(int $trxId)
+    {
+        $trx = Pengeluaran::find($trxId);
+        if (!$trx) {
+            return session()->flash('error', 'Transaksi Tidak Ditemukan');
+        }
+        $trx->delete();
+
+        return session()->flash('success', 'Berhasil Dihapus');
+    }
+    public function editTrxPengeluaran(int $trxId, array $data)
+    {
+        return DB::transaction(function () use ($trxId, $data) {
+            $trx = Pengeluaran::find($trxId);
+            if (!$trx) {
+                session()->flash('error', 'Transaksi Tidak Ditemukan');
+                return;
+            }
+            $bukuTabunganLama = $trx->buku_tabungan_id;
+            $bukuTabunganBaru = $data['buku_tabungan'] ?? null;
+
+            $trx->update([
+                'total_penarikan' => $data['nilai'],
+                'keterangan' => $data['keterangan'],
+                'buku_tabungan_id' => $bukuTabunganBaru,
+            ]);
+            if ($bukuTabunganLama !== null) {
+                $this->recalcBukuTabungan($bukuTabunganLama);
+            }
+            if ($bukuTabunganBaru !== null && $bukuTabunganBaru !== $bukuTabunganLama) {
+                $this->recalcBukuTabungan($bukuTabunganBaru);
+            }
+            session()->flash('success', 'Perubahan Berhasil');
+        });
     }
 }

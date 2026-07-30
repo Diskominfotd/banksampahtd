@@ -336,13 +336,13 @@ new class extends Component {
                                         <td style="font-size:10px;color:var(--muted)">
                                             {{ ucfirst($trx->admin->name) ?? '-' }}
                                         </td>
-                                        <td>
+                                        {{-- <td>
                                             <button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
                                                 wire:click="editTrxDetail('{{ encrypt($trx->id) }}')"
                                                 data-bs-toggle="modal" data-bs-target="#wm-edit-trx">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
-                                        </td>
+                                        </td> --}}
                                     </tr>
                                 @endforeach
                             @else

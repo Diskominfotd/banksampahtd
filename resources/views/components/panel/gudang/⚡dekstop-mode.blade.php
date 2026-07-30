@@ -44,7 +44,7 @@ new class extends Component {
                                 $barColor = match (true) {
                                     $persen < 50 => 'var(--red)',
                                     $persen < 75 => 'var(--orange)',
-                                      default => 'var(--cyan)',
+                                    default => 'var(--cyan)',
                                 };
                             @endphp
                             <div class="w-bar">
@@ -83,7 +83,7 @@ new class extends Component {
                                 $barColor = match (true) {
                                     $persen < 50 => 'var(--red)',
                                     $persen < 75 => 'var(--orange)',
-                                     default => 'var(--cyan)',
+                                    default => 'var(--cyan)',
                                 };
                             @endphp
                             <div class="w-bar">
@@ -122,7 +122,7 @@ new class extends Component {
                                 $barColor = match (true) {
                                     $persen < 50 => 'var(--red)',
                                     $persen < 75 => 'var(--orange)',
-                                     default => 'var(--cyan)',
+                                    default => 'var(--cyan)',
                                 };
                             @endphp
 
@@ -261,67 +261,7 @@ new class extends Component {
             </div>
         </div>
     </div>
-    <div wire:ignore.self class="modal fade" id="wm-trx-pengeluaran" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-m">
-            <div class="modal-content w-modal">
-                <div class="w-modal-header">
-                    <div class="w-modal-title">Buat Transaksi Pengeluaran
-                    </div>
-                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
-                </div>
-                <form wire:submit="addPengeluaran">
-                    <div class="w-modal-body">
-                        <div class="d-flex flex-column gap-3">
-                            <div class="col-12" x-data="{
-                                display: '',
-                                init() {
-                                    this.display = this.format(this.$wire.totalNilaiPengeluaran || 0);
-                                },
-                                format(val) {
-                                    let num = val.toString().replace(/\D/g, '');
-                                    if (!num) num = '0';
-                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
-                                },
-                                update(e) {
-                                    let raw = e.target.value.replace(/\D/g, '');
-                                    if (!raw) raw = '0';
-                                    this.$wire.totalNilaiPengeluaran = raw;
-                                    this.display = this.format(raw);
-                                }
-                            }">
-                                <label class="w-form-label">Nilai Rupiah</label>
-                                <input class="w-form-input" type="text" :value="display"
-                                    @input="update($event)" placeholder="ex: Rp 50.000">
-                                @error('totalNilaiPengeluaran')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-
-                                <label class="w-form-label">Ketrangan</label>
-                                <textarea class="w-form-input" wire:model="keteranganPengeluaran" rows="3" cols="3"
-                                    placeholder="ex: Bayar rambahan dan PLN....">
-                                </textarea>
-                                @error('keteranganPengeluaran')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-                </form>
-                <div class="w-modal-footer">
-                    <button wire:click="addPengeluaran" wire:loading.attr="disabled" class="w-btn w-btn-primary"
-                        style="width:auto;padding:7px 16px">
-                        <span wire:loading.remove wire:target="addPengeluaran">
-                            <i class="bi bi-check2-circle me-1"></i> Buat Transaksi
-                        </span>
-                        <span wire:loading wire:target="addPengeluaran">
-                            <span class="spinner-border spinner-border-sm me-1"></span>
-                            Menyimpan...
-                        </span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    {{-- Modal Dekstop : Buat Pemasukan --}}
     <div wire:ignore.self class="modal fade" id="wm-bongkar-gudang" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-m">
             <div class="modal-content w-modal">
@@ -383,6 +323,7 @@ new class extends Component {
             </div>
         </div>
     </div>
+    {{-- Modal Dekstop : Detail Pemasukan --}}
     <div wire:ignore.self class="modal fade" id="wm-detail-trx" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content w-modal">
@@ -395,7 +336,6 @@ new class extends Component {
                     style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                     <div class="spinner-border text-success"></div>
                 </div>
-
                 @if ($itemTrx)
                     <div class="w-modal-body">
                         <div
@@ -428,11 +368,185 @@ new class extends Component {
                             </div>
                         </div>
                     </div>
+                    <div class="w-modal-footer">
+                        <button class="w-btn w-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+                        <button wire:click="trxDetailEdit('{{ encrypt($itemTrx->id) }}')" class="w-btn w-btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#wm-edit-trx">Edit</button>
+                        <button
+                            x-on:click="Swal.fire({
+                        title: 'Hapus Transaksi Ini ?',
+                        html: '<span style=\'color:#6b7280;font-size:14px\'>Data yang dihapus <b>tidak bisa dikembalikan</b>. Pastikan Anda yakin sebelum melanjutkan.</span>',
+                        icon: 'warning',
+                        iconColor: '#d33',
+                        showCancelButton: true,
+                        confirmButtonText: '<i class=\'bi bi-trash3 me-1\'></i> Ya, Hapus',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#6b7280',
+                        reverseButtons: true,
+                        focusCancel: true,
+                        buttonsStyling: true,
+                        customClass: {
+                        popup: 'rounded-4 shadow-lg',
+                        title: 'fw-bold fs-5',
+                        confirmButton: 'px-4 py-2 rounded-3',
+                        cancelButton: 'px-4 py-2 rounded-3'
+                        },
+                        showClass: {
+                        popup: 'animate__animated animate__zoomIn animate__faster'
+                        },
+                        hideClass: {
+                        popup: 'animate__animated animate__zoomOut animate__faster'
+                        }
+                        }).then((result) => {
+                        if (result.isConfirmed) {
+                        Livewire.dispatch('doDelete', { trxId: '{{ encrypt($itemTrx->id) }}' })
+                        }
+                        })"class="w-btn w-btn-danger">Hapus
+                        </button>
+                    </div>
                 @endif
-
             </div>
         </div>
     </div>
+    {{-- Modal Dekstop : Edit Pemasukan --}}
+    <div wire:ignore.self class="modal fade" id="wm-edit-trx" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">
+                        Edit Transaksi Gudang {{ $kodeTrx ?? 'TRX-XXX-XXX-XXX' }}
+                    </div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <div wire:loading.flex wire:target="trxDetailEdit" class="justify-content-center align-items-center"
+                    style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                    <div class="spinner-border text-success"></div>
+                </div>
+                <form wire:submit="editTrxGudang">
+                    <div class="w-modal-body">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="col-12" x-data="{
+                                nilai: @entangle('nilaiTrx'),
+                                display: '',
+                                init() {
+                                    this.display = this.format(this.nilai ?? 0);
+                            
+                                    this.$watch('nilai', (value) => {
+                                        this.display = this.format(value ?? 0);
+                                    });
+                                },
+                                format(val) {
+                                    let num = String(val).replace(/\D/g, '');
+                                    if (!num) num = '0';
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+                                },
+                                update(e) {
+                                    let raw = e.target.value.replace(/\D/g, '');
+                                    this.nilai = raw;
+                                    this.display = this.format(raw);
+                                }
+                            }">
+                                <label class="w-form-label">Nilai Rupiah</label>
+                                <input class="w-form-input" type="text" :value="display"
+                                    @input="update($event)" placeholder="ex: Rp 50.000">
+                                @error('nilaiTrx')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+
+                                <label class="w-form-label">Ketrangan</label>
+                                <textarea class="w-form-input" wire:model="keteranganTrx" rows="3" cols="3"
+                                    placeholder="ex: Penjualan sampah ke....">
+                                </textarea>
+                                @error('keteranganTrx')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-modal-footer">
+                        <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="editTrxGudang">
+                            <span wire:loading.remove wire:target="editTrxGudang">
+                                Simpan
+                            </span>
+                            <span wire:loading wire:target="editTrxGudang">
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                                Menyimpan...
+                            </span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    {{-- Modal Dekstop : Buat Pengeluaran --}}
+    <div wire:ignore.self class="modal fade" id="wm-trx-pengeluaran" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-m">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Buat Transaksi Pengeluaran
+                    </div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <form wire:submit="addPengeluaran">
+                    <div class="w-modal-body">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="col-12" x-data="{
+                                display: '',
+                                init() {
+                                    this.display = this.format(this.$wire.totalNilaiPengeluaran || 0);
+                                },
+                                format(val) {
+                                    let num = val.toString().replace(/\D/g, '');
+                                    if (!num) num = '0';
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+                                },
+                                update(e) {
+                                    let raw = e.target.value.replace(/\D/g, '');
+                                    if (!raw) raw = '0';
+                                    this.$wire.totalNilaiPengeluaran = raw;
+                                    this.display = this.format(raw);
+                                }
+                            }">
+                                <label class="w-form-label">Nilai Rupiah</label>
+                                <input class="w-form-input" type="text" :value="display"
+                                    @input="update($event)" placeholder="ex: Rp 50.000">
+                                @error('totalNilaiPengeluaran')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+
+                                <label class="w-form-label">Ketrangan</label>
+                                <textarea class="w-form-input" wire:model="keteranganPengeluaran" rows="3" cols="3"
+                                    placeholder="ex: Bayar rambahan dan PLN....">
+                                </textarea>
+                                @error('keteranganPengeluaran')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div class="w-modal-footer">
+                    <button wire:click="addPengeluaran" wire:loading.attr="disabled" class="w-btn w-btn-primary"
+                        style="width:auto;padding:7px 16px">
+                        <span wire:loading.remove wire:target="addPengeluaran">
+                            <i class="bi bi-check2-circle me-1"></i> Buat Transaksi
+                        </span>
+                        <span wire:loading wire:target="addPengeluaran">
+                            <span class="spinner-border spinner-border-sm me-1"></span>
+                            Menyimpan...
+                        </span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- Modal Dekstop : Detail Pengeluaran --}}
     <div wire:ignore.self class="modal fade" id="wm-detail-pengeluaran" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content w-modal">
@@ -441,7 +555,8 @@ new class extends Component {
                     </div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
-                <div wire:loading.flex wire:target="trxDetail" class="justify-content-center align-items-center"
+                <div wire:loading.flex wire:target="trxDetailPengeluaran"
+                    class="justify-content-center align-items-center"
                     style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                     <div class="spinner-border text-success"></div>
                 </div>
@@ -476,7 +591,119 @@ new class extends Component {
                             </div>
                         </div>
                     </div>
+                    <div class="w-modal-footer">
+                        <button class="w-btn w-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+                        {{-- <button wire:click="trxPengeluranDetail('{{ encrypt($itemTrxPengeluaran->id) }}')"
+                            class="w-btn w-btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#wm-edit-trx-pengeluaran">Edit
+                        </button> --}}
+                        <button
+                            x-on:click="Swal.fire({
+                            title: 'Hapus Transaksi Ini ?',
+                            html: '<span style=\'color:#6b7280;font-size:14px\'>Data yang dihapus <b>tidak bisa dikembalikan</b>. Pastikan Anda yakin sebelum melanjutkan.</span>',
+                            icon: 'warning',
+                            iconColor: '#d33',
+                            showCancelButton: true,
+                            confirmButtonText: '<i class=\'bi bi-trash3 me-1\'></i> Ya, Hapus',
+                            cancelButtonText: 'Batal',
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#6b7280',
+                            reverseButtons: true,
+                            focusCancel: true,
+                            buttonsStyling: true,
+                            customClass: {
+                            popup: 'rounded-4 shadow-lg',
+                            title: 'fw-bold fs-5',
+                            confirmButton: 'px-4 py-2 rounded-3',
+                            cancelButton: 'px-4 py-2 rounded-3'
+                            },
+                            showClass: {
+                            popup: 'animate__animated animate__zoomIn animate__faster'
+                            },
+                            hideClass: {
+                            popup: 'animate__animated animate__zoomOut animate__faster'
+                            }
+                            }).then((result) => {
+                            if (result.isConfirmed) {
+                            Livewire.dispatch('doDelete', { trxId: '{{ encrypt($itemTrxPengeluaran->id) }}' })
+                            }
+                            })"class="w-btn w-btn-danger">Hapus
+                        </button>
+                    </div>
                 @endif
+            </div>
+        </div>
+    </div>
+    {{-- Modal Dekstop : Edit Pengeluaran --}}
+    <div wire:ignore.self class="modal fade" id="wm-edit-trx-pengeluaran" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">
+                        Edit Transaksi Pengeluaran {{ $kodeTrxPengeluaran ?? 'PRN-XXX-XXX-XXX' }}
+                    </div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <div wire:loading.flex wire:target="trxDetailEdit" class="justify-content-center align-items-center"
+                    style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                    <div class="spinner-border text-success"></div>
+                </div>
+                <form wire:submit="editTrxPengeluaran">
+                    <div class="w-modal-body">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="col-12" x-data="{
+                                nilai: @entangle('nilaiTrxPengeluaran'),
+                                display: '',
+                                init() {
+                                    this.display = this.format(this.nilai ?? 0);
+                            
+                                    this.$watch('nilai', (value) => {
+                                        this.display = this.format(value ?? 0);
+                                    });
+                                },
+                                format(val) {
+                                    let num = String(val).replace(/\D/g, '');
+                                    if (!num) num = '0';
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+                                },
+                                update(e) {
+                                    let raw = e.target.value.replace(/\D/g, '');
+                                    this.nilai = raw;
+                                    this.display = this.format(raw);
+                                }
+                            }">
+                                <label class="w-form-label">Nilai Rupiah</label>
+                                <input class="w-form-input" type="text" :value="display"
+                                    @input="update($event)" placeholder="ex: Rp 50.000">
+                                @error('nilaiTrxPengeluaran')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+
+                                <label class="w-form-label">Ketrangan</label>
+                                <textarea class="w-form-input" wire:model="keteranganTrxPengeluaran" rows="3" cols="3"
+                                    placeholder="ex: Penjualan sampah ke....">
+                                </textarea>
+                                @error('keteranganTrxPengeluaran')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-modal-footer">
+                        <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="editTrxGudang">
+                            <span wire:loading.remove wire:target="editTrxGudang">
+                                Simpan
+                            </span>
+                            <span wire:loading wire:target="editTrxGudang">
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                                Menyimpan...
+                            </span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

@@ -23,4 +23,7 @@ interface TransaksiService
     public function totalPengeluaranByUnit();
     public function trxDetail(int $trxId);
     public function trxEdit(int $trxId, array $data);
+    public function deleteTrxGudang(int $trxId);
+    public function editTrxGudang(int $trxId, array $data);
+    public function deleteTrxPengeluaran(int $trxId);
 }
