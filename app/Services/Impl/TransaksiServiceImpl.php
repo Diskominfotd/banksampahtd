@@ -15,6 +15,16 @@ use Illuminate\Support\Facades\DB;
 
 class TransaksiServiceImpl implements TransaksiService
 {
+    private function getJakartaDayRange(int $daysAgo = 0): array
+    {
+        $start = now('Asia/Jakarta')->subDays($daysAgo)->startOfDay()->timezone('UTC');
+        $end = now('Asia/Jakarta')
+            ->subDays($daysAgo - 1)
+            ->startOfDay()
+            ->timezone('UTC');
+
+        return [$start, $end];
+    }
     public function checkUser()
     {
         return Auth::user();
@@ -78,25 +88,10 @@ class TransaksiServiceImpl implements TransaksiService
     public function penarikanToday()
     {
         $todayDate = now()->startOfDay();
-        return $this->getTransaksis()->whereDate('created_at', $todayDate)->latest()->limit(5)->get();
+        return $this->getTransaksis()->whereDate('created_at', $todayDate)
+        ->latest()->limit(5)->get();
     }
 
-    public function totalPenarikanSaldoNasabah()
-    {
-        $total = $this->getTransaksis()->sum('total_penarikan');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
-
-        $today = $this->getTransaksis()->whereDate('created_at', $todayDate)->sum('total_penarikan');
-        $yesterday = $this->getTransaksis()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
-
-        return [
-            'total' => $total,
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'persentase' => $this->hitungPersentase($today, $yesterday),
-        ];
-    }
     public function transaksiById(int $id)
     {
         return Transaksi::with(['owner', 'admin', 'bukutabungan'])
@@ -110,15 +105,86 @@ class TransaksiServiceImpl implements TransaksiService
         return Transaksi::where('owner_id', $auth->id);
     }
 
-    public function totalTransaksiNasabah()
+    public function totalPenarikanSaldoNasabah()
     {
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
+        $total = $this->getTransaksis()->sum('total_penarikan');
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
 
-        $today = $this->transaksiByAuthUser()->whereDate('created_at', $todayDate)->sum('total_penarikan');
-        $yesterday = $this->transaksiByAuthUser()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+        $today = $this->getTransaksis()
+        ->whereBetween('created_at', [$todayStart, $todayEnd])
+        ->sum('total_penarikan');
+
+        $yesterday = $this->getTransaksis()
+        ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+        ->sum('total_penarikan');
 
         return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+    public function totalTransaksiNasabah()
+    {
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
+
+        $today = $this->transaksiByAuthUser()
+         ->whereBetween('created_at', [$todayStart, $todayEnd])
+         ->sum('total_penarikan');
+
+        $yesterday = $this->transaksiByAuthUser()
+          ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+          ->sum('total_penarikan');
+
+        return [
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+
+    public function totalPendapatan()
+    {
+        $total = $this->getTrxGudang()->sum('total_penarikan');
+
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);;
+
+        $today = $this->getTrxGudang()
+        ->whereBetween('created_at', [$todayStart, $todayEnd])
+        ->sum('total_penarikan');
+
+        $yesterday = $this->getTrxGudang()  
+        ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+        ->sum('total_penarikan');
+
+        return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+
+    public function totalPengeluaranByUnit()
+    {
+        $total = $this->getPengeluaranByGudang()->sum('total_penarikan');
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);;
+
+        $today = $this->getPengeluaranByGudang()     
+        ->whereBetween('created_at', [$todayStart, $todayEnd])
+        ->sum('total_penarikan');
+
+        $yesterday = $this->getPengeluaranByGudang()
+        ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+        ->sum('total_penarikan');
+
+        return [
+            'total' => $total,
             'today' => $today,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
@@ -183,25 +249,6 @@ class TransaksiServiceImpl implements TransaksiService
         return TransaksiBongkarGudang::with('admin')->where('gudang_id', $bank->gudang->id);
     }
 
-    public function totalPendapatan()
-    {
-        $total = $this->getTrxGudang()->sum('total_penarikan');
-
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
-
-        $today = $this->getTrxGudang()->whereDate('created_at', $todayDate)->sum('total_penarikan');
-
-        $yesterday = $this->getTrxGudang()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
-
-        return [
-            'total' => $total,
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'persentase' => $this->hitungPersentase($today, $yesterday),
-        ];
-    }
-
     public function getPengeluaran()
     {
         return Pengeluaran::with('admin')->where('gudang_id', $this->checkUser()->unit->gudang->id);
@@ -213,22 +260,6 @@ class TransaksiServiceImpl implements TransaksiService
         return Pengeluaran::where('gudang_id', $gudang);
     }
 
-    public function totalPengeluaranByUnit()
-    {
-        $total = $this->getPengeluaranByGudang()->sum('total_penarikan');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
-
-        $today = $this->getPengeluaranByGudang()->whereDate('created_at', $todayDate)->sum('total_penarikan');
-        $yesterday = $this->getPengeluaranByGudang()->whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
-
-        return [
-            'total' => $total,
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'persentase' => $this->hitungPersentase($today, $yesterday),
-        ];
-    }
     public function buatPengeluaran(array $data)
     {
         return DB::transaction(function () use ($data) {

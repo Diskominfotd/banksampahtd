@@ -16,6 +16,16 @@ use Illuminate\Validation\ValidationException;
 
 class SetoranServiceImpl implements SetoranService
 {
+    private function getJakartaDayRange(int $daysAgo = 0): array
+    {
+        $start = now('Asia/Jakarta')->subDays($daysAgo)->startOfDay()->timezone('UTC');
+        $end = now('Asia/Jakarta')
+            ->subDays($daysAgo - 1)
+            ->startOfDay()
+            ->timezone('UTC');
+
+        return [$start, $end];
+    }
     public function checkUser()
     {
         return Auth::user();
@@ -27,7 +37,8 @@ class SetoranServiceImpl implements SetoranService
             try {
                 $totalSaldoSetoran = collect($cart)->sum(fn($c) => $c['harga'] * $c['berat']);
 
-                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
+                $bukutabungan = BukuTabungan::where('user_id', $nasabah['id'])
+                ->where('bank_id', $bankId)->lockForUpdate()->firstOrFail();
                 $setoran = Setoran::create([
                     'penyetor_id' => $nasabah['id'],
                     'total_berat' => collect($cart)->sum('berat'),
@@ -47,8 +58,6 @@ class SetoranServiceImpl implements SetoranService
                     ]);
                 }
                 $bukutabungan->increment('saldo', $totalSaldoSetoran);
-                // $gudang = Gudang::where('bank_id', $bankId)->first();
-                // $gudang->increment('berat', collect($cart)->sum('berat'));
                 return $setoran;
             } catch (\Throwable $e) {
                 Log::error('createSetoran failed', [
@@ -152,11 +161,17 @@ class SetoranServiceImpl implements SetoranService
     public function totalBeratSetoran()
     {
         $total = $this->getSetoranByUnit()->sum('total_berat');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
 
-        $today = $this->getSetoranByUnit()->whereDate('created_at', $todayDate)->sum('total_berat');
-        $yesterday = $this->getSetoranByUnit()->whereDate('created_at', $yesterdayDate)->sum('total_berat');
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
+
+        $today = $this->getSetoranByUnit()
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->sum('total_berat');
+
+        $yesterday = $this->getSetoranByUnit()
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('total_berat');
 
         return [
             'total' => $total,
@@ -168,11 +183,17 @@ class SetoranServiceImpl implements SetoranService
     public function totalSaldoSetoran()
     {
         $total = $this->getSetoranByUnit()->sum('total_saldo');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
+        
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
 
-        $today = $this->getSetoranByUnit()->whereDate('created_at', $todayDate)->sum('total_saldo');
-        $yesterday = $this->getSetoranByUnit()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
+
+        $today = $this->getSetoranByUnit()  
+        ->whereBetween('created_at', [$todayStart, $todayEnd])
+        ->sum('total_saldo');
+        $yesterday = $this->getSetoranByUnit()
+        ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+        ->sum('total_saldo');
 
         return [
             'total' => $total,
@@ -184,11 +205,16 @@ class SetoranServiceImpl implements SetoranService
     public function totalSaldoSetoranNasbah()
     {
         $total = $this->setoranByAuthUser()->sum('total_saldo');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
 
-        $today = $this->setoranByAuthUser()->whereDate('created_at', $todayDate)->sum('total_saldo');
-        $yesterday = $this->setoranByAuthUser()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
+        $today = $this->setoranByAuthUser()
+        ->whereBetween('created_at', [$todayStart, $todayEnd])
+        ->sum('total_saldo');
+
+        $yesterday = $this->setoranByAuthUser()
+        ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+        ->sum('total_saldo');
 
         return [
             'total' => $total,
@@ -200,6 +226,8 @@ class SetoranServiceImpl implements SetoranService
 
     public function pendapatanBersih()
     {
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
         $auth = $this->checkUser();
         $parent = $auth->unit->parent_id;
         $unitId = $auth->unit->id;
@@ -214,10 +242,10 @@ class SetoranServiceImpl implements SetoranService
             });
         }
         $total = $pendapatan->sum('total_penarikan') - $pengeluaran->sum('total_penarikan');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
-        $today = TransaksiBongkarGudang::whereDate('created_at', $todayDate)->sum('total_penarikan');
-        $yesterday = Pengeluaran::whereDate('created_at', $yesterdayDate)->sum('total_penarikan');
+        $today = TransaksiBongkarGudang::whereBetween('created_at', [$todayStart, $todayEnd])
+        ->sum('total_penarikan');
+        $yesterday = Pengeluaran::whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+        ->sum('total_penarikan');
         return [
             'total' => $total,
             'today' => $today,
