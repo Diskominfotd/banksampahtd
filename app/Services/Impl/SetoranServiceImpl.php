@@ -21,17 +21,6 @@ class SetoranServiceImpl implements SetoranService
         return Auth::user();
     }
 
-    private function hitungPersentase(float $today, float $yesterday): float
-    {
-        if ($yesterday > 0) {
-            return round((($today - $yesterday) / $yesterday) * 100, 2);
-        }
-        if ($today > 0) {
-            return 100;
-        }
-        return 0;
-    }
-
     public function createSetoran(User $nasabah, array $cart, int $bankId): Setoran
     {
         return DB::transaction(function () use ($nasabah, $cart, $bankId) {
@@ -91,40 +80,6 @@ class SetoranServiceImpl implements SetoranService
             ->first();
     }
 
-    public function totalBeratSetoran()
-    {
-        $total = $this->getSetoranByUnit()->sum('total_berat');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
-
-        $today = $this->getSetoranByUnit()->whereDate('created_at', $todayDate)->sum('total_berat');
-        $yesterday = $this->getSetoranByUnit()->whereDate('created_at', $yesterdayDate)->sum('total_berat');
-
-        return [
-            'total' => $total,
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'persentase' => $this->hitungPersentase($today, $yesterday),
-        ];
-    }
-
-    public function totalSaldoSetoran()
-    {
-        $total = $this->getSetoranByUnit()->sum('total_saldo');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
-
-        $today = $this->getSetoranByUnit()->whereDate('created_at', $todayDate)->sum('total_saldo');
-        $yesterday = $this->getSetoranByUnit()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
-
-        return [
-            'total' => $total,
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'persentase' => $this->hitungPersentase($today, $yesterday),
-        ];
-    }
-
     public function setoranToday()
     {
         return $this->getSetoranByUnit()
@@ -138,23 +93,6 @@ class SetoranServiceImpl implements SetoranService
     {
         $user = $this->checkUser();
         return Setoran::where('penyetor_id', $user->id);
-    }
-
-    public function totalSaldoSetoranNasbah()
-    {
-        $total = $this->setoranByAuthUser()->sum('total_saldo');
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
-
-        $today = $this->setoranByAuthUser()->whereDate('created_at', $todayDate)->sum('total_saldo');
-        $yesterday = $this->setoranByAuthUser()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
-
-        return [
-            'total' => $total,
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'persentase' => $this->hitungPersentase($today, $yesterday),
-        ];
     }
 
     public function getSetoranByAuthUser()
@@ -201,8 +139,64 @@ class SetoranServiceImpl implements SetoranService
             'total' => $total,
         ];
     }
+    private function hitungPersentase(float $today, float $yesterday): float
+    {
+        if ($yesterday > 0) {
+            return round((($today - $yesterday) / $yesterday) * 100, 2);
+        }
+        if ($today > 0) {
+            return 100;
+        }
+        return 0;
+    }
+    public function totalBeratSetoran()
+    {
+        $total = $this->getSetoranByUnit()->sum('total_berat');
+        $todayDate = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
 
-    public function editTrxSetoran() {}
+        $today = $this->getSetoranByUnit()->whereDate('created_at', $todayDate)->sum('total_berat');
+        $yesterday = $this->getSetoranByUnit()->whereDate('created_at', $yesterdayDate)->sum('total_berat');
+
+        return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+    public function totalSaldoSetoran()
+    {
+        $total = $this->getSetoranByUnit()->sum('total_saldo');
+        $todayDate = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
+
+        $today = $this->getSetoranByUnit()->whereDate('created_at', $todayDate)->sum('total_saldo');
+        $yesterday = $this->getSetoranByUnit()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
+
+        return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+    public function totalSaldoSetoranNasbah()
+    {
+        $total = $this->setoranByAuthUser()->sum('total_saldo');
+        $todayDate = now()->startOfDay();
+        $yesterdayDate = now()->subDay()->startOfDay();
+
+        $today = $this->setoranByAuthUser()->whereDate('created_at', $todayDate)->sum('total_saldo');
+        $yesterday = $this->setoranByAuthUser()->whereDate('created_at', $yesterdayDate)->sum('total_saldo');
+
+        return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
 
     public function pendapatanBersih()
     {
