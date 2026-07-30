@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomeFunctionController;
 use App\Http\Controllers\PanelController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\LevelOne;
@@ -7,8 +8,14 @@ use App\Http\Middleware\LevelTwo;
 use App\Http\Middleware\MultiLevel;
 use Illuminate\Support\Facades\Route;
 
-// Route::middleware(['throttle:global'])->group(function () {
-// taruh sementara di routes/web.php paling atas
+
+
+
+
+
+
+Route::get('/testing', [CustomeFunctionController::class, 'testing']);
+
 Route::get('/debug-scheme', function () {
     return [
         'scheme' => request()->getScheme(),
