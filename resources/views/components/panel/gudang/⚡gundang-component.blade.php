@@ -119,7 +119,7 @@ new class extends Component {
         $this->alertPopUp();
     }
 
-    #[On('doDelete')]
+    #[On('doDeleteTrxGudang')]
     public function doDeleteTrxGudang(string $trxId)
     {
         $trxId = decrypt($trxId);
@@ -168,7 +168,7 @@ new class extends Component {
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
-    #[On('doDelete')]
+    #[On('doDeleteTrxPengeluaran')]
     public function doDeleteTrxPengeluaran(string $trxId)
     {
         $trxId = decrypt($trxId);
