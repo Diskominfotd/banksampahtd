@@ -8,13 +8,7 @@ use App\Http\Middleware\LevelTwo;
 use App\Http\Middleware\MultiLevel;
 use Illuminate\Support\Facades\Route;
 
-
-
-
-
-
-
-Route::get('/testing', [CustomeFunctionController::class, 'testing']);
+// Route::get('/testing', [CustomeFunctionController::class, 'testing']);
 
 Route::get('/debug-scheme', function () {
     return [
@@ -23,8 +17,11 @@ Route::get('/debug-scheme', function () {
         'x_fwd_proto' => request()->header('X-Forwarded-Proto'),
     ];
 });
-Route::get('/login', [PanelController::class, 'login'])->name('login');
-Route::middleware(Authenticate::class)->group(function (): void {
+Route::get('/login', [PanelController::class, 'login'])
+    ->name('login')
+    ->middleware('throttle:20,1');
+
+Route::middleware([Authenticate::class, 'throttle:100,1'])->group(function (): void {
     Route::get('/', [PanelController::class, 'home'])->name('home');
     Route::get('/profile', [PanelController::class, 'profile'])->name('profile');
 
@@ -34,11 +31,13 @@ Route::middleware(Authenticate::class)->group(function (): void {
         Route::get('/harga', [PanelController::class, 'harga'])->name('harga');
         Route::get('/grafik', [PanelController::class, 'grafik'])->name('grafik');
         Route::get('/penarikan', [PanelController::class, 'penarikanSaldo'])->name('penarikan.saldo');
+
         Route::middleware(LevelOne::class)->group(function (): void {
             Route::get('/kategori', [PanelController::class, 'kategori'])->name('kategori');
             Route::get('/unit', [PanelController::class, 'unit'])->name('unit');
             Route::get('/organisasi', [PanelController::class, 'organisasi'])->name('organisasi');
         });
+
         Route::middleware(LevelTwo::class)->group(function (): void {
             Route::get('/gudang', [PanelController::class, 'gudang'])->name('gudang');
             Route::get('/setoran/pencatatan', [PanelController::class, 'catatSetoran'])->name('setoran.catat');
@@ -46,4 +45,3 @@ Route::middleware(Authenticate::class)->group(function (): void {
         });
     });
 });
-// });
