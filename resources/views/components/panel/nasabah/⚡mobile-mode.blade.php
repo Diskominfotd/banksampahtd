@@ -151,8 +151,8 @@ new class extends Component {
 
                 <div class="f-group">
                     <label>No. HP</label>
-                    <input class="f-input" type="tel" wire:model="nomorHp" placeholder="08xx-xxxx-xxxx">
-                    @error('nomorHp')
+                    <input class="f-input" type="tel" wire:model="nomorTelepon" placeholder="08xx-xxxx-xxxx">
+                    @error('nomorTelepon')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
@@ -362,8 +362,8 @@ new class extends Component {
                 </div>
                 <div class="f-group">
                     <label>No. HP</label>
-                    <input class="f-input" type="tel" wire:model="nomorHpNasabah" placeholder="08xx-xxxx-xxxx">
-                    @error('nomorHpNasabah')
+                    <input class="f-input" type="tel" wire:model="nomorTeleponNasabah" placeholder="08xx-xxxx-xxxx">
+                    @error('nomorTeleponNasabah')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>

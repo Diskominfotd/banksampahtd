@@ -7,6 +7,7 @@ use Illuminate\Validation\Rule;
 use App\Livewire\TraitComponent;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+
 new class extends Component {
     use WithFileUploads;
     protected UserServices $userService;
@@ -76,7 +77,8 @@ new class extends Component {
     {
         $this->validate([
             'namaBank' => ['required', 'string', 'max:255'],
-            'kodeBank' => ['required', 'string', 'max:20', Rule::unique('bank_sampahs', 'kode_bank')->ignore(Auth::user()->unit->id)],
+            'kodeBank' => ['required', 'string', 'max:20', Rule::unique('bank_sampahs', 'kode_bank')
+            ->ignore(Auth::user()->unit->id)],
             'alamatBank' => ['required', 'string','max:255'],
             'jamBuka' => ['required'],
             'jamTutup' => ['required'],
@@ -113,7 +115,8 @@ new class extends Component {
                 },
             ],
             'email' => ['required', 'string'],
-            'nomorTeleponNasabah' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
+            'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', Rule::unique('users', 'nomor_hp')
+            ->ignore(Auth::user()->id)],
             'fotoProfile' => ['nullable', 'image','max:2048'],
         ]);
 

@@ -50,18 +50,18 @@ class UserServicesImpl implements UserServices
 
     public function doLogin(array $data)
     {
-        $nik = $data['nik'];
+        $phoneNumber = $data['nomorTelepon'];
         $password = $data['password'];
-        $hashedNik = hash('sha256', $nik);
+        // $hashedNik = hash('sha256', $nik);
 
-        $user = User::query()->where('nik_hash', $hashedNik)->first();
+        $user = User::query()->where('nomor_hp', $phoneNumber)->first();
 
         if (!$user) {
-            return redirect()->route('login')->with('error', 'Nik atau password anda salah');
+            return redirect()->route('login')->with('error', 'Nomor Telepon atau password anda salah');
         }
 
         if (!Hash::check($password, $user->password)) {
-            return redirect()->route('login')->with('error', 'Nik atau password anda salah');
+            return redirect()->route('login')->with('error', 'Nomor Telepon atau password anda salah');
         }
 
         Auth::login($user);

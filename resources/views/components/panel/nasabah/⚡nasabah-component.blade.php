@@ -9,6 +9,7 @@ use Livewire\Attributes\On;
 use App\Livewire\TraitComponent;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use Illuminate\Validation\Rule;
 new class extends Component {
     use WithPagination;
     use TraitComponent;
@@ -22,7 +23,7 @@ new class extends Component {
     // Properti untuk form pendaftaran nasabah
     public ?string $nama = '';
     public ?string $nik = '';
-    public ?string $nomorHp = '';
+    public ?string $nomorTelepon = '';
     public ?string $email = '';
     public $jenis = 'perorangan';
     public ?int $organisasi = null;
@@ -33,7 +34,7 @@ new class extends Component {
     public int $nasabahId;
     public ?string $namaNasabah = '';
     public ?string $nikNasabah = '';
-    public ?string $nomorHpNasabah = '';
+    public ?string $nomorTeleponNasabah = '';
     public ?string $emailNasabah = '';
     public $jenisNasabah = 'perorangan';
     public ?int $organisasiNasabah = null;
@@ -96,7 +97,7 @@ new class extends Component {
         $this->nasabahId = $user->id;
         $this->namaNasabah = $user->name;
         $this->nikNasabah = $user->nik;
-        $this->nomorHpNasabah = $user->nomor_hp;
+        $this->nomorTeleponNasabah = $user->nomor_hp;
         $this->emailNasabah = $user->email;
         $this->jenisNasabah = $user->mewakili;
         $this->organisasiNasabah = $user->organisasi_id;
@@ -136,7 +137,8 @@ new class extends Component {
                     }
                 },
             ],
-            'nomorHpNasabah' => 'required|regex:/^08\d{8,}$/',
+            'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', 
+            Rule::unique('users', 'nomor_hp')->ignore($this->nasabahId)],
             'emailNasabah' => 'required|email',
             'jenisNasabah' => 'required|in:perorangan,kelompok',
             'organisasiNasabah' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
@@ -146,14 +148,16 @@ new class extends Component {
         $this->userService->updateUser($this->nasabahId, [
             'name' => $this->namaNasabah,
             'nik' => $this->nikNasabah,
-            'nomor_hp' => $this->nomorHpNasabah,
+            'nomor_hp' => $this->nomorTeleponNasabah,
             'email' => $this->emailNasabah,
             'mewakili' => $this->jenisNasabah,
             'organisasi_id' => $this->organisasiNasabah,
             'bank_sampah_id' => $this->unitNasabah,
             'is_admin' => $this->isAdmin,
         ]);
-        $this->reset(['namaNasabah', 'nikNasabah', 'nomorHpNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'unitNasabah']);
+        $this->reset([
+        'namaNasabah', 'nikNasabah', 'nomorTeleponNasabah', 'emailNasabah', 
+        'jenisNasabah', 'organisasiNasabah', 'unitNasabah']);
         $this->dispatch('close-modal');
         $this->alert();
     }
@@ -168,13 +172,14 @@ new class extends Component {
                 'required',
                 'digits:16',
                 function ($attribute, $value, $fail) {
-                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->exists();
+                    $exists = $this->userService->userBuilder()
+                    ->where('nik_hash', hash('sha256', $value))->exists();
                     if ($exists) {
                         $fail('NIK sudah terdaftar.');
                     }
                 },
             ],
-            'nomorHp' => 'required|regex:/^08\d{8,}$/',
+            'nomorTelepon' => 'required|regex:/^08\d{8,}$/|unique:users,nomor_hp',
             'email' => 'required|email',
             'jenis' => 'required|in:perorangan,kelompok',
             'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
@@ -188,14 +193,14 @@ new class extends Component {
         $this->userService->register([
             'name' => $this->nama,
             'nik' => $this->nik,
-            'nomor_hp' => $this->nomorHp,
+            'nomor_hp' => $this->nomorTelepon,
             'email' => $this->email,
             'mewakili' => $this->jenis,
             'organisasi_id' => $this->organisasi,
             'password' => $this->password,
             'bank_sampah_id' => $this->unit,
         ]);
-        $this->reset(['nama', 'nik', 'nomorHp', 'email', 'jenis', 'organisasi', 'password']);
+        $this->reset(['nama', 'nik', 'nomorTelepon', 'email', 'jenis', 'organisasi', 'password']);
         $this->dispatch('close-modal');
         $this->alert();
     }

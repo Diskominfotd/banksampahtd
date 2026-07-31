@@ -186,9 +186,9 @@ new class extends Component {
                             <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">No. HP</label>
-                                    <input class="w-form-input" type="tel" wire:model="nomorHp"
+                                    <input class="w-form-input" type="tel" wire:model="nomorTelepon"
                                         placeholder="08xx-xxxx-xxxx">
-                                    @error('nomorHp')
+                                    @error('nomorTelepon')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -546,8 +546,8 @@ new class extends Component {
                             <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">No. HP</label>
-                                    <input class="w-form-input" type="tel" wire:model="nomorHpNasabah">
-                                    @error('nomorHpNasabah')
+                                    <input class="w-form-input" type="tel" wire:model="nomorTeleponNasabah">
+                                    @error('nomorTeleponNasabah')
                                         <small class="text-danger" style="font-size:10px">{{ $message }}</small>
                                     @enderror
                                 </div>
@@ -629,7 +629,7 @@ new class extends Component {
                     <div class="row g-2 mt-2">
                         <div class="col-6">
                             <div class="detail-field"><span class="df-key">No. HP</span><span
-                                    class="df-val">{{ $this->nomorHpNasabah }}</span></div>
+                                    class="df-val">{{ $this->nomorTeleponNasabah }}</span></div>
                         </div>
                         <div class="col-6">
                             <div class="detail-field">

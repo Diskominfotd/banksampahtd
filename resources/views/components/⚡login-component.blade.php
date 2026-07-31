@@ -8,7 +8,7 @@ use App\Models\Setoran;
 
 new class extends Component {
     protected UserServices $userService;
-    public string $nik = '';
+    public string $nomorTelepon = '';
     public string $password = '';
 
     public function boot(UserServices $userService)
@@ -18,11 +18,11 @@ new class extends Component {
     public function doLogin()
     {
         $this->validate([
-            'nik' => 'required|string|max:16',
+            'nomorTelepon' => 'required|string|max:13',
             'password' => 'required|min:6',
         ]);
         $this->userService->doLogin([
-            'nik' => $this->nik,
+            'nomorTelepon' => $this->nomorTelepon,
             'password' => $this->password,
         ]);
     }
@@ -121,13 +121,15 @@ new class extends Component {
             <!-- Form -->
             <form wire:submit.prevent="doLogin" class="form-area" id="form-area">
                 <div class="mb-3">
-                    <label for="nik" class="form-label">NIK Pengguna</label>
+                    <label for="nomorTelepon" class="form-label">Nomor Telepon</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                        <input type="text" id="nik" wire:model="nik"
-                            class="form-control @error('nik') is-invalid @enderror" placeholder="13xxxxxxxxxxxx"
-                            maxlength="16" autocomplete="username">
-                        @error('nik')
+                        <input type="text" id="nomorTelepon" wire:model="nomorTelepon"
+                            class="form-control @error('nomorTelepon') is-invalid @enderror"
+                            placeholder="08xxxxxxxxxx" maxlength="13" autocomplete="username" inputmode="numeric"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+
+                        @error('nomorTelepon')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
