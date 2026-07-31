@@ -13,7 +13,6 @@ use Illuminate\Validation\Rules\Password;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,15 +29,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::define('viewPulse', function (User $user) {
-            Log::info('PULSE GATE CHECK', [
-                'user_class' => get_class($user),
-                'user_id' => $user->id,
-                'has_role' => $user->hasRole(['supervisor']),
-                'roles' => $user->roles->pluck('name'),
-            ]);
-            return $user->hasRole(['supervisor']);
-        });
+
+        // Gate::define('viewPulse', function (User $user) {
+        //     return $user->hasRole(['supervisor']);
+        // });
         Request::macro('hasValidSignature', function ($absolute = true) {
             $uploading = strpos(URL::current(), '/livewire/upload-file');
             $previewing = strpos(URL::current(), '/livewire/preview-file');
@@ -64,6 +58,8 @@ class AppServiceProvider extends ServiceProvider
 
         DB::prohibitDestructiveCommands(app()->isProduction());
 
-        Password::defaults(fn(): ?Password => app()->isProduction() ? Password::min(12)->mixedCase()->letters()->numbers()->symbols()->uncompromised() : null);
+        Password::defaults(fn(): ?Password => 
+        app()->isProduction() ? Password::min(12)->mixedCase()
+        ->letters()->numbers()->symbols()->uncompromised() : null);
     }
 }
