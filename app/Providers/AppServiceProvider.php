@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
@@ -29,8 +28,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::define('viewPulse', function ($user) {
-            return true;
+        Gate::define('viewPulse', function () {
+            return Auth::check() && Auth::user()->hasRole('supervisor');
         });
         Request::macro('hasValidSignature', function ($absolute = true) {
             $uploading = strpos(URL::current(), '/livewire/upload-file');
