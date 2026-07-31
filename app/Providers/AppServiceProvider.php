@@ -30,9 +30,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 
-        // Gate::define('viewPulse', function (User $user) {
-        //     return $user->hasRole(['supervisor']);
-        // });
+        Gate::define('viewPulse', function (User $user) {
+            return $user->hasRole(['supervisor']);
+        });
         Request::macro('hasValidSignature', function ($absolute = true) {
             $uploading = strpos(URL::current(), '/livewire/upload-file');
             $previewing = strpos(URL::current(), '/livewire/preview-file');
