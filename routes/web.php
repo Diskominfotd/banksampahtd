@@ -8,7 +8,7 @@ use App\Http\Middleware\LevelTwo;
 use App\Http\Middleware\MultiLevel;
 use Illuminate\Support\Facades\Route;
 
-// Route::get('/testing', [CustomeFunctionController::class, 'testing']);
+Route::get('/testing', [CustomeFunctionController::class, 'testing']);
 
 Route::get('/debug-scheme', function () {
     return [

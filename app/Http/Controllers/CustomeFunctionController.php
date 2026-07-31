@@ -9,9 +9,15 @@ class CustomeFunctionController extends Controller
 {
     public function testing()
     {
-        $user = User::with('roles')->find(1);
-        $user->syncRoles(['supervisor']);
+        // $user = User::with('roles')->find(1);
+        // $user->syncRoles(['supervisor']);
 
-        return dd(json_encode($user, JSON_PRETTY_PRINT));
+        $users = User::whereIn('nomor_hp', function ($query) {
+            $query->select('nomor_hp')->from('users')->whereNotNull('nomor_hp')->where('nomor_hp', '!=', '')->groupBy('nomor_hp')->havingRaw('COUNT(*) > 1');
+        })
+            ->orderBy('nomor_hp')
+            ->get();
+
+        return dd(json_encode($users, JSON_PRETTY_PRINT));
     }
 }
