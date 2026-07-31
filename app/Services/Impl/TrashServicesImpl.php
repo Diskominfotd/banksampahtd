@@ -32,8 +32,8 @@ class TrashServicesImpl implements TrashServices
         if ($priceTrash->trash) {
             $priceTrash->trash->delete();
         }
-
-        return $priceTrash->delete();
+        $priceTrash->delete();
+        return session()->flash('success', 'Berhasil Dihapus');
     }
 
     public function getTrashBuilder()

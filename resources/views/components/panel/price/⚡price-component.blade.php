@@ -3,14 +3,14 @@
 use Livewire\Component;
 use App\Services\TrashServices;
 use App\Models\Price;
-use App\Models\BankSampah;
+use App\Livewire\TraitComponent;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithPagination;
 use Livewire\Attributes\On;
 new class extends Component {
     use WithPagination;
     protected TrashServices $trashService;
-
+    use TraitComponent;
     // new jenis attribut
     public ?int $kategori;
     public ?int $priceLimit = 10;
@@ -37,10 +37,8 @@ new class extends Component {
     public function logout()
     {
         Auth::logout();
-
         session()->invalidate();
         session()->regenerateToken();
-
         return redirect()->route('login');
     }
     public function movePage(string $route)
@@ -114,7 +112,7 @@ new class extends Component {
             ->priceList()
             ->filter(fn($price) => str_contains(strtolower($price->trash->nama ?? ''), strtolower($this->searchPrice)))
             ->values()
-            ->take($this->priceLimit) // ← ambil sesuai limit
+            ->take($this->priceLimit)
             ->map(
                 fn($price) => [
                     'id' => $price->id,
@@ -147,9 +145,11 @@ new class extends Component {
         $this->priceDetail();
     }
     #[On('doDelete')]
-    public function delete()
+    public function delete(string $trashId)
     {
-        $this->trashService->deleteTrash($this->trashId);
+        $trashId = decrypt($trashId);
+        $this->trashService->deleteTrash($trashId);
+        $this->alert();
     }
 
     public function alertDelete(string $trashId)

@@ -16,8 +16,8 @@
             --bg-deep: #f0f7f2;
             --bg-card: #ffffff;
             --bg-dark: #f4f9f5;
-            --cyan: #2e7d32;
-            --cyan-10: rgba(46, 125, 50, .10);
+            --cyan: #059669;
+            --cyan-10: rgba(5, 150, 105, .10);
             --cyan-12: rgba(46, 125, 50, .12);
             --cyan-bd: rgba(46, 125, 50, .35);
             --blue: #1b5e20;

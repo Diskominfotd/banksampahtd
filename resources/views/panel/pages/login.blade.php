@@ -14,16 +14,25 @@
         rel="stylesheet">
     <style>
         :root {
-            --bs-blue: #1976d2;
-            --bs-primary: #2e7d32;
-            --bs-primary-rgb: 46, 125, 50;
-            --bg-deep: #f0f7f2;
+            /* Base brand — hijau tua, dipakai untuk background & tombol utama */
+            --brand-dark: #1b5e20;
+            --brand-mid: #2e7d32;
+            --brand-light: #388e3c;
+
+            /* Aksen — emerald, dipakai untuk border/focus/ikon supaya lebih hidup */
+            --cyan: #059669;
+            --cyan-10: rgba(5, 150, 105, .10);
+            --cyan-bd: rgba(5, 150, 105, .35);
+            --border: rgba(5, 150, 105, .18);
+
+            --bs-primary: #059669;
+            --bs-primary-rgb: 5, 150, 105;
+
             --blue: #1976d2;
             --blue-10: color-mix(in srgb, var(--blue) 10%, white);
-            --cyan: #2e7d32;
-            --cyan-10: rgba(46, 125, 50, .10);
-            --cyan-bd: rgba(46, 125, 50, .35);
-            --border: rgba(46, 125, 50, .18);
+            --bs-blue: #1976d2;
+
+            --bg-deep: #f0f7f2;
             --muted: rgba(20, 60, 30, .45);
             --text-main: #0d2113;
         }
@@ -44,7 +53,7 @@
             position: fixed;
             inset: 0;
             z-index: 0;
-            background: linear-gradient(160deg, #1b5e20 0%, #2e7d32 45%, #388e3c 100%);
+            background: linear-gradient(160deg, var(--brand-dark) 0%, var(--brand-mid) 45%, var(--brand-light) 100%);
             overflow: hidden;
         }
 
@@ -284,7 +293,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid));
             border: none;
             font-family: 'Syne', sans-serif;
             font-weight: 700;
@@ -293,7 +302,7 @@
 
         .btn-primary:hover {
             opacity: .9;
-            background: linear-gradient(135deg, #1b5e20, #2e7d32);
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-mid));
         }
 
         .btn-primary:active {

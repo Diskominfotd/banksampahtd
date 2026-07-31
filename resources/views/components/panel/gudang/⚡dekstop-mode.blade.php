@@ -400,7 +400,7 @@ new class extends Component {
                         }
                         }).then((result) => {
                         if (result.isConfirmed) {
-                        Livewire.dispatch('doDelete', { trxId: '{{ encrypt($itemTrx->id) }}' })
+                        Livewire.dispatch('doDeleteTrxGudang', { trxId: '{{ encrypt($itemTrx->id) }}' })
                         }
                         })"class="w-btn w-btn-danger">Hapus
                         </button>
@@ -625,7 +625,7 @@ new class extends Component {
                             }
                             }).then((result) => {
                             if (result.isConfirmed) {
-                            Livewire.dispatch('doDelete', { trxId: '{{ encrypt($itemTrxPengeluaran->id) }}' })
+                            Livewire.dispatch('doDeleteTrxPengeluaran', { trxId: '{{ encrypt($itemTrxPengeluaran->id) }}' })
                             }
                             })"class="w-btn w-btn-danger">Hapus
                         </button>

@@ -26,7 +26,7 @@ new class extends Component {
 
         return redirect()->route('login');
     }
-    
+
     public function movePage(string $route)
     {
         return redirect()->route($route);
@@ -77,9 +77,11 @@ new class extends Component {
     }
 
     #[On('doDelete')]
-    public function delete()
+    public function delete(string $categoryId)
     {
-        $this->userService->delete($this->categoryId);
+        $categoryId = decrypt($categoryId);
+        $this->userService->delete($categoryId);
+        $this->alert();
     }
 
     public function alertDelete(string $categoryId)

@@ -55,10 +55,39 @@ new class extends Component {
                                             data-bs-toggle="modal" data-bs-target="#wm-edit-kategori">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-
-                                        <button wire:click="alertDelete('{{ encrypt($category->id) }}')"
+                                        <button type="button"
+                                            x-on:click="Swal.fire({
+                                            title: 'Hapus Data Kategori ?',
+                                            html: '<span style=\'color:#6b7280;font-size:14px\'>Data yang dihapus <b>tidak bisa dikembalikan</b>. Pastikan Anda yakin sebelum melanjutkan.</span>',
+                                            icon: 'warning',
+                                            iconColor: '#d33',
+                                            showCancelButton: true,
+                                            confirmButtonText: '<i class=\'bi bi-trash3 me-1\'></i> Ya, Hapus',
+                                            cancelButtonText: 'Batal',
+                                            confirmButtonColor: '#d33',
+                                            cancelButtonColor: '#6b7280',
+                                            reverseButtons: true,
+                                            focusCancel: true,
+                                            buttonsStyling: true,
+                                            customClass: {
+                                            popup: 'rounded-4 shadow-lg',
+                                            title: 'fw-bold fs-5',
+                                            confirmButton: 'px-4 py-2 rounded-3',
+                                            cancelButton: 'px-4 py-2 rounded-3'
+                                            },
+                                            showClass: {
+                                            popup: 'animate__animated animate__zoomIn animate__faster'
+                                            },
+                                            hideClass: {
+                                            popup: 'animate__animated animate__zoomOut animate__faster'
+                                            }
+                                            }).then((result) => {
+                                            if (result.isConfirmed) {
+                                            Livewire.dispatch('doDelete', { categoryId: '{{ encrypt($category->id) }}' })
+                                            }
+                                            })"
                                             class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
-                                            <i class="bi bi-trash"></i>
+                                            <i class="bi bi-trash3"></i>
                                         </button>
                                     </td>
                                 </tr>

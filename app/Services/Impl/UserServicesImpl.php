@@ -188,9 +188,11 @@ class UserServicesImpl implements UserServices
     public function delete(int $id)
     {
         $category = Category::findOrFail($id);
-        if ($category) {
-            return $category->delete();
+        if (!$category) {
+            return session()->flash('error', 'Data tidak ditemukan');
         }
+        $category->delete();
+        return session()->flash('success', 'Berhasil dihapus');
     }
 
     public function createBukuTabungan(int $userId, int $bankId)
