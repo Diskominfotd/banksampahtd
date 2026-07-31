@@ -98,10 +98,6 @@ new class extends Component {
                                             data-bs-toggle="modal" data-bs-target="#wm-detail-nasabah">
                                             <i class="bi bi-eye"></i>
                                         </button>
-                                        <button wire:click="alertDelete('{{ encrypt($nasabah->id) }}')"
-                                            class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
                                         <button type="button"
                                             x-on:click="Swal.fire({
                                                     title: 'Hapus Data Nasabah?',
