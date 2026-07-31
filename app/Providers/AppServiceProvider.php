@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Providers;
-use Illuminate\Pagination\Paginator;
 use Carbon\CarbonImmutable;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,8 +29,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $auth = Auth::user();
         Gate::define('viewPulse', function (User $user) {
-            return $user->hasRole('supervisor');
+            return $user->hasRole(['supervisor']);
         });
         Request::macro('hasValidSignature', function ($absolute = true) {
             $uploading = strpos(URL::current(), '/livewire/upload-file');
@@ -56,6 +58,8 @@ class AppServiceProvider extends ServiceProvider
 
         DB::prohibitDestructiveCommands(app()->isProduction());
 
-        Password::defaults(fn(): ?Password => app()->isProduction() ? Password::min(12)->mixedCase()->letters()->numbers()->symbols()->uncompromised() : null);
+        Password::defaults(fn(): ?Password => 
+        app()->isProduction() ? Password::min(12)->mixedCase()
+        ->letters()->numbers()->symbols()->uncompromised() : null);
     }
 }
