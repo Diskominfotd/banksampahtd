@@ -125,42 +125,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $user2->assignRole($role2);
-        // }
-
-        // for ($i = 1; $i <= 20; $i++) {
-        //     $user = User::factory()->create([
-        //         'name' => "nasabah{$i}",
-        //         'email' => "nasabah{$i}@example.com",
-        //         'password' => bcrypt('rahasia'),
-        //         'nik' => '13010730059601' . str_pad($i, 2, '0', STR_PAD_LEFT),
-        //         'nik_hash' => hash('sha256', '13010730059601' . str_pad($i, 2, '0', STR_PAD_LEFT)),
-        //         'nomor_hp' => '0899999998' . str_pad($i, 2, '0', STR_PAD_LEFT),
-        //         'organisasi_id' => $org->id,
-        //         'bank_sampah_id' => fake()->randomElement([2, 3]),
-        //     ]);
-
-        //     $user->assignRole($role3);
-        // }
-
-        // for ($i = 1; $i <= 20; $i++) {
-        //     $cat = Category::create([
-        //         'name' => 'Kategori' . $i,
-        //     ]);
-        //     $categories[] = $cat->id;
-        // }
-        // for ($i = 1; $i <= 20; $i++) {
-        //     $trash = Trash::create([
-        //         'nama' => "Sampah {$i}",
-        //         'syarat' => "Kondisi bagus {$i}",
-        //         'category_id' => $categories[array_rand($categories)],
-        //     ]);
-
-        //     $trash->prices()->create([
-        //         'bank_id' => 1,
-        //         'type' => 'induk',
-        //         'harga' => rand(1000, 10000),
-        //     ]);
-        // }
+  
 
         $categories = [
             'AKI' => Category::firstOrCreate(['name' => 'AKI']),

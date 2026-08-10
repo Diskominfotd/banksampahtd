@@ -26,4 +26,5 @@ interface TransaksiService
     public function deleteTrxGudang(int $trxId);
     public function editTrxGudang(int $trxId, array $data);
     public function deleteTrxPengeluaran(int $trxId);
+    public function getBankUnit();
 }

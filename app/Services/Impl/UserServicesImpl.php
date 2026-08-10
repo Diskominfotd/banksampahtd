@@ -410,4 +410,26 @@ class UserServicesImpl implements UserServices
     {
         return Organisasi::find($id);
     }
+
+    public function totalUnitActive()
+    {
+        $now = now();
+
+        $current = BankSampah::where('status', true)->count();
+
+        $previous = BankSampah::where('status', true)
+            ->whereMonth('created_at', $now->copy()->subMonth()->month)
+            ->whereYear('created_at', $now->copy()->subMonth()->year)
+            ->count();
+
+        $difference = $current - $previous;
+        $totalAll = BankSampah::count();
+        $persentase = $totalAll > 0 ? round(($current / $totalAll) * 100, 1) : 0;
+
+        return [
+            'value' => $current,
+            'difference' => $difference,
+            'persentase' => $persentase,
+        ];
+    }
 }

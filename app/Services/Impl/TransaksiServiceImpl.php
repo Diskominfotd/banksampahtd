@@ -88,8 +88,7 @@ class TransaksiServiceImpl implements TransaksiService
     public function penarikanToday()
     {
         $todayDate = now()->startOfDay();
-        return $this->getTransaksis()->whereDate('created_at', $todayDate)
-        ->latest()->limit(5)->get();
+        return $this->getTransaksis()->whereDate('created_at', $todayDate)->latest()->limit(5)->get();
     }
 
     public function transaksiById(int $id)
@@ -112,12 +111,12 @@ class TransaksiServiceImpl implements TransaksiService
         [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
 
         $today = $this->getTransaksis()
-        ->whereBetween('created_at', [$todayStart, $todayEnd])
-        ->sum('total_penarikan');
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->sum('total_penarikan');
 
         $yesterday = $this->getTransaksis()
-        ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
-        ->sum('total_penarikan');
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('total_penarikan');
 
         return [
             'total' => $total,
@@ -132,12 +131,12 @@ class TransaksiServiceImpl implements TransaksiService
         [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
 
         $today = $this->transaksiByAuthUser()
-         ->whereBetween('created_at', [$todayStart, $todayEnd])
-         ->sum('total_penarikan');
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->sum('total_penarikan');
 
         $yesterday = $this->transaksiByAuthUser()
-          ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
-          ->sum('total_penarikan');
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('total_penarikan');
 
         return [
             'today' => $today,
@@ -151,15 +150,15 @@ class TransaksiServiceImpl implements TransaksiService
         $total = $this->getTrxGudang()->sum('total_penarikan');
 
         [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
-        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);;
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
 
         $today = $this->getTrxGudang()
-        ->whereBetween('created_at', [$todayStart, $todayEnd])
-        ->sum('total_penarikan');
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->sum('total_penarikan');
 
-        $yesterday = $this->getTrxGudang()  
-        ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
-        ->sum('total_penarikan');
+        $yesterday = $this->getTrxGudang()
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('total_penarikan');
 
         return [
             'total' => $total,
@@ -173,15 +172,15 @@ class TransaksiServiceImpl implements TransaksiService
     {
         $total = $this->getPengeluaranByGudang()->sum('total_penarikan');
         [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
-        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);;
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
 
-        $today = $this->getPengeluaranByGudang()     
-        ->whereBetween('created_at', [$todayStart, $todayEnd])
-        ->sum('total_penarikan');
+        $today = $this->getPengeluaranByGudang()
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->sum('total_penarikan');
 
         $yesterday = $this->getPengeluaranByGudang()
-        ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
-        ->sum('total_penarikan');
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('total_penarikan');
 
         return [
             'total' => $total,
@@ -391,5 +390,10 @@ class TransaksiServiceImpl implements TransaksiService
             }
             session()->flash('success', 'Perubahan Berhasil');
         });
+    }
+
+    public function getBankUnit()
+    {
+        return BankSampah::with('gudang');
     }
 }

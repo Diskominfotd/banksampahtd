@@ -17,7 +17,8 @@ new class extends Component {
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
                         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Data Nasabah</div>
-                        <div style="font-size:11px;color:var(--muted)">128 nasabah aktif — 3 nasabah baru bulan ini
+                        <div style="font-size:11px;color:var(--muted)"> {{ $data['totalNasabah']['total'] }} nasabah
+                            aktif — {{ $data['totalNasabah']['total'] }} nasabah baru bulan ini
                         </div>
                     </div>
                     <div class="d-flex gap-2">

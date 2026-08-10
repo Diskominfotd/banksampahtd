@@ -137,8 +137,7 @@ new class extends Component {
                     }
                 },
             ],
-            'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', 
-            Rule::unique('users', 'nomor_hp')->ignore($this->nasabahId)],
+            'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', Rule::unique('users', 'nomor_hp')->ignore($this->nasabahId)],
             'emailNasabah' => 'required|email',
             'jenisNasabah' => 'required|in:perorangan,kelompok',
             'organisasiNasabah' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
@@ -155,9 +154,7 @@ new class extends Component {
             'bank_sampah_id' => $this->unitNasabah,
             'is_admin' => $this->isAdmin,
         ]);
-        $this->reset([
-        'namaNasabah', 'nikNasabah', 'nomorTeleponNasabah', 'emailNasabah', 
-        'jenisNasabah', 'organisasiNasabah', 'unitNasabah']);
+        $this->reset(['namaNasabah', 'nikNasabah', 'nomorTeleponNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'unitNasabah']);
         $this->dispatch('close-modal');
         $this->alert();
     }
@@ -172,8 +169,7 @@ new class extends Component {
                 'required',
                 'digits:16',
                 function ($attribute, $value, $fail) {
-                    $exists = $this->userService->userBuilder()
-                    ->where('nik_hash', hash('sha256', $value))->exists();
+                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->exists();
                     if ($exists) {
                         $fail('NIK sudah terdaftar.');
                     }
@@ -237,6 +233,7 @@ new class extends Component {
         $unit = Auth::user()->unit->id;
         $user = $this->userService->userBuilder();
         $nasabahQuery = $user->with(['organisasi', 'bukutabungans', 'setorans']);
+        $totalNasabah = $this->userService->totalNasabah();
 
         if ($this->keyword) {
             $nasabahQuery->where(function ($q) {
@@ -268,6 +265,7 @@ new class extends Component {
         $nasabah = $nasabahQuery->latest()->paginate($this->perPage);
         $roles = Role::whereNotIn('name', ['supervisor'])->get();
         return [
+            'totalNasabah' => $totalNasabah,
             'organisasi' => Organisasi::query()->get(),
             'banksampah' => BankSampah::query()->get(),
             'nasabah' => $nasabah,

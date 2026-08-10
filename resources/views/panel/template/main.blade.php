@@ -54,17 +54,17 @@
 
         body[data-role="supervisor"] {
               --bg-deep: #ffffff;
-    --cyan: #45A9A9;
-    --blue: #2E8B8B;
-    --cyan-10: #eafbfa;
-    --cyan-bd: #98E8DE;
-    --border: #d5f2ee;
-    --border-light: #e8f9f6;
+                --cyan: #45A9A9;
+                --blue: #2E8B8B;
+                --cyan-10: #eafbfa;
+                --cyan-bd: #98E8DE;
+                --border: #d5f2ee;
+                --border-light: #e8f9f6;
 
-    .bs-ok {
-        background: rgba(69, 169, 169, .12);
-        color: #45A9A9;
-    }
+                .bs-ok {
+                    background: rgba(69, 169, 169, .12);
+                    color: #45A9A9;
+                }
 
         }
 

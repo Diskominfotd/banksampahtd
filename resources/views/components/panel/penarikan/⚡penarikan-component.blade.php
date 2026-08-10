@@ -5,7 +5,7 @@ use App\Services\TransaksiService;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
 use App\Livewire\TraitComponent;
-
+use Illuminate\Support\Facades\Auth;
 new class extends Component {
     use WithPagination;
     protected TransaksiService $transaksiService;
@@ -18,6 +18,8 @@ new class extends Component {
     public string $trxKode;
     public int $jumlah;
     public int $saldo;
+
+    public int $unitNasabah = 0;
 
     public function logout()
     {
@@ -77,6 +79,7 @@ new class extends Component {
     public function getData()
     {
         $builder = $this->transaksiService->getTransaksis();
+        $units = $this->transaksiService->getBankUnit();
         if ($this->keyword) {
             $builder->where(function ($q) {
                 $q->whereHas('owner', function ($q) {
@@ -85,14 +88,26 @@ new class extends Component {
                     $q->where('nomor_rekening', 'like', "%{$this->keyword}%");
                 });
             });
+
+            $this->resetPage();
+        }
+        if (Auth::user()->hasRole('supervisor') && $this->unitNasabah) {
+            $builder->whereHas('owner.bukutabungans', function ($q) {
+                $q->where('bank_id', $this->unitNasabah);
+            });
+
             $this->resetPage();
         }
         if ($this->date) {
             $builder->whereDate('created_at', $this->date);
         }
+
         $trx = $builder->latest()->paginate($this->perPage);
+        $allunit = $units->latest()->paginate($this->perPage);
+
         return [
             'trx' => $trx,
+            'allunit' => $allunit,
         ];
     }
 };
@@ -119,7 +134,9 @@ new class extends Component {
         <div class="m-page-header">
             <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
-            <div class="ph-title">Daftar Transaksi</div>
+            <div class="ph-title" style="font-size: 11px;">
+                Daftar Transaksi Penarikan Uang
+            </div>
             <div class="ms-auto d-flex gap-2 mb-2">
                 <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
@@ -135,6 +152,11 @@ new class extends Component {
             </div>
         </div>
         <div class="m-body">
+            <div wire:loading.flex wire:target="keyword,date,unitNasabah"
+                class="justify-content-center align-items-center"
+                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                <div class="spinner-border text-success"></div>
+            </div>
             <div class="d-flex flex-column gap-2 mt-2">
                 @forelse ($data['trx'] as $index => $trx)
                     @php
@@ -203,12 +225,22 @@ new class extends Component {
             Pencarian
         </div>
         <div class="f-group"><label>Keyword</label>
-            <input class="f-input" type="text" wire:model.live="keyword"
-                placeholder="Cari no rekening, nama trx..."P>
+            <input class="f-input" type="text" wire:model.live="keyword" placeholder="Cari no rekening, nama trx...">
         </div>
         <div class="f-group"><label>Tanggal</label>
             <input class="f-input" type="date" wire:model.live="date">
         </div>
+        @if (Auth::user()->hasRole('supervisor'))
+            <div class="f-group">
+                <label>Bank/Unit</label>
+                <select class="f-input" wire:model="unitNasabah">
+                    <option value="">Pilih Bank/Unit</option>
+                    @foreach ($data['allunit'] as $bank)
+                        <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
     </div>
     {{-- Detail trx id --}}
     <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-200"
@@ -278,6 +310,7 @@ new class extends Component {
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
                         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi
+                            Penarikan Uang
                         </div>
                         <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
                         </div>
@@ -294,69 +327,121 @@ new class extends Component {
                         <div class="w-search flex-grow-1">
                             <i class="bi bi-search si"></i>
                             <input type="text" wire:model.live="keyword"
-                                placeholder="Cari rekening atau nama trx..." style="width:100%">
+                                placeholder="Cari rekening atau nama trx..." style="width:50%">
                         </div>
-                        <div class="d-flex gap-1">
-                            <input class="w-form-input" type="date" wire:model.live='date' />
+                        <div class="d-flex gap-1" style="padding: 0 5px;">
+                            <input class="w-form-input" type="date" wire:model.live="date" />
                         </div>
+                        @if (Auth::user()->hasRole('supervisor'))
+                            <div class="d-flex gap-1" style="padding: 0 5px;">
+                                <select class="w-form-input" wire:model.live="unitNasabah">
+                                    <option value="0" hidden>Pilih Unit</option>
+                                    @foreach ($data['allunit'] as $unit)
+                                        <option value="{{ $unit->id }}">
+                                            {{ $unit->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
                     </div>
-                    <table class="w-tbl">
-                        <thead>
-                            <tr>
-                                <th>No.</th>
-                                <th>Kode</th>
-                                <th>Nama</th>
-                                <th>No. Rekening</th>
-                                <th>Total Penarikan</th>
-                                <th>Sisa Saldo</th>
-                                <th>Unit</th>
-                                <th>Tanggal</th>
-                                <th>Petugas</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (count($data['trx']) > 0)
-                                @foreach ($data['trx'] as $index => $trx)
-                                    <tr>
-                                        <td style="font-size:10px;color:var(--muted)">{{ $index + 1 }}</td>
-                                        <td style="font-size:10px;color:var(--muted)">{{ $trx->kode }}</td>
-                                        <td style="font-weight:600">{{ ucfirst($trx->owner->name) }}</td>
-                                        <td><span class="bs bs-ok">
-                                                {{ $trx->owner->bukutabungans->first()->nomor_rekening }}
-                                            </span>
-                                        </td>
-                                        <td>Rp {{ number_format($trx->total_penarikan ?? 0, 0, ',', '.') }}</td>
-                                        <td>Rp {{ number_format($trx->sisa_saldo ?? 0, 0, ',', '.') }}</td>
-                                        <td style="font-size:10px;color:var(--muted)">
-                                            {{ $trx->owner->bukutabungans->first()->bank->nama }}
-                                        </td>
-                                        <td style="font-size:10px;color:var(--muted)">
-                                            {{ $trx->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
-                                        </td>
-                                        <td style="font-size:10px;color:var(--muted)">
-                                            {{ ucfirst($trx->admin->name) ?? '-' }}
-                                        </td>
-                                        {{-- <td>
-                                            <button class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                                wire:click="editTrxDetail('{{ encrypt($trx->id) }}')"
-                                                data-bs-toggle="modal" data-bs-target="#wm-edit-trx">
-                                                <i class="bi bi-pencil-square"></i>
-                                            </button>
-                                        </td> --}}
-                                    </tr>
-                                @endforeach
-                            @else
+                    {{-- Table wrapper --}}
+                    <div style="position: relative;">
+                        {{-- Loading --}}
+                        <div wire:loading.flex wire:target="keyword,date,unitNasabah"
+                            style="position:absolute;inset:0;z-index:10;background:rgba(255,255,255,.7);
+                            align-items:center;justify-content:center;backdrop-filter:blur(2px); ">
+                            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);">
+                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                Memuat data...
+                            </div>
+                        </div>
+
+                        {{-- Table --}}
+                        <table class="w-tbl">
+                            <thead>
                                 <tr>
-                                    <td colspan="8"
-                                        style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
-                                        <i class="bi bi-inbox"
-                                            style="font-size:24px;display:block;margin-bottom:6px"></i>
-                                        Tidak Ada Data
-                                    </td>
+                                    <th>No.</th>
+                                    <th>Kode</th>
+                                    <th>Nama</th>
+                                    <th>No. Rekening</th>
+                                    <th>Total Penarikan</th>
+                                    <th>Sisa Saldo</th>
+                                    <th>Unit</th>
+                                    <th>Tanggal</th>
+                                    <th>Petugas</th>
                                 </tr>
-                            @endif
-                        </tbody>
-                    </table>
+                            </thead>
+
+                            <tbody>
+                                @if (count($data['trx']) > 0)
+
+                                    @foreach ($data['trx'] as $index => $trx)
+                                        <tr>
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $index + 1 }}
+                                            </td>
+
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $trx->kode }}
+                                            </td>
+
+                                            <td style="font-weight:600">
+                                                {{ ucfirst($trx->owner->name) }}
+                                            </td>
+
+                                            <td>
+                                                <span class="bs bs-ok">
+                                                    {{ $trx->owner->bukutabungans->first()->nomor_rekening }}
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                Rp {{ number_format($trx->total_penarikan ?? 0, 0, ',', '.') }}
+                                            </td>
+
+                                            <td>
+                                                Rp {{ number_format($trx->sisa_saldo ?? 0, 0, ',', '.') }}
+                                            </td>
+
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $trx->owner->bukutabungans->first()->bank->nama }}
+                                            </td>
+
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $trx->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
+                                            </td>
+
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $trx->admin->name ?? '-' }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="9"
+                                            style="
+                                text-align:center;
+                                padding:20px 0;
+                                color:var(--text-muted,#9ca3af);
+                                font-size:13px
+                            ">
+                                            <i class="bi bi-inbox"
+                                                style="
+                                    font-size:24px;
+                                    display:block;
+                                    margin-bottom:6px
+                                "></i>
+
+                                            Tidak Ada Data
+                                        </td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+
+                    </div>
+
                     <div class="mt-2">
                         {{ $data['trx']->links() }}
                     </div>
@@ -379,7 +464,6 @@ new class extends Component {
                         style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                         <div class="spinner-border text-success"></div>
                     </div>
-
                     <form wire:submit.prevent="simpanSetoran">
                         <table class="w-tbl">
                             <thead>

@@ -18,6 +18,7 @@ new class extends Component {
     public array $editItems = [];
 
     public int $setoranId;
+    public int $unitNasabah = 0;
 
     public function loadPerpage()
     {
@@ -125,6 +126,7 @@ new class extends Component {
     public function getData()
     {
         $builder = $this->setoranService->getSetoranByUnit();
+        $units = $this->setoranService->getBankUnit();
         if ($this->keyword) {
             $builder->where(function ($q) {
                 $q->whereHas('penyetor.bukutabungans', function ($q) {
@@ -135,12 +137,21 @@ new class extends Component {
             });
             $this->resetPage();
         }
+        if (Auth::user()->hasRole('supervisor') && $this->unitNasabah) {
+            $builder->whereHas('penyetor.bukutabungans', function ($q) {
+                $q->where('bank_id', $this->unitNasabah);
+            });
+
+            $this->resetPage();
+        }
         if ($this->date) {
             $builder->whereDate('created_at', $this->date);
         }
         $setoran = $builder->latest()->paginate($this->perPage);
+        $allunit = $units->whereNotNull('parent_id')->latest()->get();
         return [
             'setoran' => $setoran,
+            'allunit' => $allunit,
         ];
     }
 };
@@ -162,7 +173,7 @@ new class extends Component {
         <div class="m-page-header">
             <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
-            <div class="ph-title">Daftar Setoran</div>
+            <div class="ph-title" style="font-size: 12px;">Daftar Transaksi Penyetoran Sampah</div>
             <div class="ms-auto d-flex gap-2">
                 <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
@@ -177,6 +188,11 @@ new class extends Component {
             </div>
         </div>
         <div class="m-body mb-5" style="padding-top:16px">
+            <div wire:loading.flex wire:target="keyword,date,unitNasabah"
+                class="justify-content-center align-items-center"
+                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+                <div class="spinner-border text-success"></div>
+            </div>
             <div class="d-flex flex-column gap-2">
                 @if (count($data['setoran']) > 0)
                     @foreach ($data['setoran'] as $st)
@@ -339,6 +355,17 @@ new class extends Component {
         <div class="f-group"><label>Tanggal</label>
             <input class="f-input" type="date" wire:model.live="date">
         </div>
+        @if (Auth::user()->hasRole('supervisor'))
+            <div class="f-group">
+                <label>Bank/Unit</label>
+                <select class="f-input" wire:model="unitNasabah">
+                    <option value="">Pilih Bank/Unit</option>
+                    @foreach ($data['allunit'] as $bank)
+                        <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
     </div>
     {{-- ======= MOBILE SHEET: Edit Setoran ======= --}}
     <div x-show="$store.sheet.is('edit-setoran')" x-transition:enter="transition ease-out duration-200"
@@ -432,7 +459,8 @@ new class extends Component {
             <div id="w-setoran" class="w-content">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
-                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Manajemen Setoran
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi
+                            Penyetoran Sampah
                         </div>
                         <div style="font-size:11px;color:var(--muted)">342 kg masuk hari ini — 5 setoran pending</div>
                     </div>
@@ -451,72 +479,95 @@ new class extends Component {
                         <div class="w-search flex-grow-1">
                             <i class="bi bi-search si"></i>
                             <input type="text" wire:model.live="keyword"
-                                placeholder="Cari rekening atau nama nasabah..." style="width:100%">
+                                placeholder="Cari rekening atau nama nasabah..." style="width:50%">
                         </div>
-                        <div class="d-flex gap-1">
+                        <div class="d-flex gap-1" style="padding: 0 5px;">
                             <input class="w-form-input" type="date" wire:model.live='date' />
                         </div>
+                        @if (Auth::user()->hasRole('supervisor'))
+                            <div class="d-flex gap-1" style="padding: 0 5px;">
+                                <select class="w-form-input" wire:model.live="unitNasabah">
+                                    <option value="0" hidden>Pilih Unit</option>
+                                    @foreach ($data['allunit'] as $unit)
+                                        <option value="{{ $unit->id }}">
+                                            {{ $unit->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endif
                     </div>
-                    <table class="w-tbl">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Kode</th>
-                                <th>Nasabah</th>
-                                <th>Nomor Rekening</th>
-                                <th>Berat</th>
-                                <th>Nilai</th>
-                                <th>Unit Setor</th>
-                                <th>Waktu</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (count($data['setoran']) > 0)
-                                @foreach ($data['setoran'] as $index => $st)
-                                    <tr>
-                                        <td style="font-size:10px;color:var(--muted)">
-                                            {{ $data['setoran']->firstItem() + $index }}
-                                        </td>
-                                        <td style="font-size:10px;color:var(--muted)">
-                                            {{ $st->kode ?? '-' }}
-                                        </td>
-                                        <td>
-                                            <div style="font-size:11px;font-weight:600">
-                                                {{ ucfirst($st->penyetor->name) }}
-                                            </div>
-                                        </td>
-                                        <td><span class="bs bs-ok">
-                                                {{ $st->bukutabungan->nomor_rekening }}
-                                            </span>
-                                        </td>
-                                        <td style="font-weight:600">
-                                            {{ number_format($st->total_berat, 1, ',', '.') }} kg
-                                        </td>
-                                        <td style="font-weight:700;color:var(--cyan)">Rp
-                                            {{ number_format($st->total_saldo, 0, ',', '.') }}
-                                        </td>
-                                        <td style="font-size:10px;color:var(--muted)">
-                                            {{ $st->bukutabungan->bank->nama }}
-                                        </td>
-                                        <td style="font-size:10px;color:var(--muted)">
-                                            {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
-                                        </td>
-                                        <td>
-                                            <button wire:click="detailSetoran('{{ encrypt($st->id) }}')"
-                                                class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                                data-bs-toggle="modal" data-bs-target="#wm-detail-setoran">
-                                                <i class="bi bi-eye-fill"></i>
-                                            </button>
-                                            @if (Auth::user()->hasRole('admin'))
-                                                <button wire:click="detailEdit('{{ encrypt($st->id) }}')"
+                    <div style="position: relative;">
+                        {{-- Loading --}}
+                        <div wire:loading.flex wire:target="keyword,date,unitNasabah"
+                            style="position:absolute;inset:0;z-index:10;background:rgba(255,255,255,.7);
+                            align-items:center;justify-content:center;backdrop-filter:blur(2px); ">
+                            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);">
+                                <div class="spinner-border spinner-border-sm" role="status"></div>
+                                Memuat data...
+                            </div>
+                        </div>
+                        <table class="w-tbl">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Kode</th>
+                                    <th>Nasabah</th>
+                                    <th>Nomor Rekening</th>
+                                    <th>Berat</th>
+                                    <th>Nilai</th>
+                                    <th>Unit Setor</th>
+                                    <th>Waktu</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (count($data['setoran']) > 0)
+                                    @foreach ($data['setoran'] as $index => $st)
+                                        <tr>
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $data['setoran']->firstItem() + $index }}
+                                            </td>
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $st->kode ?? '-' }}
+                                            </td>
+                                            <td>
+                                                <div style="font-size:11px;font-weight:600">
+                                                    {{ ucfirst($st->penyetor->name) }}
+                                                </div>
+                                            </td>
+                                            <td><span class="bs bs-ok">
+                                                    {{ $st->bukutabungan->nomor_rekening }}
+                                                </span>
+                                            </td>
+                                            <td style="font-weight:600">
+                                                {{ number_format($st->total_berat, 1, ',', '.') }} kg
+                                            </td>
+                                            <td style="font-weight:700;color:var(--cyan)">Rp
+                                                {{ number_format($st->total_saldo, 0, ',', '.') }}
+                                            </td>
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $st->bukutabungan->bank->nama }}
+                                            </td>
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                {{ $st->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
+                                            </td>
+                                            <td>
+                                                <button wire:click="detailSetoran('{{ encrypt($st->id) }}')"
                                                     class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                                    data-bs-toggle="modal" data-bs-target="#wm-edit-setoran">
-                                                    <i class="bi bi-pencil-square"></i>
+                                                    data-bs-toggle="modal" data-bs-target="#wm-detail-setoran">
+                                                    <i class="bi bi-eye-fill"></i>
                                                 </button>
+                                                @if (Auth::user()->hasRole('admin'))
+                                                    <button wire:click="detailEdit('{{ encrypt($st->id) }}')"
+                                                        class="w-btn w-btn-ghost"
+                                                        style="font-size:10px;padding:4px 10px" data-bs-toggle="modal"
+                                                        data-bs-target="#wm-edit-setoran">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
 
-                                                <button type="button"
-                                                    x-on:click="Swal.fire({
+                                                    <button type="button"
+                                                        x-on:click="Swal.fire({
                                                     title: 'Hapus Data Setoran?',
                                                     html: '<span style=\'color:#6b7280;font-size:14px\'>Data yang dihapus <b>tidak bisa dikembalikan</b>. Pastikan Anda yakin sebelum melanjutkan.</span>',
                                                     icon: 'warning',
@@ -546,27 +597,29 @@ new class extends Component {
                                                         Livewire.dispatch('doDelete', { setoranId: '{{ encrypt($st->id) }}' })
                                                     }
                                                     })"
-                                                    class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px">
-                                                    <i class="bi bi-trash3"></i>
-                                                </button>
-                                            @endif
+                                                        class="w-btn w-btn-ghost"
+                                                        style="font-size:10px;padding:4px 10px">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @else
+                                    <tr>
+                                        <td colspan="8"
+                                            style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
+                                            <i class="bi bi-inbox"
+                                                style="font-size:24px;display:block;margin-bottom:6px"></i>
+                                            Tidak Ada Data
                                         </td>
                                     </tr>
-                                @endforeach
-                            @else
-                                <tr>
-                                    <td colspan="8"
-                                        style="text-align:center;padding:20px 0;color:var(--text-muted,#9ca3af);font-size:13px">
-                                        <i class="bi bi-inbox"
-                                            style="font-size:24px;display:block;margin-bottom:6px"></i>
-                                        Tidak Ada Data
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                    <div class="mt-2">
-                        {{ $data['setoran']->links() }}
+                                @endif
+                            </tbody>
+                        </table>
+                        <div class="mt-2">
+                            {{ $data['setoran']->links() }}
+                        </div>
                     </div>
                 </div>
             </div>

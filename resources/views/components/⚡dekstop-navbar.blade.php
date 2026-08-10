@@ -48,7 +48,7 @@ new class extends Component {
                     <i class="bi bi-trash3-fill"></i>
                 </a>
             @endif
-            <a href="/penarikan" class="w-nav w-tooltip" data-tip="Beranda"
+            <a href="/penarikan" class="w-nav w-tooltip" data-tip="Penarikan"
                 :class="{ 'active': path.startsWith('/penarikan') }">
                 <i class="bi bi-cash-stack"></i>
             </a>

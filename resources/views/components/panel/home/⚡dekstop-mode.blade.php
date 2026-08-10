@@ -47,7 +47,7 @@ new class extends Component {
                                     $barColor = match (true) {
                                         $persen < 50 => 'var(--red)',
                                         $persen < 75 => 'var(--orange)',
-                                         default => 'var(--cyan)',
+                                        default => 'var(--cyan)',
                                     };
                                 @endphp
                                 <div class="w-bar">
@@ -61,7 +61,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Setoran</div>
                                 <div class="w-m-val" style="color:var(--blue)">Rp
-                                    {{ number_format($data['totalSaldoSetoran']['total'],0,',','.') }}
+                                    {{ number_format($data['totalSaldoSetoran']['total'], 0, ',', '.') }}
                                 </div>
                                 @php
                                     $persentase = $data['totalBeratSetoran']['persentase'];
@@ -86,10 +86,49 @@ new class extends Component {
                                     $barColor = match (true) {
                                         $persen < 50 => 'var(--red)',
                                         $persen < 75 => 'var(--orange)',
-                                         default => 'var(--cyan)',
+                                        default => 'var(--cyan)',
                                     };
                                 @endphp
 
+                                <div class="w-bar">
+                                    <div class="w-bar-fill"
+                                        style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3 fade-up">
+                            <div class="w-metric">
+                                <div class="w-m-lbl">Nilai Penarikan Nasabah</div>
+                                <div class="w-m-val" style="color:var(--blue)">
+                                    {{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}
+                                </div>
+                                @php
+                                    $persentase = $data['totalPenarikanSaldoNasabah']['persentase'];
+                                    $arah = match (true) {
+                                        $persentase > 0 => 'up',
+                                        $persentase < 0 => 'down',
+                                        default => 'neutral',
+                                    };
+                                @endphp
+
+                                <div class="w-m-delta {{ $arah }}">
+                                    @if ($arah === 'up')
+                                        <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                    @elseif ($arah === 'down')
+                                        <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                    @else
+                                        <i class="bi bi-dash"></i> Sama seperti kemarin
+                                    @endif
+                                </div>
+                                @php
+                                    $persen = $data['totalPenarikanSaldoNasabah']['persentase'];
+                                    $barColor = match (true) {
+                                        $persen < 50 => 'var(--red)',
+                                        $persen < 75 => 'var(--orange)',
+                                        default => 'var(--cyan)',
+                                    };
+                                @endphp
                                 <div class="w-bar">
                                     <div class="w-bar-fill"
                                         style="width:{{ $persen }}%; background: {{ $barColor }}">
@@ -121,7 +160,7 @@ new class extends Component {
                                     $barColor = match (true) {
                                         $persen < 50 => 'var(--red)',
                                         $persen < 75 => 'var(--orange)',
-                                         default => 'var(--cyan)',
+                                        default => 'var(--cyan)',
                                     };
                                 @endphp
 
@@ -132,46 +171,42 @@ new class extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-3 fade-up">
-                            <div class="w-metric">
-                                <div class="w-m-lbl">Nilai Penarikan Nasabah</div>
-                                <div class="w-m-val" style="color:var(--blue)">
-                                    {{ number_format($data['totalPenarikanSaldoNasabah']['total'],0,',','.') }}
-                                </div>
-                                @php
-                                    $persentase = $data['totalPenarikanSaldoNasabah']['persentase'];
-                                    $arah = match (true) {
-                                        $persentase > 0 => 'up',
-                                        $persentase < 0 => 'down',
-                                        default => 'neutral',
-                                    };
-                                @endphp
+                        @if (Auth::user()->hasRole('supervisor'))
+                            <div class="col-3 fade-up">
+                                <div class="w-metric">
+                                    <div class="w-m-lbl">Total Unit Aktif</div>
+                                    <div class="w-m-val" style="color:var(--blue)">
+                                        {{ $data['totalUnitActive']['value'] }}
+                                    </div>
 
-                                <div class="w-m-delta {{ $arah }}">
-                                    @if ($arah === 'up')
-                                        <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
-                                    @elseif ($arah === 'down')
-                                        <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
-                                    @else
-                                        <i class="bi bi-dash"></i> Sama seperti kemarin
-                                    @endif
-                                </div>
-                                @php
-                                    $persen = $data['totalPenarikanSaldoNasabah']['persentase'];
-                                    $barColor = match (true) {
-                                        $persen < 50 => 'var(--red)',
-                                        $persen < 75 => 'var(--orange)',
-                                         default => 'var(--cyan)',
-                                    };
-                                @endphp
+                                    @php
+                                        $diff = $data['totalUnitActive']['difference'];
+                                    @endphp
+                                    <div class="w-m-delta {{ $diff >= 0 ? 'up' : 'down' }}">
+                                        <i class="bi bi-arrow-{{ $diff >= 0 ? 'up' : 'down' }}-short"></i>
+                                        @if ($diff == 0)
+                                            Tidak ada perubahan
+                                        @else
+                                            {{ $diff >= 0 ? '+' : '' }}{{ $diff }} unit
+                                            {{ $diff >= 0 ? 'baru' : 'lebih sedikit' }}
+                                        @endif
+                                    </div>
 
-                                <div class="w-bar">
-                                    <div class="w-bar-fill"
-                                        style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                    @php
+                                        $persen = $data['totalUnitActive']['persentase'];
+                                        $barColor = match (true) {
+                                            $persen < 50 => 'var(--red)',
+                                            $persen < 75 => 'var(--orange)',
+                                            default => 'var(--cyan)',
+                                        };
+                                    @endphp
+                                    <div class="w-bar">
+                                        <div class="w-bar-fill"
+                                            style="width:{{ $persen }}%; background: {{ $barColor }}"></div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
                     <div class="row g-3">
                         <div class="col-5">
@@ -197,6 +232,13 @@ new class extends Component {
                                                 href="{{ route('buat.penarikan.saldo') }}">
                                                 <div class="w-svc-icon ic4"><i class="bi bi-cash-coin"></i></div><span
                                                     class="w-svc-lbl">Buat Penarikan</span>
+                                            </a>
+                                        </div>
+                                    @endif
+                                    @if (Auth::user()->hasRole('supervisor'))
+                                        <div class="col-3"><a class="w-svc" href="{{ route('grafik') }}">
+                                                <div class="w-svc-icon ic4"><i class="bi bi-graph-up-arrow"></i></div>
+                                                <span class="w-svc-lbl">Grafik/Laporan</span>
                                             </a>
                                         </div>
                                     @endif
@@ -451,7 +493,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Total Saldo Anda</div>
                                 <div class="w-m-val" style="color:var(--blue)">Rp
-                                    {{ number_format($data['totalSaldoNasabah']['today'], 0,',','.') }}
+                                    {{ number_format($data['totalSaldoNasabah']['today'], 0, ',', '.') }}
                                 </div>
                                 @php
                                     $persentase = $data['totalSaldoNasabah']['persentase'];
@@ -476,7 +518,7 @@ new class extends Component {
                                     $barColor = match (true) {
                                         $persen < 50 => 'var(--red)',
                                         $persen < 75 => 'var(--orange)',
-                                         default => 'var(--cyan)',
+                                        default => 'var(--cyan)',
                                     };
                                 @endphp
                                 <div class="w-bar">
@@ -505,7 +547,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Setoran</div>
                                 <div class="w-m-val" style="color:var(--blue)">Rp
-                                    {{ number_format($data['totalSetoranNasabah']['total'], 0,',','.') }}
+                                    {{ number_format($data['totalSetoranNasabah']['total'], 0, ',', '.') }}
                                 </div>
                                 @php
                                     $persentase = $data['totalSetoranNasabah']['persentase'];
@@ -529,7 +571,7 @@ new class extends Component {
                                     $barColor = match (true) {
                                         $persen < 50 => 'var(--red)',
                                         $persen < 75 => 'var(--orange)',
-                                         default => 'var(--cyan)',
+                                        default => 'var(--cyan)',
                                     };
                                 @endphp
 
@@ -544,7 +586,7 @@ new class extends Component {
                             <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Penarikan</div>
                                 <div class="w-m-val">
-                                    {{ number_format($data['totalPenarikanNasabah']['today'], 0,',','.') }}</div>
+                                    {{ number_format($data['totalPenarikanNasabah']['today'], 0, ',', '.') }}</div>
                                 @php
                                     $persentase = $data['totalPenarikanNasabah']['persentase'];
                                     $arah = match (true) {
@@ -568,7 +610,7 @@ new class extends Component {
                                     $barColor = match (true) {
                                         $persen < 50 => 'var(--red)',
                                         $persen < 75 => 'var(--orange)',
-                                         default => 'var(--cyan)',
+                                        default => 'var(--cyan)',
                                     };
                                 @endphp
 
@@ -708,7 +750,8 @@ new class extends Component {
                                             @endforeach
                                         </select>
                                         @error('unitBukuTabungan')
-                                            <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                            <small class="text-danger"
+                                                style="font-size:10px">{{ $message }}</small>
                                         @enderror
                                     </div>
                                 </div>
@@ -1095,7 +1138,8 @@ new class extends Component {
                                             </div>
                                             <div class="list-main">
                                                 <div class="list-name">{{ $trx->created_at->format('d M Y') }} —
-                                                    {{ $trx->bukutabungan->nomor_rekening }} - Petugas : {{ $trx->admin->name  }}
+                                                    {{ $trx->bukutabungan->nomor_rekening }} - Petugas :
+                                                    {{ $trx->admin->name }}
                                                 </div>
                                                 <div class="list-sub">{{ $trx->bukutabungan->bank->nama }} ·
                                                     {{ $trx->created_at->diffForHumans() }} ·

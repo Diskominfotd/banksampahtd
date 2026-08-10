@@ -122,6 +122,7 @@ new class extends Component {
         $totalPenarikanNasabah = $this->transaksiService->totalTransaksiNasabah();
         $setoranNasabahByLimit = $this->setoranService->getSetoranByUserByLimit();
         $trxNasabahByLimit = $this->transaksiService->getTrxByUserByLimit();
+        $totalUnitActive = $this->userService->totalUnitActive();
 
         return [
             'totalBeratSetoran' => $totalBeratSetoran,
@@ -137,6 +138,7 @@ new class extends Component {
             'banksampah' => $this->userService->getBanks()->get(),
             'setoranNasabahByLimit' => $setoranNasabahByLimit,
             'trxNasabahByLimit' => $trxNasabahByLimit,
+            'totalUnitActive' => $totalUnitActive,
         ];
     }
 };

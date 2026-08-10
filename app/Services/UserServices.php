@@ -34,4 +34,5 @@ interface UserServices
     public function getOrganisasiById(int $id);
     public function organisasiBuilder();
     public function unitBuilder();
+    public function totalUnitActive();
 }

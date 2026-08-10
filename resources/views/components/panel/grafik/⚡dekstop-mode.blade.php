@@ -88,11 +88,11 @@ new class extends Component {
 
                             <div class="d-flex gap-3 mt-2">
                                 <div class="d-flex align-items-center gap-1">
-                                    <div style="width:10px;height:10px;border-radius:2px;background:#2e7d32"></div>
+                                    <div style="width:10px;height:10px;border-radius:2px;background:var(--cyan)"></div>
                                     <span style="font-size:9px;color:var(--muted)">Berat (kg)</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-1">
-                                    <div style="width:10px;height:10px;border-radius:2px;background:#1b5e20"></div>
+                                    <div style="width:10px;height:10px;border-radius:2px;background:var(--cyan-10)"></div>
                                     <span style="font-size:9px;color:var(--muted)">Nilai (Rp)</span>
                                 </div>
                             </div>
