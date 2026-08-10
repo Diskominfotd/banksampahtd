@@ -1,6 +1,7 @@
 <?php
 
 use Livewire\Component;
+use App\Models\BankSampah;
 
 new class extends Component {
     //
@@ -99,41 +100,6 @@ new class extends Component {
                         </div>
                         <div class="col-3 fade-up">
                             <div class="w-metric">
-                                <div class="w-m-lbl">Nasabah Aktif</div>
-                                <div class="w-m-val" style="color:var(--blue)">{{ $data['totalNasabah']['total'] }}
-                                </div>
-                                @php
-                                    $diff = $data['totalNasabah']['difference'];
-                                @endphp
-
-                                <div class="w-m-delta {{ $diff >= 0 ? 'up' : 'down' }}">
-                                    <i class="bi bi-arrow-{{ $diff >= 0 ? 'up' : 'down' }}-short"></i>
-
-                                    @if ($diff == 0)
-                                        Tidak ada perubahan
-                                    @else
-                                        {{ $diff >= 0 ? '+' : '' }}{{ $diff }} nasabah
-                                        {{ $diff >= 0 ? 'baru' : 'lebih sedikit' }}
-                                    @endif
-                                </div>
-                                @php
-                                    $persen = $data['totalBeratSetoran']['persentase'];
-                                    $barColor = match (true) {
-                                        $persen < 50 => 'var(--red)',
-                                        $persen < 75 => 'var(--orange)',
-                                         default => 'var(--cyan)',
-                                    };
-                                @endphp
-
-                                <div class="w-bar">
-                                    <div class="w-bar-fill"
-                                        style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-3 fade-up">
-                            <div class="w-metric">
                                 <div class="w-m-lbl">Nilai Penarikan Nasabah</div>
                                 <div class="w-m-val" style="color:var(--blue)">
                                     {{ number_format($data['totalPenarikanSaldoNasabah']['total'],0,',','.') }}
@@ -172,6 +138,65 @@ new class extends Component {
                                 </div>
                             </div>
                         </div>
+                        {{-- CARD BARU: Sisa Tabungan Nasabah (Nilai Setoran - Nilai Penarikan) --}}
+                        <div class="col-3 fade-up">
+                            <div class="w-metric">
+                                <div class="w-m-lbl">Sisa Tabungan Nasabah</div>
+                                @php
+                                    $sisaTabungan =
+                                        $data['totalSaldoSetoran']['total'] -
+                                        $data['totalPenarikanSaldoNasabah']['total'];
+                                @endphp
+                                <div class="w-m-val" style="color:var(--blue)">
+                                    Rp {{ number_format($sisaTabungan, 0, ',', '.') }}
+                                </div>
+
+                                <div class="w-m-delta {{ $sisaTabungan >= 0 ? 'up' : 'down' }}">
+                                    <i class="bi bi-wallet2"></i> Setoran &minus; Penarikan
+                                </div>
+
+                                @php
+                                    $totalSetoranVal = $data['totalSaldoSetoran']['total'] ?: 1; // hindari bagi 0
+                                    $persenSisa = round(($sisaTabungan / $totalSetoranVal) * 100, 0);
+                                    $persenSisa = max(0, min($persenSisa, 100)); // clamp 0-100
+                                    $barColorSisa = match (true) {
+                                        $persenSisa < 50 => 'var(--red)',
+                                        $persenSisa < 75 => 'var(--orange)',
+                                        default => 'var(--cyan)',
+                                    };
+                                @endphp
+                                <div class="w-bar">
+                                    <div class="w-bar-fill"
+                                        style="width:{{ $persenSisa }}%; background: {{ $barColorSisa }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- CARD BARU: Bank Sampah Unit (jumlah unit), hanya muncul untuk User Induk --}}
+                        @php
+                            $currentUnitHome = Auth::user()->unit;
+                            $totalUnitBankSampah = 0;
+                            if ($currentUnitHome && !$currentUnitHome->parent_id) {
+                                $totalUnitBankSampah = BankSampah::where('parent_id', $currentUnitHome->id)->count();
+                            }
+                        @endphp
+                        @if ($currentUnitHome && !$currentUnitHome->parent_id)
+                            <div class="col-3 fade-up">
+                                <div class="w-metric">
+                                    <div class="w-m-lbl">Bank Sampah Unit</div>
+                                    <div class="w-m-val" style="color:var(--cyan)">
+                                        {{ $totalUnitBankSampah }}
+                                    </div>
+                                    <div class="w-m-delta neutral">
+                                        <i class="bi bi-building"></i> Unit aktif dinaungi
+                                    </div>
+                                    <div class="w-bar">
+                                        <div class="w-bar-fill" style="width:100%; background: var(--cyan)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     <div class="row g-3">
                         <div class="col-5">
@@ -192,6 +217,10 @@ new class extends Component {
                                                 class="w-svc-lbl">Harga</span>
                                         </a>
                                     </div>
+                                    <div class="col-3"><a class="w-svc" href="{{ route('grafik') }}">
+                                            <div class="w-svc-icon ic4"><i class="bi bi-graph-up-arrow"></i></div><span
+                                                class="w-svc-lbl">Grafik</span>
+                                        </a>
                                     @if (Auth::user()->hasRole('admin'))
                                         <div class="col-3"><a class="w-svc"
                                                 href="{{ route('buat.penarikan.saldo') }}">
@@ -575,6 +604,40 @@ new class extends Component {
                                 <div class="w-bar">
                                     <div class="w-bar-fill"
                                         style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- CARD BARU: Sisa Tabungan Nasabah (Nilai Setoran - Nilai Penarikan) --}}
+                        <div class="col-3 fade-up">
+                            <div class="w-metric">
+                                <div class="w-m-lbl">Sisa Tabungan Anda</div>
+                                @php
+                                    $sisaTabunganNasabah =
+                                        $data['totalSetoranNasabah']['total'] -
+                                        $data['totalPenarikanNasabah']['today'];
+                                @endphp
+                                <div class="w-m-val" style="color:var(--blue)">
+                                    Rp {{ number_format($sisaTabunganNasabah, 0, ',', '.') }}
+                                </div>
+
+                                <div class="w-m-delta {{ $sisaTabunganNasabah >= 0 ? 'up' : 'down' }}">
+                                    <i class="bi bi-wallet2"></i> Setoran &minus; Penarikan
+                                </div>
+
+                                @php
+                                    $totalSetoranNasabahVal = $data['totalSetoranNasabah']['total'] ?: 1; // hindari bagi 0
+                                    $persenSisaNasabah = round(($sisaTabunganNasabah / $totalSetoranNasabahVal) * 100, 0);
+                                    $persenSisaNasabah = max(0, min($persenSisaNasabah, 100)); // clamp 0-100
+                                    $barColorSisaNasabah = match (true) {
+                                        $persenSisaNasabah < 50 => 'var(--red)',
+                                        $persenSisaNasabah < 75 => 'var(--orange)',
+                                        default => 'var(--cyan)',
+                                    };
+                                @endphp
+                                <div class="w-bar">
+                                    <div class="w-bar-fill"
+                                        style="width:{{ $persenSisaNasabah }}%; background: {{ $barColorSisaNasabah }}">
                                     </div>
                                 </div>
                             </div>
@@ -1134,5 +1197,4 @@ new class extends Component {
             </div>
         </div>
     @endif
-</div>
 </div>

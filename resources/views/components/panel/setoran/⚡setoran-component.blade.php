@@ -2,6 +2,7 @@
 
 use Livewire\Component;
 use App\Services\SetoranService;
+use App\Models\BankSampah;
 use Livewire\WithPagination;
 use App\Livewire\TraitComponent;
 use Livewire\Attributes\On;
@@ -13,6 +14,7 @@ new class extends Component {
 
     public ?string $keyword = '';
     public ?string $date = '';
+    public ?string $filterUnit = ''; // TAMBAHAN: filter unit bank sampah
     public array $detailItems = [];
     public $perPage = 10;
     public array $editItems = [];
@@ -138,9 +140,30 @@ new class extends Component {
         if ($this->date) {
             $builder->whereDate('created_at', $this->date);
         }
+
+        // TAMBAHAN: filter berdasarkan unit bank sampah (khusus User Induk)
+        if ($this->filterUnit) {
+            $builder->whereHas('bukutabungan', function ($q) {
+                $q->where('bank_id', $this->filterUnit);
+            });
+            $this->resetPage();
+        }
+
         $setoran = $builder->latest()->paginate($this->perPage);
+
+        // TAMBAHAN: daftar unit untuk dropdown filter, hanya diisi jika user yang login adalah User Induk
+        // (unit tanpa parent_id, sesuai pola scoping di SetoranServiceImpl::getSetoranByUnit())
+        // Termasuk unit Induk itu sendiri (jika Induk juga punya transaksi setoran langsung)
+        $units = collect();
+        $currentUnit = Auth::user()->unit;
+        if ($currentUnit && !$currentUnit->parent_id) {
+            $childUnits = BankSampah::where('parent_id', $currentUnit->id)->orderBy('nama')->get();
+            $units = collect([$currentUnit])->merge($childUnits);
+        }
+
         return [
             'setoran' => $setoran,
+            'units' => $units,
         ];
     }
 };
@@ -339,6 +362,17 @@ new class extends Component {
         <div class="f-group"><label>Tanggal</label>
             <input class="f-input" type="date" wire:model.live="date">
         </div>
+        {{-- TAMBAHAN: filter unit bank sampah (mobile), hanya muncul untuk User Induk --}}
+        @if ($data['units']->isNotEmpty())
+            <div class="f-group"><label>Unit Bank Sampah</label>
+                <select class="f-input" wire:model.live="filterUnit">
+                    <option value="">Semua Unit</option>
+                    @foreach ($data['units'] as $u)
+                        <option value="{{ $u->id }}">{{ $u->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
     </div>
     {{-- ======= MOBILE SHEET: Edit Setoran ======= --}}
     <div x-show="$store.sheet.is('edit-setoran')" x-transition:enter="transition ease-out duration-200"
@@ -432,7 +466,7 @@ new class extends Component {
             <div id="w-setoran" class="w-content">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
-                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Manajemen Setoran
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi Penyetoran Sampah
                         </div>
                         <div style="font-size:11px;color:var(--muted)">342 kg masuk hari ini — 5 setoran pending</div>
                     </div>
@@ -454,6 +488,16 @@ new class extends Component {
                                 placeholder="Cari rekening atau nama nasabah..." style="width:100%">
                         </div>
                         <div class="d-flex gap-1">
+                            {{-- TAMBAHAN: filter unit bank sampah (desktop), hanya muncul untuk User Induk --}}
+                            @if ($data['units']->isNotEmpty())
+                                <select wire:model.live="filterUnit" class="form-select form-select-sm"
+                                    style="font-size:11px;width:auto">
+                                    <option value="">Semua Unit</option>
+                                    @foreach ($data['units'] as $u)
+                                        <option value="{{ $u->id }}">{{ $u->nama }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
                             <input class="w-form-input" type="date" wire:model.live='date' />
                         </div>
                     </div>

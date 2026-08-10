@@ -203,6 +203,12 @@ new class extends Component {
     public function getData()
     {
         $totalBeratSetoran = $this->setoranService->totalBeratSetoran();
+
+        // TAMBAHAN: total nilai setoran nasabah (dipakai untuk hitung sisa tabungan belum ditarik)
+        // Catatan: sesuaikan nama method ini dengan yang ada di SetoranService.php
+        // jika berbeda dari totalSaldoSetoran()
+        $totalSaldoSetoran = $this->setoranService->totalSaldoSetoran();
+
         $pengeluaran = $this->transaksiService
             ->getPengeluaran()
             ->latest()
@@ -218,6 +224,7 @@ new class extends Component {
 
         return [
             'totalStokGudang' => $totalStokGudang,
+            'totalSaldoSetoran' => $totalSaldoSetoran, // TAMBAHAN
             'pengeluaran' => $pengeluaran,
             'totalPenarikanSaldoNasabah' => $totalPenarikanSaldoNasabah,
             'totalBeratSetoran' => $totalBeratSetoran,

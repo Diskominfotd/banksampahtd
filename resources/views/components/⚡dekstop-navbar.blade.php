@@ -43,12 +43,12 @@ new class extends Component {
         </a>
         @if (Auth::user()->hasRole(['admin', 'supervisor']))
             @if (Auth::user()->hasRole('admin'))
-                <a href="/gudang" class="w-nav w-tooltip" data-tip="Gudang"
+                <a href="/gudang" class="w-nav w-tooltip" data-tip="Arus Kas"
                     :class="{ 'active': path.startsWith('/gudang') }">
-                    <i class="bi bi-trash3-fill"></i>
+                    <i class="bi bi-cash-coin"></i>
                 </a>
             @endif
-            <a href="/penarikan" class="w-nav w-tooltip" data-tip="Beranda"
+            <a href="/penarikan" class="w-nav w-tooltip" data-tip="Penarikan Uang"
                 :class="{ 'active': path.startsWith('/penarikan') }">
                 <i class="bi bi-cash-stack"></i>
             </a>

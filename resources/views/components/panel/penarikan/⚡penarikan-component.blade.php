@@ -5,6 +5,8 @@ use App\Services\TransaksiService;
 use Livewire\Attributes\On;
 use Livewire\WithPagination;
 use App\Livewire\TraitComponent;
+use App\Models\BankSampah;
+use Illuminate\Support\Facades\Auth;
 
 new class extends Component {
     use WithPagination;
@@ -12,6 +14,7 @@ new class extends Component {
     public ?string $keyword = '';
     public ?int $perPage = 10;
     public ?string $date = '';
+    public ?string $bankId = '';
     public $itemTrxDetail = null;
 
     public string $trxId;
@@ -90,9 +93,27 @@ new class extends Component {
         if ($this->date) {
             $builder->whereDate('created_at', $this->date);
         }
+        if ($this->bankId) {
+            $builder->whereHas('bukutabungan', function ($q) {
+                $q->where('bank_id', $this->bankId);
+            });
+            $this->resetPage();
+        }
         $trx = $builder->latest()->paginate($this->perPage);
+
+        // DIPERBAIKI: samakan logic dengan halaman Setoran
+        // Dropdown unit hanya diisi jika user yang login adalah User Induk (unit tanpa parent_id),
+        // dan hanya berisi unit Induk itu sendiri + unit-unit anaknya (bukan semua bank sampah di sistem)
+        $banks = collect();
+        $currentUnit = Auth::user()->unit;
+        if ($currentUnit && !$currentUnit->parent_id) {
+            $childUnits = BankSampah::where('parent_id', $currentUnit->id)->orderBy('nama')->get();
+            $banks = collect([$currentUnit])->merge($childUnits);
+        }
+
         return [
             'trx' => $trx,
+            'banks' => $banks,
         ];
     }
 };
@@ -119,7 +140,7 @@ new class extends Component {
         <div class="m-page-header">
             <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
-            <div class="ph-title">Daftar Transaksi</div>
+            <div class="ph-title">Daftar Transaksi Penarikan Uang </div>
             <div class="ms-auto d-flex gap-2 mb-2">
                 <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
@@ -202,13 +223,37 @@ new class extends Component {
             margin-bottom:18px;color:var(--text-main)">
             Pencarian
         </div>
-        <div class="f-group"><label>Keyword</label>
-            <input class="f-input" type="text" wire:model.live="keyword"
-                placeholder="Cari no rekening, nama trx..."P>
-        </div>
-        <div class="f-group"><label>Tanggal</label>
-            <input class="f-input" type="date" wire:model.live="date">
-        </div>
+       <div class="f-group">
+    <label>Keyword</label>
+    <input class="f-input"
+           type="text"
+           wire:model.live="keyword"
+           placeholder="Cari no rekening, nama trx...">
+</div>
+
+{{-- DIPERBAIKI: hanya muncul kalau user adalah User Induk --}}
+@if ($data['banks']->isNotEmpty())
+<div class="f-group">
+    <label>Unit</label>
+
+    <select class="f-input" wire:model.live="bankId">
+    <option value="">Semua Unit</option>
+
+    @foreach($data['banks'] as $bank)
+        <option value="{{ $bank->id }}">
+            {{ $bank->nama }}
+        </option>
+    @endforeach
+</select>
+</div>
+@endif
+
+<div class="f-group">
+    <label>Tanggal</label>
+    <input class="f-input"
+           type="date"
+           wire:model.live="date">
+</div>
     </div>
     {{-- Detail trx id --}}
     <div x-show="$store.sheet.is('detail-trx-id')" x-transition:enter="transition ease-out duration-200"
@@ -277,7 +322,7 @@ new class extends Component {
             <div id="w-harga" class="w-content">
                 <div class="d-flex align-items-center justify-content-between mb-1">
                     <div>
-                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi Penarikan Uang
                         </div>
                         <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
                         </div>
@@ -291,15 +336,39 @@ new class extends Component {
                 </div>
                 <div class="w-panel">
                     <div class="d-flex gap-2 mb-3">
-                        <div class="w-search flex-grow-1">
-                            <i class="bi bi-search si"></i>
-                            <input type="text" wire:model.live="keyword"
-                                placeholder="Cari rekening atau nama trx..." style="width:100%">
-                        </div>
-                        <div class="d-flex gap-1">
-                            <input class="w-form-input" type="date" wire:model.live='date' />
-                        </div>
-                    </div>
+
+    {{-- Search --}}
+    <div class="w-search flex-grow-1">
+        <i class="bi bi-search si"></i>
+        <input
+            type="text"
+            wire:model.live="keyword"
+            placeholder="Cari rekening atau nama trx..."
+            style="width:100%">
+    </div>
+
+    <div class="d-flex gap-1">
+        {{-- Filter Bank Sampah Unit --}}
+        {{-- DIPERBAIKI: hanya muncul kalau user adalah User Induk --}}
+        @if ($data['banks']->isNotEmpty())
+            <select wire:model.live="bankId" class="form-select form-select-sm" style="font-size:11px;width:auto">
+                <option value="">Semua Unit</option>
+                @foreach($data['banks'] as $bank)
+                    <option value="{{ $bank->id }}">
+                        {{ $bank->nama }}
+                    </option>
+                @endforeach
+            </select>
+        @endif
+
+        {{-- Filter Tanggal --}}
+        <input
+            class="w-form-input"
+            type="date"
+            wire:model.live="date"/>
+    </div>
+
+</div>
                     <table class="w-tbl">
                         <thead>
                             <tr>

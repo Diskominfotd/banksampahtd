@@ -27,6 +27,83 @@ new class extends Component {
                                 class="bi bi-printer me-1"></i>Cetak Laporan</button>
                     </div> --}}
                 </div>
+
+                {{-- ================= TAMBAHAN: LAPORAN KEUANGAN ================= --}}
+                <div class="d-flex align-items-center justify-content-between mb-1 mt-4">
+                    <div>
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Laporan Keuangan
+                        </div>
+                        <div style="font-size:11px;color:var(--muted)">Ringkasan keuntungan &amp; estimasi aset</div>
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-4 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Keuntungan Kas</div>
+                            <div class="w-m-val" style="color:var(--cyan)">
+                                Rp {{ number_format($data['keuntunganKas']['total'] ?? 0, 0, ',', '.') }}
+                            </div>
+                            @php
+                                $persentaseKK = $data['keuntunganKas']['persentase'] ?? 0;
+                                $arahKK = match (true) {
+                                    $persentaseKK > 0 => 'up',
+                                    $persentaseKK < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+                            <div class="w-m-delta {{ $arahKK }}">
+                                @if ($arahKK === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentaseKK }}% kemarin
+                                @elseif ($arahKK === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>{{ $persentaseKK }}% kemarin
+                                @else
+                                    <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                @endif
+                            </div>
+                            <div style="font-size:10px;color:var(--muted);margin-top:4px">
+                                <i class="bi bi-wallet2"></i> Kas Masuk &minus; Kas Keluar
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-4 fade-up">
+                        <div class="w-metric">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="w-m-lbl">Estimasi Nilai Persediaan Gudang</div>
+                                <span data-bs-toggle="modal" data-bs-target="#wm-estimasi-persediaan"
+                                    style="cursor:pointer;color:var(--muted)" title="Edit nilai">
+                                    <i class="bi bi-pencil-square"></i>
+                                </span>
+                            </div>
+                            <div class="w-m-val" style="color:var(--blue)">
+                                Rp {{ number_format($estimasiPersediaan ?? 0, 0, ',', '.') }}
+                            </div>
+                            <div style="font-size:10px;color:var(--muted);margin-top:4px">
+                                <i class="bi bi-pencil"></i> Input manual
+                                @if (!empty($keteranganEstimasi))
+                                    &middot; {{ $keteranganEstimasi }}
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-4 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Keuntungan Bank</div>
+                            @php
+                                $keuntunganBank = $data['keuntunganBank'] ?? 0;
+                            @endphp
+                            <div class="w-m-val" style="color:var(--blue)">
+                                Rp {{ number_format($keuntunganBank, 0, ',', '.') }}
+                            </div>
+                            <div class="w-m-delta {{ $keuntunganBank >= 0 ? 'up' : 'down' }}">
+                                <i class="bi bi-bank"></i> Setoran &minus; Penarikan Nasabah
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {{-- ================= END TAMBAHAN ================= --}}
+
                 <div class="row g-3">
                     <div class="col-8">
                         <div class="w-panel" wire:key="grafik-total-sampah-{{ $tahunTotalSampah }}"
@@ -88,11 +165,11 @@ new class extends Component {
 
                             <div class="d-flex gap-3 mt-2">
                                 <div class="d-flex align-items-center gap-1">
-                                    <div style="width:10px;height:10px;border-radius:2px;background:#2e7d32"></div>
+                                    <div style="width:10px;height:10px;border-radius:2px;background:var(--cyan);"></div>
                                     <span style="font-size:9px;color:var(--muted)">Berat (kg)</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-1">
-                                    <div style="width:10px;height:10px;border-radius:2px;background:#1b5e20"></div>
+                                    <div style="width:10px;height:10px;border-radius:2px;background:var(--cyan-10);"></div>
                                     <span style="font-size:9px;color:var(--muted)">Nilai (Rp)</span>
                                 </div>
                             </div>
@@ -207,6 +284,69 @@ new class extends Component {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- TAMBAHAN: Modal input manual Estimasi Nilai Persediaan Gudang --}}
+    <div wire:ignore.self class="modal fade" id="wm-estimasi-persediaan" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-m">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Estimasi Nilai Persediaan Gudang</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <form wire:submit="simpanEstimasiPersediaan">
+                    <div class="w-modal-body">
+                        <div class="d-flex flex-column gap-3">
+                            <div class="col-12" x-data="{
+                                display: '',
+                                init() {
+                                    this.display = this.format(this.$wire.estimasiPersediaan || 0);
+                                },
+                                format(val) {
+                                    let num = val.toString().replace(/\D/g, '');
+                                    if (!num) num = '0';
+                                    return 'Rp ' + new Intl.NumberFormat('id-ID').format(num);
+                                },
+                                update(e) {
+                                    let raw = e.target.value.replace(/\D/g, '');
+                                    if (!raw) raw = '0';
+                                    this.$wire.estimasiPersediaan = raw;
+                                    this.display = this.format(raw);
+                                }
+                            }">
+                                <label class="w-form-label">Nilai Rupiah</label>
+                                <input class="w-form-input" type="text" :value="display"
+                                    @input="update($event)" placeholder="ex: Rp 1.000.000">
+                                @error('estimasiPersediaan')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+
+                                <label class="w-form-label">Keterangan (opsional)</label>
+                                <textarea class="w-form-input" wire:model="keteranganEstimasi" rows="2" cols="3"
+                                    placeholder="ex: Estimasi berdasarkan stok fisik per 08 Agustus 2026">
+                                </textarea>
+                                @error('keteranganEstimasi')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-modal-footer">
+                        <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal">Tutup</button>
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="simpanEstimasiPersediaan">
+                            <span wire:loading.remove wire:target="simpanEstimasiPersediaan">
+                                <i class="bi bi-check2-circle me-1"></i> Simpan
+                            </span>
+                            <span wire:loading wire:target="simpanEstimasiPersediaan">
+                                <span class="spinner-border spinner-border-sm me-1"></span>
+                                Menyimpan...
+                            </span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
