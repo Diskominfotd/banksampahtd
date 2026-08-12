@@ -17,46 +17,11 @@ new class extends Component {
                 <div class="row g-3">
                     <div class="col-3 fade-up">
                         <div class="w-metric">
-                            <div class="w-m-lbl">Total Stok Sampah</div>
-                            <div class="w-m-val" style="color:var(--cyan)">
-                                {{ number_format($data['totalStokGudang']['total'], 0, ',', '.') }} kg
+                            <div class="w-m-lbl">Total Kas Masuk
+                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+                                    Total penjualan setoran nasabah, donasi dll
+                                </small>
                             </div>
-                            @php
-                                $persentase = $data['totalBeratSetoran']['persentase'];
-                                $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
-                                    default => 'neutral',
-                                };
-                            @endphp
-
-                            <div class="w-m-delta {{ $arah }}">
-                                @if ($arah === 'up')
-                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
-                                @elseif ($arah === 'down')
-                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
-                                @else
-                                    <i class="bi bi-dash"></i> Tidak Ada Perubahan
-                                @endif
-                            </div>
-                            @php
-                                $persen = $data['totalBeratSetoran']['persentase'];
-                                $barColor = match (true) {
-                                    $persen < 50 => 'var(--red)',
-                                    $persen < 75 => 'var(--orange)',
-                                    default => 'var(--cyan)',
-                                };
-                            @endphp
-                            <div class="w-bar">
-                                <div class="w-bar-fill"
-                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3 fade-up">
-                        <div class="w-metric">
-                            <div class="w-m-lbl">Pendapatan</div>
                             <div class="w-m-val" style="color:var(--cyan)">
                                 Rp {{ number_format($data['totalPendapatan']['total'], 0, ',', '.') }}
                             </div>
@@ -95,7 +60,11 @@ new class extends Component {
                     </div>
                     <div class="col-3 fade-up">
                         <div class="w-metric">
-                            <div class="w-m-lbl">Pengeluaran</div>
+                            <div class="w-m-lbl">Total Kas Keluar
+                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+                                    (Total pengeluaran oprasional,penarikan tabungan nasabah)
+                                </small>
+                            </div>
                             <div class="w-m-val" style="color:var(--blue)">
                                 Rp {{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}
                             </div>
@@ -135,7 +104,11 @@ new class extends Component {
                     </div>
                     <div class="col-3 fade-up">
                         <div class="w-metric">
-                            <div class="w-m-lbl">Total Pendapatan</div>
+                            <div class="w-m-lbl">Sisa Kas (Kas Tersedia)
+                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+                                    (Total kas Masuk - Total kas Keluar)
+                                </small>
+                            </div>
                             <div class="w-m-val" style="color:var(--blue)">
                                 Rp {{ number_format($data['pendapatanbersih']['total'], 0, ',', '.') }}
                             </div>
@@ -173,12 +146,102 @@ new class extends Component {
                             </div>
                         </div>
                     </div>
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Total Tabungan Nasabah
+                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+                                    (Total Tabungan Nasabah yang belum ditarik)
+                                </small>
+                            </div>
+                            <div class="w-m-val" style="color:var(--blue)">
+                                Rp {{ number_format($data['totalSetoran']['total'], 0, ',', '.') }}
+                            </div>
+                            @php
+                                $persentase = $data['totalSetoran']['persentase'];
+                                $arah = match (true) {
+                                    $persentase > 0 => 'up',
+                                    $persentase < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+                            <div class="w-m-delta {{ $arah }}">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                @else
+                                    <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                @endif
+                            </div>
+                            @php
+                                $persen = $data['totalSetoran']['persentase'];
+                                $barColor = match (true) {
+                                    $persen < 50 => 'var(--red)',
+                                    $persen < 75 => 'var(--orange)',
+                                    default => 'var(--cyan)',
+                                };
+                            @endphp
+
+                            <div class="w-bar">
+                                <div class="w-bar-fill"
+                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Keuntungan
+                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+                                    (Sisa Kas – Tabungan Nasabah yang belum ditarik)
+                                </small>
+                            </div>
+                              <div class="w-m-val" style="color:var(--blue)">
+                                Rp {{ number_format($data['keuntungan']['total'], 0, ',', '.') }}
+                            </div>
+                            @php
+                                $persentase = $data['keuntungan']['persentase'];
+                                $arah = match (true) {
+                                    $persentase > 0 => 'up',
+                                    $persentase < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+                            <div class="w-m-delta {{ $arah }}">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                @else
+                                    <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                @endif
+                            </div>
+                            @php
+                                $persen = $data['keuntungan']['persentase'];
+                                $barColor = match (true) {
+                                    $persen < 50 => 'var(--red)',
+                                    $persen < 75 => 'var(--orange)',
+                                    default => 'var(--cyan)',
+                                };
+                            @endphp
+
+                            <div class="w-bar">
+                                <div class="w-bar-fill"
+                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-6">
                         <div class="w-panel h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="w-panel-title">Transaksi Pendapatan</div>
+                                <div class="w-panel-title">Transaksi Kas Masuk
+                                    <small class="d-block text-muted" style="font-size: 9px; font-style: italic;">
+                                        Penjualan kepada Pihak Ketiga, Donasi, Pendapatan Lain-Lain
+                                    </small>
+                                </div>
                                 <span data-bs-toggle="modal" data-bs-target="#wm-bongkar-gudang" class="bs bs-green"
                                     style="font-size: 12px; cursor: pointer;">
                                     <i class="bi bi-box-arrow-up"></i> Buat Transaksi
@@ -217,7 +280,11 @@ new class extends Component {
                     <div class="col-6">
                         <div class="w-panel h-100">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="w-panel-title">Transaksi Keluar</div>
+                                <div class="w-panel-title">Transaksi Kas Keluar
+                                    <small class="d-block text-muted" style="font-size: 9px; font-style: italic;">
+                                        Operasional+Tabungan yang ditarik
+                                    </small>
+                                </div>
                                 <span data-bs-toggle="modal" data-bs-target="#wm-trx-pengeluaran" class="bs bs-green"
                                     style="font-size: 12px; cursor: pointer;">
                                     <i class="bi bi-box-arrow-up"></i> Buat Transaksi

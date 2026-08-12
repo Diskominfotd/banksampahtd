@@ -41,37 +41,6 @@ new class extends Component {
         <div class="m-body" style="padding-top:16px">
             <div class="m-summary fade-up"
                 style="background: linear-gradient(135deg, #0a4d68 0%, #088395 60%, #05bfdb 100%); border-radius: 12px; padding: 16px; color: #fff;">
-                <div class="m-summary-lbl" style="color: rgba(255,255,255,0.8);">Total Berat Sampah</div>
-                <div class="m-summary-num">
-                    {{ number_format($data['totalStokGudang']['total'], 0, ',', '.') }} Kg
-
-                    @php
-                        $persentase = $data['totalBeratSetoran']['persentase'];
-                        $arah = match (true) {
-                            $persentase > 0 => 'up',
-                            $persentase < 0 => 'down',
-                            default => 'neutral',
-                        };
-                        $iconClass = match ($arah) {
-                            'up' => 'bi-arrow-up-short',
-                            'down' => 'bi-arrow-down-short text-danger',
-                            default => 'bi-dash',
-                        };
-                        $textClass = match ($arah) {
-                            'down' => 'text-danger',
-                            default => 'text-white',
-                        };
-                    @endphp
-
-                    <i class="bi {{ $iconClass }}" style="font-size: 0.6em;"></i>
-                    <span class="m-summary-percent {{ $textClass }}" style="font-size: 0.6em;">
-                        @if ($arah === 'neutral')
-                            Sama
-                        @else
-                            {{ number_format(abs($persentase), 1, ',', '.') }}%
-                        @endif
-                    </span>
-                </div>
                 <div class="m-pills">
                     @php
                         $summaryArah = fn($p) => match (true) {
@@ -111,8 +80,6 @@ new class extends Component {
                 </div>
             </div>
             <div x-data="{ tab: 'trx' }">
-
-                {{-- ===== TAB SWITCHER ===== --}}
                 <div class="d-flex gap-2 mb-3" style="border-bottom:1px solid #eee;">
                     <button type="button" @click="tab = 'trx'"
                         :class="tab === 'trx' ? 'tab-active' : 'tab-inactive'"

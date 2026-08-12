@@ -202,7 +202,8 @@ new class extends Component {
 
     public function getData()
     {
-        $totalBeratSetoran = $this->setoranService->totalBeratSetoran();
+        $totalSetoran = $this->setoranService->totalSaldoSetoran();
+        $keuntungan = $this->setoranService->saldoBersih();
         $pengeluaran = $this->transaksiService
             ->getPengeluaran()
             ->latest()
@@ -217,10 +218,12 @@ new class extends Component {
         $pendapatanbersih = $this->setoranService->pendapatanBersih();
 
         return [
+            'totalSetoran' => $totalSetoran,
             'totalStokGudang' => $totalStokGudang,
             'pengeluaran' => $pengeluaran,
+            'keuntungan' => $keuntungan,
             'totalPenarikanSaldoNasabah' => $totalPenarikanSaldoNasabah,
-            'totalBeratSetoran' => $totalBeratSetoran,
+            'totalSetoran' => $totalSetoran,
             'trx' => $trx,
             'totalPendapatan' => $totalPendapatan,
             'pendapatanbersih' => $pendapatanbersih,

@@ -59,7 +59,7 @@ new class extends Component {
                         </div>
                         <div class="col-3 fade-up">
                             <div class="w-metric">
-                                <div class="w-m-lbl">Nilai Setoran</div>
+                                <div class="w-m-lbl">Nilai Setoran Nasabah</div>
                                 <div class="w-m-val" style="color:var(--blue)">Rp
                                     {{ number_format($data['totalSaldoSetoran']['total'], 0, ',', '.') }}
                                 </div>
@@ -129,41 +129,6 @@ new class extends Component {
                                         default => 'var(--cyan)',
                                     };
                                 @endphp
-                                <div class="w-bar">
-                                    <div class="w-bar-fill"
-                                        style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-3 fade-up">
-                            <div class="w-metric">
-                                <div class="w-m-lbl">Nasabah Aktif</div>
-                                <div class="w-m-val" style="color:var(--blue)">{{ $data['totalNasabah']['total'] }}
-                                </div>
-                                @php
-                                    $diff = $data['totalNasabah']['difference'];
-                                @endphp
-
-                                <div class="w-m-delta {{ $diff >= 0 ? 'up' : 'down' }}">
-                                    <i class="bi bi-arrow-{{ $diff >= 0 ? 'up' : 'down' }}-short"></i>
-
-                                    @if ($diff == 0)
-                                        Tidak ada perubahan
-                                    @else
-                                        {{ $diff >= 0 ? '+' : '' }}{{ $diff }} nasabah
-                                        {{ $diff >= 0 ? 'baru' : 'lebih sedikit' }}
-                                    @endif
-                                </div>
-                                @php
-                                    $persen = $data['totalBeratSetoran']['persentase'];
-                                    $barColor = match (true) {
-                                        $persen < 50 => 'var(--red)',
-                                        $persen < 75 => 'var(--orange)',
-                                        default => 'var(--cyan)',
-                                    };
-                                @endphp
-
                                 <div class="w-bar">
                                     <div class="w-bar-fill"
                                         style="width:{{ $persen }}%; background: {{ $barColor }}">

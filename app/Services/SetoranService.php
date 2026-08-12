@@ -23,4 +23,5 @@ interface SetoranService
     public function deleteSetoran(int $setoranId);
     public function totalSaldoSetoran();
     public function getBankUnit();
+    public function saldoBersih();
 }

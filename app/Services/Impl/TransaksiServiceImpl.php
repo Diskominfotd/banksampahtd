@@ -79,7 +79,8 @@ class TransaksiServiceImpl implements TransaksiService
         if (!$parent) {
             return Transaksi::with(['owner', 'bukutabungan.bank']);
         } else {
-            return Transaksi::with(['owner', 'bukutabungan.bank'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+            return Transaksi::with(['owner', 'bukutabungan.bank'])
+            ->whereHas('bukutabungan', function ($q) use ($unitId) {
                 $q->where('bank_id', $unitId);
             });
         }

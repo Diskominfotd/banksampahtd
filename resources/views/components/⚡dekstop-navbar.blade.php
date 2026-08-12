@@ -45,7 +45,7 @@ new class extends Component {
             @if (Auth::user()->hasRole('admin'))
                 <a href="/gudang" class="w-nav w-tooltip" data-tip="Gudang"
                     :class="{ 'active': path.startsWith('/gudang') }">
-                    <i class="bi bi-trash3-fill"></i>
+                    <i class="bi bi-coin"></i>
                 </a>
             @endif
             <a href="/penarikan" class="w-nav w-tooltip" data-tip="Penarikan"

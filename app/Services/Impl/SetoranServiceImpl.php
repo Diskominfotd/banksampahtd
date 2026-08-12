@@ -250,6 +250,25 @@ class SetoranServiceImpl implements SetoranService
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
+    public function saldoBersih()
+    {
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
+
+        $pendapatan = $this->pendapatanBersih();
+        $setoran = $this->totalSaldoSetoran();
+
+        $total = $pendapatan['total'] - $setoran['total'];
+        $today = $pendapatan['today'] - $setoran['today'];
+        $yesterday = $pendapatan['yesterday'] - $setoran['yesterday'];
+
+        return [
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
 
     public function editSetoran(int $setoranId, array $data)
     {
@@ -299,6 +318,7 @@ class SetoranServiceImpl implements SetoranService
             return session()->flash('success', 'Perubahan Berhasil');
         });
     }
+
 
     private function recalcBukuTabungan(int $bukuTabunganId): float
     {
