@@ -199,10 +199,9 @@ new class extends Component {
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
-
     public function getData()
     {
-        $totalSetoran = $this->setoranService->totalSaldoSetoran();
+        $totalSetoran = $this->setoranService->totalSaldoTabunganNasbahTersisa();
         $keuntungan = $this->setoranService->saldoBersih();
         $pengeluaran = $this->transaksiService
             ->getPengeluaran()

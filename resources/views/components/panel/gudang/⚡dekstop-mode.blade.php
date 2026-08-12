@@ -14,221 +14,190 @@ new class extends Component {
         <div class="w-main">
             @include('components.⚡dekstop-header')
             <div id="w-dashboard" class="w-content">
-                <div class="row g-3">
-                    <div class="col-3 fade-up">
-                        <div class="w-metric">
-                            <div class="w-m-lbl">Total Kas Masuk
-                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+                <div class="row g-2">
+                    <div class="col fade-up">
+                        <div class="w-metric" style="padding: 8px 10px; min-width: 0;">
+                            <div class="w-m-lbl" title="Total Kas Masuk"
+                                style="font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                Total Kas Masuk
+                                <small class="d-block text-muted" title="Total penjualan setoran nasabah, donasi dll"
+                                    style="font-size: 7px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     Total penjualan setoran nasabah, donasi dll
                                 </small>
                             </div>
-                            <div class="w-m-val" style="color:var(--cyan)">
+                            <div class="w-m-val"
+                                style="color:var(--cyan); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['totalPendapatan']['total'], 0, ',', '.') }}
                             </div>
                             @php
-                                $persentase = $data['totalPendapatan']['persentase'];
+                                $selisih = $data['pendapatanbersih']['selisih'];
                                 $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
+                                    $selisih > 0 => 'up',
+                                    $selisih < 0 => 'down',
                                     default => 'neutral',
                                 };
                             @endphp
-
-                            <div class="w-m-delta {{ $arah }}">
+                            <div class="w-m-delta {{ $arah }}"
+                                style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 @if ($arah === 'up')
-                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-up-short"></i> +Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @elseif ($arah === 'down')
-                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-down-short"></i> -Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @else
                                     <i class="bi bi-dash"></i> Tidak Ada Perubahan
                                 @endif
                             </div>
-                            @php
-                                $persen = $data['totalPendapatan']['persentase'];
-                                $barColor = match (true) {
-                                    $persen < 50 => 'var(--red)',
-                                    $persen < 75 => 'var(--orange)',
-                                    default => 'var(--cyan)',
-                                };
-                            @endphp
-                            <div class="w-bar">
-                                <div class="w-bar-fill"
-                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                </div>
-                            </div>
                         </div>
                     </div>
-                    <div class="col-3 fade-up">
-                        <div class="w-metric">
-                            <div class="w-m-lbl">Total Kas Keluar
-                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+
+                    <div class="col fade-up">
+                        <div class="w-metric" style="padding: 8px 10px; min-width: 0;">
+                            <div class="w-m-lbl" title="Total Kas Keluar"
+                                style="font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                Total Kas Keluar
+                                <small class="d-block text-muted"
+                                    title="(Total pengeluaran oprasional,penarikan tabungan nasabah)"
+                                    style="font-size: 7px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     (Total pengeluaran oprasional,penarikan tabungan nasabah)
                                 </small>
                             </div>
-                            <div class="w-m-val" style="color:var(--blue)">
+                            <div class="w-m-val"
+                                style="color:var(--blue); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}
                             </div>
                             @php
-                                $persentase = $data['totalPenarikanSaldoNasabah']['persentase'];
+                                $selisih = $data['pendapatanbersih']['selisih'];
                                 $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
+                                    $selisih > 0 => 'up',
+                                    $selisih < 0 => 'down',
                                     default => 'neutral',
                                 };
                             @endphp
-
-                            <div class="w-m-delta {{ $arah }}">
+                            <div class="w-m-delta {{ $arah }}"
+                                style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 @if ($arah === 'up')
-                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-up-short"></i> +Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @elseif ($arah === 'down')
-                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-down-short"></i> -Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @else
                                     <i class="bi bi-dash"></i> Tidak Ada Perubahan
                                 @endif
                             </div>
-                            @php
-                                $persen = $data['totalPenarikanSaldoNasabah']['persentase'];
-                                $barColor = match (true) {
-                                    $persen < 50 => 'var(--red)',
-                                    $persen < 75 => 'var(--orange)',
-                                    default => 'var(--cyan)',
-                                };
-                            @endphp
-
-                            <div class="w-bar">
-                                <div class="w-bar-fill"
-                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                </div>
-                            </div>
                         </div>
                     </div>
-                    <div class="col-3 fade-up">
-                        <div class="w-metric">
-                            <div class="w-m-lbl">Sisa Kas (Kas Tersedia)
-                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+
+                    <div class="col fade-up">
+                        <div class="w-metric" style="padding: 8px 10px; min-width: 0;">
+                            <div class="w-m-lbl" title="Sisa Kas (Kas Tersedia)"
+                                style="font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                Sisa Kas (Kas Tersedia)
+                                <small class="d-block text-muted" title="(Total kas Masuk - Total kas Keluar)"
+                                    style="font-size: 7px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     (Total kas Masuk - Total kas Keluar)
                                 </small>
                             </div>
-                            <div class="w-m-val" style="color:var(--blue)">
+                            <div class="w-m-val"
+                                style="color:var(--blue); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['pendapatanbersih']['total'], 0, ',', '.') }}
                             </div>
                             @php
-                                $persentase = $data['pendapatanbersih']['persentase'];
+                                $selisih = $data['pendapatanbersih']['selisih'];
                                 $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
+                                    $selisih > 0 => 'up',
+                                    $selisih < 0 => 'down',
                                     default => 'neutral',
                                 };
                             @endphp
-
-                            <div class="w-m-delta {{ $arah }}">
+                            <div class="w-m-delta {{ $arah }}"
+                                style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 @if ($arah === 'up')
-                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-up-short"></i> +Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @elseif ($arah === 'down')
-                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-down-short"></i> -Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @else
                                     <i class="bi bi-dash"></i> Tidak Ada Perubahan
                                 @endif
                             </div>
-                            @php
-                                $persen = $data['pendapatanbersih']['persentase'];
-                                $barColor = match (true) {
-                                    $persen < 50 => 'var(--red)',
-                                    $persen < 75 => 'var(--orange)',
-                                    default => 'var(--cyan)',
-                                };
-                            @endphp
-
-                            <div class="w-bar">
-                                <div class="w-bar-fill"
-                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                </div>
-                            </div>
                         </div>
                     </div>
-                    <div class="col-3 fade-up">
-                        <div class="w-metric">
-                            <div class="w-m-lbl">Total Tabungan Nasabah
-                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+
+                    <div class="col fade-up">
+                        <div class="w-metric" style="padding: 8px 10px; min-width: 0;">
+                            <div class="w-m-lbl" title="Total Tabungan Nasabah"
+                                style="font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                Total Tabungan Nasabah
+                                <small class="d-block text-muted" title="(Total Tabungan Nasabah yang belum ditarik)"
+                                    style="font-size: 7px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     (Total Tabungan Nasabah yang belum ditarik)
                                 </small>
                             </div>
-                            <div class="w-m-val" style="color:var(--blue)">
+                            <div class="w-m-val"
+                                style="color:var(--blue); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['totalSetoran']['total'], 0, ',', '.') }}
                             </div>
                             @php
-                                $persentase = $data['totalSetoran']['persentase'];
+                                $selisih = $data['totalSetoran']['selisih'];
                                 $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
+                                    $selisih > 0 => 'up',
+                                    $selisih < 0 => 'down',
                                     default => 'neutral',
                                 };
                             @endphp
-                            <div class="w-m-delta {{ $arah }}">
+                            <div class="w-m-delta {{ $arah }}"
+                                style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 @if ($arah === 'up')
-                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-up-short"></i> +Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @elseif ($arah === 'down')
-                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-down-short"></i> -Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @else
                                     <i class="bi bi-dash"></i> Tidak Ada Perubahan
                                 @endif
-                            </div>
-                            @php
-                                $persen = $data['totalSetoran']['persentase'];
-                                $barColor = match (true) {
-                                    $persen < 50 => 'var(--red)',
-                                    $persen < 75 => 'var(--orange)',
-                                    default => 'var(--cyan)',
-                                };
-                            @endphp
-
-                            <div class="w-bar">
-                                <div class="w-bar-fill"
-                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-3 fade-up">
-                        <div class="w-metric">
-                            <div class="w-m-lbl">Keuntungan
-                                <small class="d-block text-muted" style="font-size: 7px; font-style: italic;">
+
+                    <div class="col fade-up">
+                        <div class="w-metric" style="padding: 8px 10px; min-width: 0;">
+                            <div class="w-m-lbl" title="Keuntungan"
+                                style="font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                Keuntungan
+                                <small class="d-block text-muted"
+                                    title="(Sisa Kas – Tabungan Nasabah yang belum ditarik)"
+                                    style="font-size: 7px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     (Sisa Kas – Tabungan Nasabah yang belum ditarik)
                                 </small>
                             </div>
-                              <div class="w-m-val" style="color:var(--blue)">
+                            <div class="w-m-val"
+                                style="color:var(--blue); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['keuntungan']['total'], 0, ',', '.') }}
                             </div>
                             @php
-                                $persentase = $data['keuntungan']['persentase'];
+                                $selisih = $data['keuntungan']['selisih'];
                                 $arah = match (true) {
-                                    $persentase > 0 => 'up',
-                                    $persentase < 0 => 'down',
+                                    $selisih > 0 => 'up',
+                                    $selisih < 0 => 'down',
                                     default => 'neutral',
                                 };
                             @endphp
-                            <div class="w-m-delta {{ $arah }}">
+                            <div class="w-m-delta {{ $arah }}"
+                                style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 @if ($arah === 'up')
-                                    <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-up-short"></i> +Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @elseif ($arah === 'down')
-                                    <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                    <i class="bi bi-arrow-down-short"></i> -Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
                                 @else
                                     <i class="bi bi-dash"></i> Tidak Ada Perubahan
                                 @endif
-                            </div>
-                            @php
-                                $persen = $data['keuntungan']['persentase'];
-                                $barColor = match (true) {
-                                    $persen < 50 => 'var(--red)',
-                                    $persen < 75 => 'var(--orange)',
-                                    default => 'var(--cyan)',
-                                };
-                            @endphp
-
-                            <div class="w-bar">
-                                <div class="w-bar-fill"
-                                    style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -251,7 +220,8 @@ new class extends Component {
                                 @forelse ($data['trx'] as $tb)
                                     <div class="w-row" data-bs-toggle="modal" data-bs-target="#wm-detail-trx"
                                         wire:click="trxDetail('{{ encrypt($tb->id) }}')">
-                                        <div class="w-row-ico ic5"><i class="bi bi-box-fill" style="font-size:13px"></i>
+                                        <div class="w-row-ico ic5"><i class="bi bi-box-fill"
+                                                style="font-size:13px"></i>
                                         </div>
                                         <div class="flex-grow-1 overflow-hidden">
                                             <div class="w-row-title">{{ $tb->kode ?? '-' }}</div>
@@ -285,8 +255,8 @@ new class extends Component {
                                         Operasional+Tabungan yang ditarik
                                     </small>
                                 </div>
-                                <span data-bs-toggle="modal" data-bs-target="#wm-trx-pengeluaran" class="bs bs-green"
-                                    style="font-size: 12px; cursor: pointer;">
+                                <span class="bs bs-err" data-bs-toggle="modal" data-bs-target="#wm-trx-pengeluaran"
+                                    class="bs bs-green" style="font-size: 12px; cursor: pointer;">
                                     <i class="bi bi-box-arrow-up"></i> Buat Transaksi
                                 </span>
                             </div>
@@ -296,8 +266,9 @@ new class extends Component {
                                         <div class="w-row" data-bs-toggle="modal"
                                             data-bs-target="#wm-detail-pengeluaran"
                                             wire:click="trxDetailPengeluaran('{{ encrypt($pg->id) }}')">
-                                            <div class="w-row-ico ic5"><i class="bi bi-dash-circle"
-                                                    style="font-size:13px"></i>
+                                            <div
+                                                class="w-row-ico ic5"style="background: rgba(211, 47, 47, .10);color: var(--red);">
+                                                <i class="bi bi-dash-circle" style="font-size:13px;"></i>
                                             </div>
                                             <div class="flex-grow-1 overflow-hidden">
                                                 <div class="w-row-title">{{ $pg->kode ?? '-' }}</div>

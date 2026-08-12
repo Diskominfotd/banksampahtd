@@ -214,10 +214,72 @@ class SetoranServiceImpl implements SetoranService
         $yesterday = $this->setoranByAuthUser()
             ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
             ->sum('total_saldo');
-
         return [
             'total' => $total,
             'today' => $today,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+
+    public function totalSaldoTabunganNasbahTersisa()
+    {
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
+
+        $totalPenarikan = Transaksi::whereHas('bukutabungan', function ($q) {
+            $q->where('bank_id', $this->checkUser()->unit->id);
+        })->sum('total_penarikan');
+
+        $totalSetoran = $this->getSetoranByUnit()->sum('total_saldo');
+
+        $total = $totalSetoran - $totalPenarikan;
+
+        $todaySetoran = $this->getSetoranByUnit()
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->sum('total_saldo');
+
+        $todayPenarikan = Transaksi::whereHas('bukutabungan', function ($q) {
+            $q->where('bank_id', $this->checkUser()->unit->id);
+        })
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->sum('total_penarikan');
+
+        $today = $todaySetoran - $todayPenarikan;
+
+        $yesterdaySetoran = $this->getSetoranByUnit()
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('total_saldo');
+
+        $yesterdayPenarikan = Transaksi::whereHas('bukutabungan', function ($q) {
+            $q->where('bank_id', $this->checkUser()->unit->id);
+        })
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('total_penarikan');
+
+        $yesterday = $yesterdaySetoran - $yesterdayPenarikan;
+        $selisih = $today - $yesterday;
+        return [
+            'total' => $total,
+            'today' => $today,
+            'selisih' => $selisih,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+    public function saldoBersih()
+    {
+        $pendapatan = $this->pendapatanBersih();
+        $setoran = $this->totalSaldoTabunganNasbahTersisa();
+
+        $total = $pendapatan['total'] - $setoran['total'];
+        $today = $pendapatan['today'] - $setoran['today'];
+        $yesterday = $pendapatan['yesterday'] - $setoran['yesterday'];
+        $selisih = $today - $yesterday;
+        return [
+            'total' => $total,
+            'today' => $today,
+            'selisih' => $selisih,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
@@ -243,33 +305,15 @@ class SetoranServiceImpl implements SetoranService
         $total = $pendapatan->sum('total_penarikan') - $pengeluaran->sum('total_penarikan');
         $today = TransaksiBongkarGudang::whereBetween('created_at', [$todayStart, $todayEnd])->sum('total_penarikan');
         $yesterday = Pengeluaran::whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])->sum('total_penarikan');
+        $selisih = $today - $yesterday;
         return [
             'total' => $total,
             'today' => $today,
+            'selisih' => $selisih,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
-    public function saldoBersih()
-    {
-        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
-        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
-
-        $pendapatan = $this->pendapatanBersih();
-        $setoran = $this->totalSaldoSetoran();
-
-        $total = $pendapatan['total'] - $setoran['total'];
-        $today = $pendapatan['today'] - $setoran['today'];
-        $yesterday = $pendapatan['yesterday'] - $setoran['yesterday'];
-
-        return [
-            'total' => $total,
-            'today' => $today,
-            'yesterday' => $yesterday,
-            'persentase' => $this->hitungPersentase($today, $yesterday),
-        ];
-    }
-
     public function editSetoran(int $setoranId, array $data)
     {
         return DB::transaction(function () use ($setoranId, $data) {
@@ -318,7 +362,6 @@ class SetoranServiceImpl implements SetoranService
             return session()->flash('success', 'Perubahan Berhasil');
         });
     }
-
 
     private function recalcBukuTabungan(int $bukuTabunganId): float
     {

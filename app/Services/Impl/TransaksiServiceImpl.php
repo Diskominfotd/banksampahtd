@@ -79,8 +79,7 @@ class TransaksiServiceImpl implements TransaksiService
         if (!$parent) {
             return Transaksi::with(['owner', 'bukutabungan.bank']);
         } else {
-            return Transaksi::with(['owner', 'bukutabungan.bank'])
-            ->whereHas('bukutabungan', function ($q) use ($unitId) {
+            return Transaksi::with(['owner', 'bukutabungan.bank'])->whereHas('bukutabungan', function ($q) use ($unitId) {
                 $q->where('bank_id', $unitId);
             });
         }
@@ -118,10 +117,11 @@ class TransaksiServiceImpl implements TransaksiService
         $yesterday = $this->getTransaksis()
             ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
             ->sum('total_penarikan');
-
+        $selisih = $today - $yesterday;
         return [
             'total' => $total,
             'today' => $today,
+            'selisih' => $selisih,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
@@ -160,10 +160,11 @@ class TransaksiServiceImpl implements TransaksiService
         $yesterday = $this->getTrxGudang()
             ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
             ->sum('total_penarikan');
-
+        $selisih = $today - $yesterday;
         return [
             'total' => $total,
             'today' => $today,
+            'selisih' => $selisih,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
