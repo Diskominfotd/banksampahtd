@@ -6,7 +6,6 @@ new class extends Component {
     //
 };
 ?>
-
 <div>
     {{-- An unexamined life is not worth living. - Socrates --}}
     <div class="desktop-wrapper">
@@ -18,14 +17,114 @@ new class extends Component {
                     <div>
                         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Laporan & Analitik
                         </div>
-                        <div style="font-size:11px;color:var(--muted)">Rekap bulanan — Januari s/d Mei 2026</div>
                     </div>
-                    {{-- <div class="d-flex gap-2">
+                    <div class="d-flex gap-2">
                         <button class="w-btn w-btn-ghost" style="font-size:11px"><i class="bi bi-download me-1"></i>Unduh
                             PDF</button>
                         <button class="w-btn w-btn-primary" style="font-size:11px"><i
                                 class="bi bi-printer me-1"></i>Cetak Laporan</button>
-                    </div> --}}
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Keuntungan</div>
+                            <div class="w-m-val" style="color:var(--cyan)">
+                                Rp {{ number_format($data['keuntungan']['total'], 0, ',', '.') }}
+                            </div>
+                            <small class="d-block text-muted" title="(Sisa Kas – Tabungan Nasabah yang belum ditarik)"
+                                style="font-size: 7px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                (Sisa Kas – Tabungan Nasabah yang belum ditarik)
+                            </small>
+                            @php
+                                $selisih = $data['keuntungan']['selisih'];
+                                $arah = match (true) {
+                                    $selisih > 0 => 'up',
+                                    $selisih < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+                            <div class="w-m-delta {{ $arah }}"
+                                style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>
+                                    +Rp {{ number_format(abs($selisih), 0, ',', '.') }}
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>
+                                    -Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
+                                @else
+                                    <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Estimasi Sisa Stok</div>
+                            <div class="w-m-val" style="color:var(--cyan)">
+                                Rp {{ number_format($data['estimasiStok']['total'], 0, ',', '.') }}
+                            </div>
+                            <small class="d-block text-muted" title="(Sisa Kas – Tabungan Nasabah yang belum ditarik)"
+                                style="font-size: 7px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                (Total Stok Setoran – Tabungan Nasabah yang belum ditarik)
+                            </small>
+                            @php
+                                $selisih = $data['estimasiStok']['selisih'];
+                                $arah = match (true) {
+                                    $selisih > 0 => 'up',
+                                    $selisih < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+                            <div class="w-m-delta {{ $arah }}"
+                                style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>
+                                    +Rp {{ number_format(abs($selisih), 0, ',', '.') }}
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>
+                                    -Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
+                                @else
+                                    <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-3 fade-up">
+                        <div class="w-metric">
+                            <div class="w-m-lbl">Estimasi Laba</div>
+                            <div class="w-m-val" style="color:var(--cyan)">
+                                Rp {{ number_format($data['estimasiLaba']['total'], 0, ',', '.') }}
+                            </div>
+                            <small class="d-block text-muted" title="(Sisa Kas – Tabungan Nasabah yang belum ditarik)"
+                                style="font-size: 7px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                (Estimasi Sisa Stok + Keuntungan Kas)
+                            </small>
+                            @php
+                                $selisih = $data['estimasiLaba']['selisih'];
+                                $arah = match (true) {
+                                    $selisih > 0 => 'up',
+                                    $selisih < 0 => 'down',
+                                    default => 'neutral',
+                                };
+                            @endphp
+                            <div class="w-m-delta {{ $arah }}"
+                                style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                @if ($arah === 'up')
+                                    <i class="bi bi-arrow-up-short"></i>
+                                    +Rp {{ number_format(abs($selisih), 0, ',', '.') }}
+                                @elseif ($arah === 'down')
+                                    <i class="bi bi-arrow-down-short"></i>
+                                    -Rp
+                                    {{ number_format(abs($selisih), 0, ',', '.') }}
+                                @else
+                                    <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-8">
@@ -59,26 +158,25 @@ new class extends Component {
                                 <template x-for="(m, i) in months" :key="i">
                                     <div class="w-cb-col" style="position:relative" x-on:mouseenter="activeIdx = i"
                                         x-on:mouseleave="activeIdx = null">
-
                                         {{-- Tooltip --}}
                                         <div x-show="activeIdx === i"
                                             style="position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);
-                               background:#1a1a1a;color:#fff;border-radius:6px;padding:5px 8px;
-                               font-size:9px;white-space:nowrap;z-index:10;line-height:1.6;text-align:center">
+                                            background:#1a1a1a;color:#fff;border-radius:6px;padding:5px 8px;
+                                            font-size:9px;white-space:nowrap;z-index:10;line-height:1.6;text-align:center">
                                             <div x-text="fmtKg(kgData[i])"></div>
                                             <div x-text="fmtNilai(nilaiData[i])"></div>
                                         </div>
 
                                         <div style="display:flex;gap:2px;align-items:flex-end;flex:1;width:100%">
                                             <div :style="`flex:1;height:${barH(kgData[i], maxKg)}px;background:var(--cyan);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         border-radius:3px 3px 0 0;opacity:${opacity(kgData[i])};
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         transition:opacity .15s`"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         border-radius:3px 3px 0 0;opacity:${opacity(kgData[i])};
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         transition:opacity .15s`"
                                                 :class="activeIdx === i ? 'opacity-100' : ''">
                                             </div>
                                             <div
                                                 :style="`flex:1;height:${barH(nilaiData[i], maxNilai)}px;background:var(--cyan-10);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     border-radius:3px 3px 0 0;opacity:${opacity(nilaiData[i])};
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     transition:opacity .15s`">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     border-radius:3px 3px 0 0;opacity:${opacity(nilaiData[i])};
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     transition:opacity .15s`">
                                             </div>
                                         </div>
                                         <span class="w-cb-lbl" x-text="m"></span>
@@ -88,11 +186,13 @@ new class extends Component {
 
                             <div class="d-flex gap-3 mt-2">
                                 <div class="d-flex align-items-center gap-1">
-                                    <div style="width:10px;height:10px;border-radius:2px;background:var(--cyan)"></div>
+                                    <div style="width:10px;height:10px;border-radius:2px;background:var(--cyan)">
+                                    </div>
                                     <span style="font-size:9px;color:var(--muted)">Berat (kg)</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-1">
-                                    <div style="width:10px;height:10px;border-radius:2px;background:var(--cyan-10)"></div>
+                                    <div style="width:10px;height:10px;border-radius:2px;background:var(--cyan-10)">
+                                    </div>
                                     <span style="font-size:9px;color:var(--muted)">Nilai (Rp)</span>
                                 </div>
                             </div>
@@ -157,7 +257,8 @@ new class extends Component {
                                             {{ $i + 1 }}
                                         </span>
                                         <div class="flex-grow-1">
-                                            <div style="font-size:11px;font-weight:600">{{ ucfirst($tpn->name) }}</div>
+                                            <div style="font-size:11px;font-weight:600">{{ ucfirst($tpn->name) }}
+                                            </div>
                                             <div style="font-size:9px;color:var(--muted)">
                                                 {{ convertBeratToString((float) $tpn->setorans_sum_total_berat) }}
                                                 · {{ $data['topNasabah']['unit']->nama ?? '-' }}

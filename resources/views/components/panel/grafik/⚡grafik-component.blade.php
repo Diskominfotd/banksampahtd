@@ -3,10 +3,12 @@
 use Livewire\Component;
 use App\Services\LaporanService;
 use App\Services\UserServices;
+use App\Services\SetoranService;
 
 new class extends Component {
     protected LaporanService $laporanService;
     protected UserServices $userService;
+    protected SetoranService $setoranService;
 
     public string $bulan = '';
     public string $tahun = '';
@@ -19,10 +21,11 @@ new class extends Component {
         $this->tahunTotalSampah = now()->year;
         $this->tahunTotalRingkasan = now()->year;
     }
-    public function boot(LaporanService $laporanService, UserServices $userService)
+    public function boot(LaporanService $laporanService, UserServices $userService, SetoranService $setoranService)
     {
         $this->laporanService = $laporanService;
         $this->userService = $userService;
+        $this->setoranService = $setoranService;
     }
 
     public function getData()
@@ -32,13 +35,18 @@ new class extends Component {
         $nasabah = $this->userService->totalNasabah();
         $topNasabah = $this->laporanService->topFiveNasabah();
         $komposisi = $this->laporanService->komposisiSampahBulanIni($this->tahun, $this->bulan);
-        //    return dd(json_encode($ringkasan, JSON_PRETTY_PRINT));
+        $keuntungan = $this->setoranService->saldoBersih();
+        $estimasiStok = $this->setoranService->estimasiSisaStokSampah();
+        $estimasiLaba = $this->setoranService->estimasiKuntungan();
         return [
             'grafik' => $grafik,
             'ringkasan' => $ringkasan,
             'nasabah' => $nasabah,
             'topNasabah' => $topNasabah,
             'komposisi' => $komposisi,
+            'keuntungan' => $keuntungan,
+            'estimasiStok' => $estimasiStok,
+            'estimasiLaba' => $estimasiLaba,
         ];
     }
 };

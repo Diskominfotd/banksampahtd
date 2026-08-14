@@ -131,6 +131,7 @@ class TransaksiServiceImpl implements TransaksiService
         [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
         [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
 
+        $total = $this->transaksiByAuthUser()->sum('total_penarikan');
         $today = $this->transaksiByAuthUser()
             ->whereBetween('created_at', [$todayStart, $todayEnd])
             ->sum('total_penarikan');
@@ -138,8 +139,11 @@ class TransaksiServiceImpl implements TransaksiService
         $yesterday = $this->transaksiByAuthUser()
             ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
             ->sum('total_penarikan');
+         $selisih = $today - $yesterday;   
 
         return [
+            'total' => $total,
+            'selisih' => $selisih,
             'today' => $today,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),

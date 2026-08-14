@@ -25,4 +25,6 @@ interface SetoranService
     public function getBankUnit();
     public function saldoBersih();
     public function totalSetoranToday();
+    public function estimasiSisaStokSampah();
+    public function estimasiKuntungan();
 }

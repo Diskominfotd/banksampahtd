@@ -13,10 +13,23 @@ use App\Services\SetoranService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
 class SetoranServiceImpl implements SetoranService
 {
+    public function getTransaksis()
+    {
+        $user = $this->checkUser();
+        $parent = $user->unit->parent_id;
+        $unitId = $user->unit->id;
+        if (!$parent) {
+            return Transaksi::with(['owner', 'bukutabungan.bank']);
+        } else {
+            return Transaksi::with(['owner', 'bukutabungan.bank'])->whereHas('bukutabungan', function ($q) use ($unitId) {
+                $q->where('bank_id', $unitId);
+            });
+        }
+    }
+
     private function getJakartaDayRange(int $daysAgo = 0): array
     {
         $start = now('Asia/Jakarta')->subDays($daysAgo)->startOfDay()->timezone('UTC');
@@ -280,6 +293,7 @@ class SetoranServiceImpl implements SetoranService
         $today = $pendapatan['today'] - $setoran['today'];
         $yesterday = $pendapatan['yesterday'] - $setoran['yesterday'];
         $selisih = $today - $yesterday;
+
         return [
             'total' => $total,
             'today' => $today,
@@ -437,7 +451,67 @@ class SetoranServiceImpl implements SetoranService
         $totalSetoran = $setoran->count('id');
         return [
             'berat' => $totalBerat,
-            'total' => $totalSetoran
+            'total' => $totalSetoran,
+        ];
+    }
+    public function totalPenarikanSaldoNasabah()
+    {
+        $total = $this->getTransaksis()->sum('total_penarikan');
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
+
+        $today = $this->getTransaksis()
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->sum('total_penarikan');
+
+        $yesterday = $this->getTransaksis()
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->sum('total_penarikan');
+        $selisih = $today - $yesterday;
+        return [
+            'total' => $total,
+            'today' => $today,
+            'selisih' => $selisih,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+    public function estimasiSisaStokSampah()
+    {
+        $totalSetoran = $this->totalSaldoSetoran();
+        $penarikan = $this->totalPenarikanSaldoNasabah();
+
+        $total = $totalSetoran['total'] - $penarikan['total'];
+        $today = $totalSetoran['today'] - $penarikan['today'];
+
+        $yesterday = $totalSetoran['yesterday'] - $penarikan['yesterday'];
+        $selisih = $today - $yesterday;
+
+        return [
+            'total' => $total,
+            'today' => $today,
+            'selisih' => $selisih,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
+        ];
+    }
+    public function estimasiKuntungan()
+    {
+        $totalKeuntunganKas = $this->saldoBersih();
+        $estimasiSisaStokGudang = $this->estimasiSisaStokSampah();
+
+        $total = $totalKeuntunganKas['total'] + $estimasiSisaStokGudang['total'];
+        $today = $totalKeuntunganKas['today'] + $estimasiSisaStokGudang['today'];
+        $yesterday = $totalKeuntunganKas['yesterday'] + $estimasiSisaStokGudang['yesterday'];
+        
+        $selisih = $today - $yesterday;
+
+        return [
+            'total' => $total,
+            'today' => $today,
+            'selisih' => $selisih,
+            'yesterday' => $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
 }

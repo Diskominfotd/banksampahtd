@@ -215,7 +215,6 @@ new class extends Component {
             ->paginate($this->pageTrx, ['*'], 'trxPage');
         $totalPendapatan = $this->transaksiService->totalPendapatan();
         $pendapatanbersih = $this->setoranService->pendapatanBersih();
-
         return [
             'totalSetoran' => $totalSetoran,
             'totalStokGudang' => $totalStokGudang,
