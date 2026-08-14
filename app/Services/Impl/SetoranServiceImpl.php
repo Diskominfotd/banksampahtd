@@ -172,10 +172,11 @@ class SetoranServiceImpl implements SetoranService
         $yesterday = $this->getSetoranByUnit()
             ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
             ->sum('total_berat');
-
+        $selisih = $today - $yesterday;
         return [
             'total' => $total,
             'today' => $today,
+            'selisih' => $selisih,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
@@ -193,10 +194,11 @@ class SetoranServiceImpl implements SetoranService
         $yesterday = $this->getSetoranByUnit()
             ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
             ->sum('total_saldo');
-
+        $selisih = $today - $yesterday;
         return [
             'total' => $total,
             'today' => $today,
+            'selisih' => $selisih,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
@@ -214,9 +216,11 @@ class SetoranServiceImpl implements SetoranService
         $yesterday = $this->setoranByAuthUser()
             ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
             ->sum('total_saldo');
+        $selisih = $today - $yesterday;
         return [
             'total' => $total,
             'today' => $today,
+            'selisih' => $selisih,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
@@ -423,5 +427,17 @@ class SetoranServiceImpl implements SetoranService
     public function getBankUnit()
     {
         return BankSampah::with('gudang');
+    }
+
+    public function totalSetoranToday()
+    {
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        $setoran = $this->getSetoranByUnit()->whereBetween('created_at', [$todayStart, $todayEnd]);
+        $totalBerat = $setoran->sum('total_berat');
+        $totalSetoran = $setoran->count('id');
+        return [
+            'berat' => $totalBerat,
+            'total' => $totalSetoran
+        ];
     }
 }

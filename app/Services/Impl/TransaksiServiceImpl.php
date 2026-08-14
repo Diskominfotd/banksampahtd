@@ -183,10 +183,11 @@ class TransaksiServiceImpl implements TransaksiService
         $yesterday = $this->getPengeluaranByGudang()
             ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
             ->sum('total_penarikan');
-
+        $selisih = $today - $yesterday;
         return [
             'total' => $total,
             'today' => $today,
+            'selisih' => $selisih,
             'yesterday' => $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];

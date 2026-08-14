@@ -9,7 +9,6 @@ new class extends Component {
 
 <div>
     {{-- Breathing in, I calm body and mind. Breathing out, I smile. - Thich Nhat Hanh --}}
-
     {{-- Supervisor Admin --}}
     @if (Auth::user()->hasRole(['admin', 'supervisor']))
         <div class="desktop-wrapper">
@@ -25,35 +24,24 @@ new class extends Component {
                                     {{ number_format($data['totalBeratSetoran']['total'], 1, ',', '.') }} kg
                                 </div>
                                 @php
-                                    $persentase = $data['totalBeratSetoran']['persentase'];
+                                    $selisih = $data['totalBeratSetoran']['selisih'];
                                     $arah = match (true) {
-                                        $persentase > 0 => 'up',
-                                        $persentase < 0 => 'down',
+                                        $selisih > 0 => 'up',
+                                        $selisih < 0 => 'down',
                                         default => 'neutral',
                                     };
                                 @endphp
-
-                                <div class="w-m-delta {{ $arah }}">
+                                <div class="w-m-delta {{ $arah }}"
+                                    style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     @if ($arah === 'up')
-                                        <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                        <i class="bi bi-arrow-up-short"></i> +Kg
+                                        {{ number_format(abs($selisih), 1, ',', '.') }}
                                     @elseif ($arah === 'down')
-                                        <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                        <i class="bi bi-arrow-down-short"></i> -Kg
+                                        {{ number_format(abs($selisih), 1, ',', '.') }}
                                     @else
-                                        <i class="bi bi-dash"></i> Sama seperti kemarin
+                                        <i class="bi bi-dash"></i> Tidak Ada Perubahan
                                     @endif
-                                </div>
-                                @php
-                                    $persen = $data['totalBeratSetoran']['persentase'];
-                                    $barColor = match (true) {
-                                        $persen < 50 => 'var(--red)',
-                                        $persen < 75 => 'var(--orange)',
-                                        default => 'var(--cyan)',
-                                    };
-                                @endphp
-                                <div class="w-bar">
-                                    <div class="w-bar-fill"
-                                        style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -64,36 +52,24 @@ new class extends Component {
                                     {{ number_format($data['totalSaldoSetoran']['total'], 0, ',', '.') }}
                                 </div>
                                 @php
-                                    $persentase = $data['totalBeratSetoran']['persentase'];
+                                    $selisih = $data['totalSaldoSetoran']['selisih'];
                                     $arah = match (true) {
-                                        $persentase > 0 => 'up',
-                                        $persentase < 0 => 'down',
+                                        $selisih > 0 => 'up',
+                                        $selisih < 0 => 'down',
                                         default => 'neutral',
                                     };
                                 @endphp
-
-                                <div class="w-m-delta {{ $arah }}">
+                                <div class="w-m-delta {{ $arah }}"
+                                    style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     @if ($arah === 'up')
-                                        <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                        <i class="bi bi-arrow-up-short"></i> +Rp
+                                        {{ number_format(abs($selisih), 0, ',', '.') }}
                                     @elseif ($arah === 'down')
-                                        <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                        <i class="bi bi-arrow-down-short"></i> -Rp
+                                        {{ number_format(abs($selisih), 0, ',', '.') }}
                                     @else
-                                        <i class="bi bi-dash"></i> Sama seperti kemarin
+                                        <i class="bi bi-dash"></i> Tidak Ada Perubahan
                                     @endif
-                                </div>
-                                @php
-                                    $persen = $data['totalBeratSetoran']['persentase'];
-                                    $barColor = match (true) {
-                                        $persen < 50 => 'var(--red)',
-                                        $persen < 75 => 'var(--orange)',
-                                        default => 'var(--cyan)',
-                                    };
-                                @endphp
-
-                                <div class="w-bar">
-                                    <div class="w-bar-fill"
-                                        style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -104,70 +80,81 @@ new class extends Component {
                                     {{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}
                                 </div>
                                 @php
-                                    $persentase = $data['totalPenarikanSaldoNasabah']['persentase'];
+                                    $selisih = $data['totalPenarikanSaldoNasabah']['selisih'];
                                     $arah = match (true) {
-                                        $persentase > 0 => 'up',
-                                        $persentase < 0 => 'down',
+                                        $selisih > 0 => 'up',
+                                        $selisih < 0 => 'down',
                                         default => 'neutral',
                                     };
                                 @endphp
-
-                                <div class="w-m-delta {{ $arah }}">
+                                <div class="w-m-delta {{ $arah }}"
+                                    style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                     @if ($arah === 'up')
-                                        <i class="bi bi-arrow-up-short"></i>+{{ $persentase }}% kemarin
+                                        <i class="bi bi-arrow-up-short"></i> +Rp
+                                        {{ number_format(abs($selisih), 0, ',', '.') }}
                                     @elseif ($arah === 'down')
-                                        <i class="bi bi-arrow-down-short"></i>{{ $persentase }}% kemarin
+                                        <i class="bi bi-arrow-down-short"></i> -Rp
+                                        {{ number_format(abs($selisih), 0, ',', '.') }}
                                     @else
-                                        <i class="bi bi-dash"></i> Sama seperti kemarin
+                                        <i class="bi bi-dash"></i> Tidak Ada Perubahan
                                     @endif
-                                </div>
-                                @php
-                                    $persen = $data['totalPenarikanSaldoNasabah']['persentase'];
-                                    $barColor = match (true) {
-                                        $persen < 50 => 'var(--red)',
-                                        $persen < 75 => 'var(--orange)',
-                                        default => 'var(--cyan)',
-                                    };
-                                @endphp
-                                <div class="w-bar">
-                                    <div class="w-bar-fill"
-                                        style="width:{{ $persen }}%; background: {{ $barColor }}">
-                                    </div>
                                 </div>
                             </div>
                         </div>
+                        @if (Auth::user()->hasRole('admin'))
+                            <div class="col-3 fade-up">
+                                <div class="w-metric">
+                                    <div class="w-m-lbl">Nasabah Aktif</div>
+                                    <div class="w-m-val" style="color:var(--blue)">{{ $data['totalNasabah']['total'] }}
+                                    </div>
+                                    @php
+                                        $selisih = $data['totalNasabah']['selisih'];
+                                        $arah = match (true) {
+                                            $selisih > 0 => 'up',
+                                            $selisih < 0 => 'down',
+                                            default => 'neutral',
+                                        };
+                                    @endphp
+                                    <div class="w-m-delta {{ $arah }}"
+                                        style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        @if ($arah === 'up')
+                                            <i class="bi bi-arrow-up-short"></i> +Rp
+                                            {{ number_format(abs($selisih), 0, ',', '.') }}
+                                        @elseif ($arah === 'down')
+                                            <i class="bi bi-arrow-down-short"></i> -Rp
+                                            {{ number_format(abs($selisih), 0, ',', '.') }}
+                                        @else
+                                            <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                        @endif
+                                    </div>
+                                </div>
+                        @endif
                         @if (Auth::user()->hasRole('supervisor'))
                             <div class="col-3 fade-up">
                                 <div class="w-metric">
                                     <div class="w-m-lbl">Total Unit Aktif</div>
                                     <div class="w-m-val" style="color:var(--blue)">
-                                        {{ $data['totalUnitActive']['value'] }}
+                                        {{ $data['totalUnitActive']['total'] }}
                                     </div>
-
                                     @php
-                                        $diff = $data['totalUnitActive']['difference'];
-                                    @endphp
-                                    <div class="w-m-delta {{ $diff >= 0 ? 'up' : 'down' }}">
-                                        <i class="bi bi-arrow-{{ $diff >= 0 ? 'up' : 'down' }}-short"></i>
-                                        @if ($diff == 0)
-                                            Tidak ada perubahan
-                                        @else
-                                            {{ $diff >= 0 ? '+' : '' }}{{ $diff }} unit
-                                            {{ $diff >= 0 ? 'baru' : 'lebih sedikit' }}
-                                        @endif
-                                    </div>
-
-                                    @php
-                                        $persen = $data['totalUnitActive']['persentase'];
-                                        $barColor = match (true) {
-                                            $persen < 50 => 'var(--red)',
-                                            $persen < 75 => 'var(--orange)',
-                                            default => 'var(--cyan)',
+                                        $selisih = $data['totalUnitActive']['selisih'];
+                                        $arah = match (true) {
+                                            $selisih > 0 => 'up',
+                                            $selisih < 0 => 'down',
+                                            default => 'neutral',
                                         };
                                     @endphp
-                                    <div class="w-bar">
-                                        <div class="w-bar-fill"
-                                            style="width:{{ $persen }}%; background: {{ $barColor }}"></div>
+                                    <div class="w-m-delta {{ $arah }}"
+                                        style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        @if ($arah === 'up')
+                                            <i class="bi bi-arrow-up-short"></i> +Rp
+                                            {{ number_format(abs($selisih), 0, ',', '.') }}
+                                        @elseif ($arah === 'down')
+                                            <i class="bi bi-arrow-down-short"></i> -Rp
+                                            {{ number_format(abs($selisih), 0, ',', '.') }}
+                                        @else
+                                            <i class="bi bi-dash"></i> Tidak Ada Perubahan
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -195,14 +182,15 @@ new class extends Component {
                                     @if (Auth::user()->hasRole('admin'))
                                         <div class="col-3"><a class="w-svc"
                                                 href="{{ route('buat.penarikan.saldo') }}">
-                                                <div class="w-svc-icon ic4"><i class="bi bi-cash-coin"></i></div><span
-                                                    class="w-svc-lbl">Buat Penarikan</span>
+                                                <div class="w-svc-icon ic4"><i class="bi bi-cash-coin"></i></div>
+                                                <span class="w-svc-lbl">Buat Penarikan</span>
                                             </a>
                                         </div>
                                     @endif
                                     @if (Auth::user()->hasRole('supervisor'))
                                         <div class="col-3"><a class="w-svc" href="{{ route('grafik') }}">
-                                                <div class="w-svc-icon ic4"><i class="bi bi-graph-up-arrow"></i></div>
+                                                <div class="w-svc-icon ic4"><i class="bi bi-graph-up-arrow"></i>
+                                                </div>
                                                 <span class="w-svc-lbl">Grafik/Laporan</span>
                                             </a>
                                         </div>
@@ -282,7 +270,8 @@ new class extends Component {
                                                 </div>
                                                 <div class="flex-grow-1 overflow-hidden">
                                                     <div class="w-row-title">{{ ucfirst($stb->penyetor->name) }} —
-                                                        {{ number_format($stb->total_berat, 1, ',', '.') }} kg</div>
+                                                        {{ number_format($stb->total_berat, 1, ',', '.') }} kg
+                                                    </div>
                                                     <div class="w-row-meta">
                                                         {{ $stb->bukutabungan->bank->nama }} ·
                                                         {{ $stb->created_at->timezone('Asia/Jakarta')->diffForHumans() }}
@@ -353,7 +342,8 @@ new class extends Component {
                                     @foreach ($itemSetoranDetail['items'] ?? [] as $index => $di)
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
-                                            <td style="font-size:11px;font-weight:600">{{ $di['trash']['nama'] }}</td>
+                                            <td style="font-size:11px;font-weight:600">{{ $di['trash']['nama'] }}
+                                            </td>
                                             <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
                                             <td>{{ number_format($di['berat'], 1, ',', '.') }} KG</td>
                                             <td>Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
@@ -389,7 +379,8 @@ new class extends Component {
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content w-modal">
                     <div class="w-modal-header">
-                        <div class="w-modal-title">Detail Penarikan - {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XXX' }}
+                        <div class="w-modal-title">Detail Penarikan -
+                            {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XXX' }}
                         </div>
                         <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                     </div>
@@ -496,7 +487,8 @@ new class extends Component {
                         <div class="col-3 fade-up">
                             <div class="w-metric">
                                 <div class="w-m-lbl">Jumlah Rekening</div>
-                                <div class="w-m-val" style="color:var(--blue)">{{ $data['totalRekeningNasabah'] }}
+                                <div class="w-m-val" style="color:var(--blue)">
+                                    {{ $data['totalRekeningNasabah'] }}
                                 </div>
                                 <div class="w-m-delta up">
                                     <a class="bs bs-green" wire:click="getBukuTabungan" data-bs-toggle="modal"
@@ -635,13 +627,15 @@ new class extends Component {
                                                     <div class="w-row-title">
                                                         {{ $trxbl->created_at->format('d M Y') }} —
                                                         {{ $trxbl->bukutabungan->nomor_rekening }}</div>
-                                                    <div class="w-row-meta">{{ $trxbl->bukutabungan->bank->nama }} ·
+                                                    <div class="w-row-meta">{{ $trxbl->bukutabungan->bank->nama }}
+                                                        ·
                                                         {{ $trxbl->created_at->diffForHumans() }} ·
                                                         <b> Sisa - Rp
                                                             {{ number_format($trxbl->sisa_saldo, 0, ',', '.') }}</b>
                                                     </div>
                                                 </div><span class="bs bs-err">Rp
-                                                    - {{ number_format($trxbl->total_penarikan, 0, ',', '.') }}</span>
+                                                    -
+                                                    {{ number_format($trxbl->total_penarikan, 0, ',', '.') }}</span>
                                             </div>
                                         @endforeach
                                     @else
@@ -669,10 +663,13 @@ new class extends Component {
                                                 <div class="w-row-ico ic1"><i class="bi bi-recycle"
                                                         style="font-size:13px"></i></div>
                                                 <div class="flex-grow-1 overflow-hidden">
-                                                    <div class="w-row-title">{{ $snbl->created_at->format('d M Y') }}
+                                                    <div class="w-row-title">
+                                                        {{ $snbl->created_at->format('d M Y') }}
                                                         —
-                                                        {{ number_format($snbl->total_berat, 1, ',', '.') }} Kg</div>
-                                                    <div class="w-row-meta">{{ $snbl->bukutabungan->bank->nama }} ·
+                                                        {{ number_format($snbl->total_berat, 1, ',', '.') }} Kg
+                                                    </div>
+                                                    <div class="w-row-meta">{{ $snbl->bukutabungan->bank->nama }}
+                                                        ·
                                                         {{ $snbl->created_at->diffForHumans() }}</div>
                                                 </div><span class="bs bs-green">
                                                     Rp
@@ -715,8 +712,7 @@ new class extends Component {
                                             @endforeach
                                         </select>
                                         @error('unitBukuTabungan')
-                                            <small class="text-danger"
-                                                style="font-size:10px">{{ $message }}</small>
+                                            <small class="text-danger" style="font-size:10px">{{ $message }}</small>
                                         @enderror
                                     </div>
                                 </div>
@@ -760,7 +756,8 @@ new class extends Component {
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content w-modal">
                     <div class="w-modal-header">
-                        <div class="w-modal-title">Detail Penarikan - {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XXX' }}
+                        <div class="w-modal-title">Detail Penarikan -
+                            {{ $itemTrxDetail->kode ?? 'TRX-XXX-XXX-XXX' }}
                         </div>
                         <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                     </div>
@@ -1066,7 +1063,8 @@ new class extends Component {
                         @if (count($this->setoranNasabah) >= 10)
                             <button type="button" wire:click="loadMoreSetoran"
                                 style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
-                                <span wire:loading.remove wire:target="loadMoreSetoran">Tampilkan lebih banyak</span>
+                                <span wire:loading.remove wire:target="loadMoreSetoran">Tampilkan lebih
+                                    banyak</span>
                                 <span wire:loading wire:target="loadMoreSetoran">
                                     <span class="spinner-border spinner-border-sm"
                                         style="width:12px;height:12px;border-width:1.5px;"></span>
@@ -1129,7 +1127,8 @@ new class extends Component {
                             @if (count($this->trxNasabah) >= 10)
                                 <button type="button" wire:click="loadMoreTrx"
                                     style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
-                                    <span wire:loading.remove wire:target="loadMoreTrx">Tampilkan lebih banyak</span>
+                                    <span wire:loading.remove wire:target="loadMoreTrx">Tampilkan lebih
+                                        banyak</span>
                                     <span wire:loading wire:target="loadMoreTrx">
                                         <span class="spinner-border spinner-border-sm"
                                             style="width:12px;height:12px;border-width:1.5px;"></span>

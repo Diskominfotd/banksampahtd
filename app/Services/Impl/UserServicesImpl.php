@@ -18,6 +18,16 @@ use Illuminate\Support\Str;
 
 class UserServicesImpl implements UserServices
 {
+    private function getJakartaDayRange(int $daysAgo = 0): array
+    {
+        $start = now('Asia/Jakarta')->subDays($daysAgo)->startOfDay()->timezone('UTC');
+        $end = now('Asia/Jakarta')
+            ->subDays($daysAgo - 1)
+            ->startOfDay()
+            ->timezone('UTC');
+
+        return [$start, $end];
+    }
     private function generateGudangKode(): string
     {
         do {
@@ -245,13 +255,18 @@ class UserServicesImpl implements UserServices
     public function totalNasabah()
     {
         $total = $this->getUserByUnitAndBook()->count();
-        $todayDate = now()->startOfDay();
-        $yesterdayDate = now()->subDay()->startOfDay();
-
-        $today = $this->getUserByUnitAndBook()->whereDate('created_at', $todayDate)->count();
-        $yesterday = $this->getUserByUnitAndBook()->whereDate('created_at', $yesterdayDate)->count();
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
+        $today = $this->getUserByUnitAndBook()
+            ->whereBetween('created_at', [$todayStart, $todayEnd])
+            ->count();
+        $yesterday = $this->getUserByUnitAndBook()
+            ->whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])
+            ->count();
+        $selisih = $today - $yesterday;
 
         return [
+            'selisih' => $selisih,
             'total' => $total,
             'today' => $today,
             'yesterday' => $yesterday,
@@ -413,23 +428,20 @@ class UserServicesImpl implements UserServices
 
     public function totalUnitActive()
     {
-        $now = now();
-
-        $current = BankSampah::where('status', true)->count();
-
-        $previous = BankSampah::where('status', true)
-            ->whereMonth('created_at', $now->copy()->subMonth()->month)
-            ->whereYear('created_at', $now->copy()->subMonth()->year)
-            ->count();
-
-        $difference = $current - $previous;
-        $totalAll = BankSampah::count();
-        $persentase = $totalAll > 0 ? round(($current / $totalAll) * 100, 1) : 0;
+        $total = BankSampah::count();
+        [$todayStart, $todayEnd] = $this->getJakartaDayRange(0);
+        [$yesterdayStart, $yesterdayEnd] = $this->getJakartaDayRange(1);
+        $today = BankSampah::whereBetween('created_at', [$todayStart, $todayEnd])->count();
+        $yesterday = BankSampah::whereBetween('created_at', [$yesterdayStart, $yesterdayEnd])->count();
+        $selisih = $today - $yesterday;
 
         return [
-            'value' => $current,
-            'difference' => $difference,
-            'persentase' => $persentase,
+            'selisih' => $selisih,
+            'total' => $total,
+            'today' => $today,
+            'yesterday' => $yesterday,
+            'difference' => $today - $yesterday,
+            'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
 }

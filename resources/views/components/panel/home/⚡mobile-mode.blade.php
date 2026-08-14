@@ -184,7 +184,7 @@ new class extends Component {
                     @endif
                     @if (Auth::user()->hasRole(['admin']))
                         <div class="col-3 fade-up"><a class="svc-item" href="{{ route('gudang') }}">
-                                <div class="svc-icon ic2"><i class="bi bi-trash3-fill"></i></div><span
+                                <div class="svc-icon ic2"> <i class="bi bi-coin"></i></div><span
                                     class="svc-lbl">Gudang</span>
                             </a>
                         </div>

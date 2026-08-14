@@ -24,7 +24,7 @@ new class extends Component {
             <div class="m-back" wire:click="movePage('home')">
                 <i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
-            <div class="ph-title">Gudang</div>
+            <div class="ph-title">Transaksi Gudang</div>
             <div class="ms-auto d-flex gap-2 mb-2">
                 <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
@@ -40,42 +40,84 @@ new class extends Component {
         </div>
         <div class="m-body" style="padding-top:16px">
             <div class="m-summary fade-up"
-                style="background: linear-gradient(135deg, #0a4d68 0%, #088395 60%, #05bfdb 100%); border-radius: 12px; padding: 16px; color: #fff;">
-                <div class="m-pills">
+                style="background: linear-gradient(135deg, #0a4d68 0%, #088395 60%, #05bfdb 100%); border-radius: 10px; padding: 10px; color: #fff;">
+                <div class="m-pills d-flex gap-2">
                     @php
-                        $summaryArah = fn($p) => match (true) {
-                            $p > 0 => 'up',
-                            $p < 0 => 'down',
+                        $summaryArah = fn($s) => match (true) {
+                            $s > 0 => 'up',
+                            $s < 0 => 'down',
                             default => 'neutral',
                         };
                     @endphp
+
                     @php
-                        $arah = $summaryArah($data['totalPendapatan']['persentase']);
-                        $persen = $data['totalPendapatan']['persentase'];
+                        $selisih = $data['totalPendapatan']['selisih'];
+                        $arah = $summaryArah($selisih);
                     @endphp
-                    <div class="m-pill c">
-                        <span
-                            class="m-pill-n">{{ number_format($data['totalPendapatan']['total'], 0, ',', '.') }}</span>
-                        <span class="m-pill-l">Pendapatan</span>
-                        <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
-                            style="display:inline-flex; align-items:center; gap:1px;">
-                            <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
-                            {{ $arah === 'neutral' ? 'Sama' : ($arah === 'up' ? '+' : '') . $persen . '%' }}
-                        </span>
+                    <div class="m-pill c"
+                        style="background: rgba(255,255,255,0.12); border-radius: 8px; padding: 8px; flex: 1; min-width: 0;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <div
+                                style="width:24px; height:24px; border-radius:50%; background: rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <i class="bi bi-arrow-down-left" style="font-size: 12px;"></i>
+                            </div>
+                            <div style="min-width:0; flex:1;">
+                                <div
+                                    style="font-size: 9px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    Total Kas Masuk
+                                </div>
+                                <div
+                                    style="font-size: 13px; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    Rp {{ number_format($data['totalPendapatan']['total'], 0, ',', '.') }}
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            style="display:flex; align-items:center; justify-content:flex-end; gap:2px; font-size: 9px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.15); color: {{ $arah === 'down' ? '#ffb3b3' : ($arah === 'up' ? '#b3ffcc' : '#fff') }};">
+                            @if ($arah === 'up')
+                                <i class="bi bi-arrow-up-short"></i> +Rp {{ number_format(abs($selisih), 0, ',', '.') }}
+                            @elseif ($arah === 'down')
+                                <i class="bi bi-arrow-down-short"></i> -Rp
+                                {{ number_format(abs($selisih), 0, ',', '.') }}
+                            @else
+                                <i class="bi bi-dash"></i> Sama dari kemarin
+                            @endif
+                        </div>
                     </div>
+
                     @php
-                        $arah = $summaryArah($data['totalPenarikanSaldoNasabah']['persentase']);
-                        $persen = $data['totalPenarikanSaldoNasabah']['persentase'];
+                        $selisih = $data['totalPenarikanSaldoNasabah']['selisih'];
+                        $arah = $summaryArah($selisih);
                     @endphp
-                    <div class="m-pill c">
-                        <span
-                            class="m-pill-n">{{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}</span>
-                        <span class="m-pill-l">Pengeluaran</span>
-                        <span class="m-pill-l {{ $arah === 'down' ? 'text-danger' : '' }}"
-                            style="display:inline-flex; align-items:center; gap:1px;">
-                            <i class="bi bi-arrow-{{ $arah === 'down' ? 'down' : 'up' }}-short"></i>
-                            {{ $arah === 'neutral' ? 'Sama' : ($arah === 'up' ? '+' : '') . $persen . '%' }}
-                        </span>
+                    <div class="m-pill c"
+                        style="background: rgba(255,255,255,0.12); border-radius: 8px; padding: 8px; flex: 1; min-width: 0;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <div
+                                style="width:24px; height:24px; border-radius:50%; background: rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <i class="bi bi-arrow-up-right" style="font-size: 12px;"></i>
+                            </div>
+                            <div style="min-width:0; flex:1;">
+                                <div
+                                    style="font-size: 9px; opacity: 0.8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    Total Kas Keluar
+                                </div>
+                                <div
+                                    style="font-size: 13px; font-weight: 700; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    Rp {{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            style="display:flex; align-items:center; justify-content:flex-end; gap:2px; font-size: 9px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.15); color: {{ $arah === 'down' ? '#ffb3b3' : ($arah === 'up' ? '#b3ffcc' : '#fff') }};">
+                            @if ($arah === 'up')
+                                <i class="bi bi-arrow-up-short"></i> +Rp {{ number_format(abs($selisih), 0, ',', '.') }}
+                            @elseif ($arah === 'down')
+                                <i class="bi bi-arrow-down-short"></i> -Rp
+                                {{ number_format(abs($selisih), 0, ',', '.') }}
+                            @else
+                                <i class="bi bi-dash"></i> Sama dari kemarin
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -84,16 +126,15 @@ new class extends Component {
                     <button type="button" @click="tab = 'trx'"
                         :class="tab === 'trx' ? 'tab-active' : 'tab-inactive'"
                         style="flex:1;padding:8px 0;border:0;background:none;font-size:13px;font-weight:600;">
-                        Transaksi Gudang
+                        Transaksi Kas Masuk
                     </button>
                     <button type="button" @click="tab = 'pengeluaran'"
                         :class="tab === 'pengeluaran' ? 'tab-active' : 'tab-inactive'"
                         style="flex:1;padding:8px 0;border:0;background:none;font-size:13px;font-weight:600;">
-                        Pengeluaran
+                        Transaksi Kas Keluar
                     </button>
                 </div>
 
-                {{-- ===== TAB: TRANSAKSI GUDANG ===== --}}
                 <div x-show="tab === 'trx'">
                     <div class="row g-2">
                         @forelse ($data['trx'] ?? [] as $trx)
@@ -169,7 +210,8 @@ new class extends Component {
                     @if ($data['pengeluaran']->count() >= $pagePgn)
                         <button type="button" wire:click="loadPerpagePengeluaran"
                             style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
-                            <span wire:loading.remove wire:target="loadPerpagePengeluaran">Tampilkan lebih banyak</span>
+                            <span wire:loading.remove wire:target="loadPerpagePengeluaran">Tampilkan lebih
+                                banyak</span>
                             <span wire:loading wire:target="loadPerpagePengeluaran">
                                 <span class="spinner-border spinner-border-sm"
                                     style="width:12px;height:12px;border-width:1.5px;"></span>

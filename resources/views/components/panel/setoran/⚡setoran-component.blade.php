@@ -125,7 +125,9 @@ new class extends Component {
 
     public function getData()
     {
+        $total = $this->setoranService->totalSetoranToday();
         $builder = $this->setoranService->getSetoranByUnit();
+        $totalTrx = (clone $builder)->sum('total_saldo');
         $units = $this->setoranService->getBankUnit();
         if ($this->keyword) {
             $builder->where(function ($q) {
@@ -151,7 +153,9 @@ new class extends Component {
         $allunit = $units->whereNotNull('parent_id')->latest()->get();
         return [
             'setoran' => $setoran,
+            'totalTrx' => $totalTrx,
             'allunit' => $allunit,
+            'total' => $total,
         ];
     }
 };
@@ -173,7 +177,7 @@ new class extends Component {
         <div class="m-page-header">
             <div class="m-back" wire:click="movePage('home')"><i class="bi bi-chevron-left" style="font-size:12px"></i>
             </div>
-            <div class="ph-title" style="font-size: 12px;">Daftar Transaksi Penyetoran Sampah</div>
+            <div class="ph-title" style="font-size: 11px;">Daftar Transaksi Penyetoran Sampah</div>
             <div class="ms-auto d-flex gap-2">
                 <div class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
@@ -188,6 +192,14 @@ new class extends Component {
             </div>
         </div>
         <div class="m-body mb-5" style="padding-top:16px">
+            <div class="mt-1 mb-3" style="display:flex; justify-content:space-between; align-items:center; background: #ffffff; border-radius: 20px; padding: 8px 14px; gap: 8px;">
+                <div>
+                    <div style="font-size: 10px; color: #6c757d;">Total Setoran Nasabah</div>
+                    <div style="font-size: 13px; font-weight: 700; color:var(--green);">
+                             Rp {{ number_format($data['totalTrx'] ?? 0, 0, ',', '.') }}
+                    </div>
+                </div>
+            </div>
             <div wire:loading.flex wire:target="keyword,date,unitNasabah"
                 class="justify-content-center align-items-center"
                 style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
@@ -210,7 +222,7 @@ new class extends Component {
                                     <span class="bs bs-green flex-shrink-0">
                                         Rp {{ number_format($st->total_saldo, 0, ',', '.') }}
                                     </span>
-                                    <span class="bs bs-purple flex-shrink-0">
+                                    <span class="bs bs-green flex-shrink-0">
                                         Petugas - {{ ucfirst($st->admin->name) }}
                                     </span>
 
@@ -447,7 +459,6 @@ new class extends Component {
                 </button>
             </div>
         </div>
-
     </div>
 
     {{-- ======= DEKSTOP ======= --}}
@@ -462,7 +473,7 @@ new class extends Component {
                         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi
                             Penyetoran Sampah
                         </div>
-                        <div style="font-size:11px;color:var(--muted)">342 kg masuk hari ini — 5 setoran pending</div>
+                        <div style="font-size:11px;color:var(--muted)">{{ $data['total']['berat'] }} kg masuk hari ini — {{ $data['total']['total'] }} setoran </div>
                     </div>
                     <div class="d-flex gap-2">
                         @if (Auth::user()->hasRole(['admin']))

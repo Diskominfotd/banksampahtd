@@ -24,4 +24,5 @@ interface SetoranService
     public function totalSaldoSetoran();
     public function getBankUnit();
     public function saldoBersih();
+    public function totalSetoranToday();
 }

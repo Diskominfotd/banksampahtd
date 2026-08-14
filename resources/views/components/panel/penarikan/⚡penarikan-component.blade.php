@@ -79,6 +79,7 @@ new class extends Component {
     public function getData()
     {
         $builder = $this->transaksiService->getTransaksis();
+        $totalTrx = (clone $builder)->sum('total_penarikan');
         $units = $this->transaksiService->getBankUnit();
         if ($this->keyword) {
             $builder->where(function ($q) {
@@ -101,12 +102,12 @@ new class extends Component {
         if ($this->date) {
             $builder->whereDate('created_at', $this->date);
         }
-
         $trx = $builder->latest()->paginate($this->perPage);
         $allunit = $units->latest()->paginate($this->perPage);
 
         return [
             'trx' => $trx,
+            'totalTrx' => $totalTrx,
             'allunit' => $allunit,
         ];
     }
@@ -152,6 +153,15 @@ new class extends Component {
             </div>
         </div>
         <div class="m-body">
+            <div class="mt-1 mb-3"
+                style="display:flex; justify-content:space-between; align-items:center; background: #ffffff; border-radius: 20px; padding: 8px 14px; gap: 8px;">
+                <div>
+                    <div style="font-size: 10px; color: #6c757d;">Total Penarikan Nasabah</div>
+                    <div style="font-size: 13px; font-weight: 700; color:var(--red);">
+                        Rp {{ number_format($data['totalTrx'] ?? 0, 0, ',', '.') }}
+                    </div>
+                </div>
+            </div>
             <div wire:loading.flex wire:target="keyword,date,unitNasabah"
                 class="justify-content-center align-items-center"
                 style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
@@ -164,7 +174,6 @@ new class extends Component {
                     @endphp
                     <div class="list-item fade-up" wire:click="trxDetail('{{ encrypt($trx->id) }}')"
                         @click="$store.sheet.show('detail-trx-id')">
-
                         <span class="list-num">{{ $index + 1 }}</span>
                         <div class="list-ico ic1"><i class="bi bi-cash" style="font-size:12px"></i></div>
                         <div class="list-main">
@@ -180,7 +189,6 @@ new class extends Component {
                                 <b>Sisa - Rp {{ number_format($trx->sisa_saldo ?? 0, 0, ',', '.') }}</b>
                             </div>
                         </div>
-
                         <span class="bs bs-green" style="cursor:pointer" onclick="openDetail('m-detail-setoran')">
                             Rp {{ number_format($trx->total_penarikan ?? 0, 0, ',', '.') }}
                         </span>
@@ -312,7 +320,8 @@ new class extends Component {
                         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi
                             Penarikan Uang
                         </div>
-                        <div style="font-size:11px;color:var(--muted)">Berlaku per 20 Mei 2026 · Diperbarui oleh Admin
+                        <div style="font-size:13px;color:var(--red)">
+                            Total Penarikan Nasabah - Rp {{ number_format($data['totalTrx'] ?? 0, 0, ',', '.') }}
                         </div>
                     </div>
                     @if (Auth::user()->hasRole(['admin']))

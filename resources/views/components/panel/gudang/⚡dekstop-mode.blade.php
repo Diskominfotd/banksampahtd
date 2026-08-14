@@ -6,7 +6,6 @@ new class extends Component {
     //
 };
 ?>
-
 <div>
     {{-- When there is no desire, all things are at peace. - Laozi --}}
     <div class="desktop-wrapper">
@@ -26,7 +25,7 @@ new class extends Component {
                                 </small>
                             </div>
                             <div class="w-m-val"
-                                style="color:var(--cyan); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                style="color:var(--green); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['totalPendapatan']['total'], 0, ',', '.') }}
                             </div>
                             @php
@@ -64,11 +63,11 @@ new class extends Component {
                                 </small>
                             </div>
                             <div class="w-m-val"
-                                style="color:var(--blue); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                style="color:var(--red); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['totalPenarikanSaldoNasabah']['total'], 0, ',', '.') }}
                             </div>
                             @php
-                                $selisih = $data['pendapatanbersih']['selisih'];
+                                $selisih = $data['totalPenarikanSaldoNasabah']['selisih'];
                                 $arah = match (true) {
                                     $selisih > 0 => 'up',
                                     $selisih < 0 => 'down',
@@ -101,7 +100,7 @@ new class extends Component {
                                 </small>
                             </div>
                             <div class="w-m-val"
-                                style="color:var(--blue); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                style="color:var(--black); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['pendapatanbersih']['total'], 0, ',', '.') }}
                             </div>
                             @php
@@ -138,7 +137,7 @@ new class extends Component {
                                 </small>
                             </div>
                             <div class="w-m-val"
-                                style="color:var(--blue); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                style="color:var(--black); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['totalSetoran']['total'], 0, ',', '.') }}
                             </div>
                             @php
@@ -176,7 +175,7 @@ new class extends Component {
                                 </small>
                             </div>
                             <div class="w-m-val"
-                                style="color:var(--blue); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                style="color:var(--green); font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 Rp {{ number_format($data['keuntungan']['total'], 0, ',', '.') }}
                             </div>
                             @php
