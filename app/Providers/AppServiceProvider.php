@@ -31,14 +31,7 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewPulse', function () {
             return Auth::check() && Auth::user()->hasRole('supervisor');
         });
-        Request::macro('hasValidSignature', function ($absolute = true) {
-            $uploading = strpos(URL::current(), '/livewire/upload-file');
-            $previewing = strpos(URL::current(), '/livewire/preview-file');
-            if ($uploading || $previewing) {
-                return true;
-            }
-        });
-        if (config('app.env') === 'production') {
+        if (app()->environment('production')) {
             URL::forceScheme('https');
         }
         Carbon::setLocale(config('app.locale'));

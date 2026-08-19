@@ -22,13 +22,21 @@ new class extends Component {
                         </div>
                     </div>
                     <div class="d-flex gap-2">
+                        <button class="w-btn w-btn-ghost" style="font-size:11px"><i class="bi bi-download me-1"></i>
+                            Export
+                        </button>
+
+                        <button class="w-btn w-btn-ghost" style="font-size:11px" data-bs-toggle="modal"
+                            data-bs-target="#wm-import-nasabah"><i class="bi bi-upload me-1"></i>
+                            Import
+                        </button>
+
                         <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
                             data-bs-target="#wm-tambah-nasabah">
                             <i class="bi bi-person-plus me-1"></i>Tambah Nasabah
                         </button>
                     </div>
                 </div>
-
                 <div class="w-panel">
                     <div class="w-search mb-3" style="width:100%">
                         <i class="bi bi-search si"></i>
@@ -661,6 +669,7 @@ new class extends Component {
             </div>
         </div>
     </div>
+
     {{-- ======= MODAL DESKTOP: REKENING NASABAH ======= --}}
     <div wire:ignore.self class="modal fade" id="wm-rekening-nasabah" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-m">
@@ -716,6 +725,23 @@ new class extends Component {
                             Belum ada buku tabungan
                         </div>
                     @endif
+
+                </div>
+                <div class="w-modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div wire:ignore.self class="modal fade" id="wm-import-nasabah" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-m">
+            <div class="modal-content w-modal">
+                <div class="w-modal-header">
+                    <div class="w-modal-title">Import Nasabah</div>
+                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                </div>
+                <div class="w-modal-body">
+                        
 
                 </div>
                 <div class="w-modal-footer">

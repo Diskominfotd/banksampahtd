@@ -6,7 +6,6 @@ use App\Models\BukuTabungan;
 use App\Models\Category;
 use App\Models\Gudang;
 use App\Models\Organisasi;
-use App\Models\Setoran;
 use App\Models\User;
 use App\Services\UserServices;
 use Illuminate\Support\Facades\Auth;
