@@ -25,6 +25,8 @@ new class extends Component {
     //Properti untuk search
     public ?string $keyword = '';
 
+    public ?string $roleFilter = '';
+
     // Properti untuk form pendaftaran nasabah
     public ?string $nama = '';
     public ?string $nik = '';
@@ -290,6 +292,11 @@ new class extends Component {
                     ->orWhereHas('bukutabungans', function ($q2) {
                         $q2->where('nomor_rekening', 'like', "%{$this->keyword}%");
                     });
+            });
+        }
+        if (!empty($this->roleFilter)) {
+            $nasabahQuery->whereHas('roles', function ($q) {
+                $q->where('name', $this->roleFilter);
             });
         }
         if ($parent) {

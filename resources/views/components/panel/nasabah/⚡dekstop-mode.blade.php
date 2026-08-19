@@ -33,6 +33,7 @@ new class extends Component {
                                 Import
                             </button>
                         @endif
+
                         <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
                             data-bs-target="#wm-tambah-nasabah">
                             <i class="bi bi-person-plus me-1"></i>Tambah Nasabah
@@ -40,10 +41,21 @@ new class extends Component {
                     </div>
                 </div>
                 <div class="w-panel">
-                    <div class="w-search mb-3" style="width:100%">
-                        <i class="bi bi-search si"></i>
-                        <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah, unit..."
-                            style="width:100%">
+                    <div class="d-flex gap-2 mb-3" style="width:100%">
+                        {{-- Search --}}
+                        <div class="w-search" style="flex:1">
+                            <i class="bi bi-search si"></i>
+                            <input wire:model.live="keyword" type="text" placeholder="Cari nama nasabah..."
+                                style="width:100%">
+                        </div>
+                        @if (Auth::user()->hasRole('supervisor'))
+                            <select class="w-form-input" wire:model.live="roleFilter" style="width:220px">
+                                <option value="" hidden>Pilih Level</option>
+                                @foreach ($data['roles'] as $r)
+                                    <option value="{{ $r->name }}">{{ ucfirst($r->name) }}</option>
+                                @endforeach
+                            </select>
+                        @endif
                     </div>
                     <table class="w-tbl">
                         <thead>

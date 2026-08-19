@@ -20,6 +20,7 @@ new class extends Component {
     public int $saldo;
 
     public int $unitNasabah = 0;
+    public $jumlahLama = 0;
 
     public function logout()
     {
@@ -57,6 +58,7 @@ new class extends Component {
         $item = $this->transaksiService->trxDetail($id);
         $this->trxId = $item->id;
         $this->jumlah = $item->total_penarikan;
+        $this->jumlahLama = $item->total_penarikan;
         $this->trxKode = $item->kode;
         $this->saldo = $item->sisa_saldo;
     }
@@ -67,13 +69,15 @@ new class extends Component {
             'jumlah' => 'required|numeric|min:50000',
         ]);
 
-        if ($this->jumlah > $this->saldo - 5000) {
+        $saldoTersedia = $this->saldo + $this->jumlahLama;
+        if ($this->jumlah > $saldoTersedia - 5000) {
             $this->addError('jumlah', 'Saldo minimal yang harus tersisa adalah Rp 5.000');
             return;
         }
         $this->transaksiService->trxEdit($this->trxId, [
             'total_penarikan' => $this->jumlah,
         ]);
+        $this->dispatch('close-modal');
     }
 
     public function getData()
@@ -379,12 +383,12 @@ new class extends Component {
                                     <th>Unit</th>
                                     <th>Tanggal</th>
                                     <th>Petugas</th>
+                                    <th></th>
                                 </tr>
                             </thead>
 
                             <tbody>
                                 @if (count($data['trx']) > 0)
-
                                     @foreach ($data['trx'] as $index => $trx)
                                         <tr>
                                             <td style="font-size:10px;color:var(--muted)">
@@ -424,23 +428,30 @@ new class extends Component {
                                             <td style="font-size:10px;color:var(--muted)">
                                                 {{ $trx->admin->name ?? '-' }}
                                             </td>
+                                            <td style="font-size:10px;color:var(--muted)">
+                                                <button wire:click="editTrxDetail('{{ encrypt($trx->id) }}')"
+                                                    class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
+                                                    data-bs-toggle="modal" data-bs-target="#wm-edit-trx">
+                                                    <i class="bi bi-pencil-square"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @else
                                     <tr>
                                         <td colspan="9"
                                             style="
-                                text-align:center;
-                                padding:20px 0;
-                                color:var(--text-muted,#9ca3af);
-                                font-size:13px
-                            ">
+                                                text-align:center;
+                                                padding:20px 0;
+                                                color:var(--text-muted,#9ca3af);
+                                                font-size:13px
+                                            ">
                                             <i class="bi bi-inbox"
                                                 style="
-                                    font-size:24px;
-                                    display:block;
-                                    margin-bottom:6px
-                                "></i>
+                                                    font-size:24px;
+                                                    display:block;
+                                                    margin-bottom:6px
+                                                "></i>
 
                                             Tidak Ada Data
                                         </td>
@@ -529,6 +540,7 @@ new class extends Component {
         <script>
             $wire.on('close-modal', () => {
                 $('#wm-pilih-nasabah').modal('hide');
+                $('#wm-edit-trx').modal('hide');
                 Alpine.store('sheet').hide();
             });
         </script>
