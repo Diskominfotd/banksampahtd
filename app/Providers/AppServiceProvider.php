@@ -37,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         Carbon::setLocale(config('app.locale'));
         app()->setLocale(config('app.locale'));
         $this->configureDefaults();
+        
         Paginator::defaultView('vendor.pagination.bootstrap-5');
     }
 
