@@ -21,6 +21,15 @@ new class extends Component {
         $this->tahunTotalSampah = now()->year;
         $this->tahunTotalRingkasan = now()->year;
     }
+    public function logout()
+    {
+        Auth::logout();
+
+        session()->invalidate();
+        session()->regenerateToken();
+
+        return redirect()->route('login');
+    }
     public function boot(LaporanService $laporanService, UserServices $userService, SetoranService $setoranService)
     {
         $this->laporanService = $laporanService;
