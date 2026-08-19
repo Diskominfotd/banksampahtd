@@ -22,15 +22,17 @@ new class extends Component {
                         </div>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="w-btn w-btn-ghost" style="font-size:11px"><i class="bi bi-download me-1"></i>
-                            Export
-                        </button>
+                        @if (Auth::user()->hasRole(['admin']))
+                            <button wire:click="exportNasabah" class="w-btn w-btn-ghost" style="font-size:11px"><i
+                                    class="bi bi-download me-1"></i>
+                                Export
+                            </button>
 
-                        <button class="w-btn w-btn-ghost" style="font-size:11px" data-bs-toggle="modal"
-                            data-bs-target="#wm-import-nasabah"><i class="bi bi-upload me-1"></i>
-                            Import
-                        </button>
-
+                            <button class="w-btn w-btn-ghost" style="font-size:11px" data-bs-toggle="modal"
+                                data-bs-target="#wm-import-nasabah"><i class="bi bi-upload me-1"></i>
+                                Import
+                            </button>
+                        @endif
                         <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
                             data-bs-target="#wm-tambah-nasabah">
                             <i class="bi bi-person-plus me-1"></i>Tambah Nasabah
@@ -738,14 +740,49 @@ new class extends Component {
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
                     <div class="w-modal-title">Import Nasabah</div>
-                    <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" wire:click="downloadFormat" class="w-btn w-btn-primary"
+                            style="font-size: 11px; padding: 6px 12px;">
+                            <i class="bi bi-file-earmark-excel"></i>
+                            Download Format
+                        </button>
+                        <div class="w-modal-close" data-bs-dismiss="modal">
+                            <i class="bi bi-x-lg"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="w-modal-body">
-                        
+                <form wire:submit="uploadFile">
+                    <div class="w-modal-body">
+                        <div class="col-12">
+                            <label class="w-form-label">File Excel</label>
 
-                </div>
-                <div class="w-modal-footer">
-                </div>
+                            <input class="w-form-input" type="file" wire:model="file"
+                                wire:loading.attr="disabled">
+                            <div wire:loading wire:target="file" class="mt-1">
+                                <small class="text-primary" style="font-size: 10px;">
+                                    <span class="spinner-border spinner-border-sm" role="status"></span>
+                                    Sedang mengupload file...
+                                </small>
+                            </div>
+
+                            @error('file')
+                                <small class="text-danger" style="font-size:10px">
+                                    {{ $message }}
+                                </small>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="w-modal-footer">
+                        <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
+                            wire:loading.attr="disabled" wire:target="uploadFile">Batal</button>
+
+                        <button type="submit" class="w-btn w-btn-primary" wire:loading.attr="disabled"
+                            wire:target="uploadFile">
+                            <span wire:loading.remove wire:target="uploadFile">Import</span>
+                            <span wire:loading wire:target="uploadFile">Loading...</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

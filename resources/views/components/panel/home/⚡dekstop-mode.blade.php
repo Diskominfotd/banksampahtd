@@ -118,10 +118,10 @@ new class extends Component {
                                     <div class="w-m-delta {{ $arah }}"
                                         style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         @if ($arah === 'up')
-                                            <i class="bi bi-arrow-up-short"></i> +Rp
+                                            <i class="bi bi-arrow-up-short"></i> +
                                             {{ number_format(abs($selisih), 0, ',', '.') }}
                                         @elseif ($arah === 'down')
-                                            <i class="bi bi-arrow-down-short"></i> -Rp
+                                            <i class="bi bi-arrow-down-short"></i> -
                                             {{ number_format(abs($selisih), 0, ',', '.') }}
                                         @else
                                             <i class="bi bi-dash"></i> Tidak Ada Perubahan
@@ -147,10 +147,10 @@ new class extends Component {
                                     <div class="w-m-delta {{ $arah }}"
                                         style="color: {{ $arah === 'up' ? 'green' : ($arah === 'down' ? 'red' : 'inherit') }}; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                         @if ($arah === 'up')
-                                            <i class="bi bi-arrow-up-short"></i> +Rp
+                                            <i class="bi bi-arrow-up-short"></i> +
                                             {{ number_format(abs($selisih), 0, ',', '.') }}
                                         @elseif ($arah === 'down')
-                                            <i class="bi bi-arrow-down-short"></i> -Rp
+                                            <i class="bi bi-arrow-down-short"></i> -
                                             {{ number_format(abs($selisih), 0, ',', '.') }}
                                         @else
                                             <i class="bi bi-dash"></i> Tidak Ada Perubahan

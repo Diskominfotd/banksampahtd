@@ -10,9 +10,14 @@ use App\Livewire\TraitComponent;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
 use Illuminate\Validation\Rule;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\NasabahImportSheets;
+use App\Exports\NasabahExport;
 new class extends Component {
     use WithPagination;
     use TraitComponent;
+    use WithFileUploads;
     protected UserServices $userService;
 
     public ?int $perPage = 10;
@@ -56,6 +61,8 @@ new class extends Component {
 
     public bool $lock = false;
 
+    public $file = '';
+
     public function logout()
     {
         Auth::logout();
@@ -71,6 +78,44 @@ new class extends Component {
             $this->unitNasabah = $user->bank_sampah_id;
             $this->lock = true;
         }
+    }
+    public function downloadFormat()
+    {
+        $path = public_path('assets/file/format_import_nasabah.xlsx');
+        return response()->download($path);
+    }
+    public function exportNasabah()
+    {
+        return Excel::download(new NasabahExport(), 'nasabah.xlsx');
+    }
+    public function uploadFile()
+    {
+        $this->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:2048'],
+        ]);
+
+        try {
+            $import = new NasabahImportSheets();
+            Excel::import($import, $this->file->getRealPath());
+
+            if ($import->failures()->isNotEmpty()) {
+                $rows = $import->failures()->map(fn($f) => 'Baris ' . $f->row() . ': ' . implode(', ', $f->errors()))->toArray();
+                session()->flash('import_errors', $rows);
+            } else {
+                Log::info('Import nasabah berhasil selesai', [
+                    'file' => $this->file->getClientOriginalName(),
+                ]);
+                session()->flash('success', 'File Excel berhasil diimport.');
+                $this->dispatch('close-modal');
+            }
+
+            $this->reset('file');
+        } catch (\Throwable $e) {
+            Log::error('Import nasabah gagal total', ['error' => $e->getMessage()]);
+            session()->flash('error', 'Gagal import: ' . $e->getMessage());
+        }
+
+        $this->alertPopUp();
     }
     public function loadPerpage()
     {
@@ -328,6 +373,7 @@ new class extends Component {
                 $('#wm-tambah-nasabah').modal('hide');
                 $('#wm-edit-nasabah').modal('hide');
                 $('#wm-rekening-nasabah').modal('hide');
+                $('#wm-import-nasabah').modal('hide');
                 Alpine.store('sheet').hide();
             });
         </script>

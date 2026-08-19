@@ -61,8 +61,6 @@ class UserServicesImpl implements UserServices
     {
         $phoneNumber = $data['nomorTelepon'];
         $password = $data['password'];
-        // $hashedNik = hash('sha256', $nik);
-
         $user = User::query()->where('nomor_hp', $phoneNumber)->first();
 
         if (!$user) {
