@@ -45,9 +45,6 @@ new class extends Component {};
                                     </button>
                                 </div>
                             </div>
-                            <div class="prof-field"><label>Nik</label>
-                                <span>{{ Auth::user()->nik }}</span>
-                            </div>
                             <div class="prof-field"><label>Email</label>
                                 <span>{{ Auth::user()->email }}</span>
                             </div>
@@ -209,13 +206,6 @@ new class extends Component {};
                                 <label class="w-form-label">Nama Lengkap</label>
                                 <input class="w-form-input" type="text" wire:model="namaLengkap">
                                 @error('namaLengkap')
-                                    <small class="text-danger">{{ $message }}</small>
-                                @enderror
-                            </div>
-                            <div>
-                                <label class="w-form-label">Nik</label>
-                                <input class="w-form-input" type="text" wire:model="nik">
-                                @error('nik')
                                     <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>

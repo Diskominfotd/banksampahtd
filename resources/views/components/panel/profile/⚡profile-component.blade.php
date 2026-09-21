@@ -25,7 +25,6 @@ new class extends Component {
 
     //unit properties
     public ?string $namaLengkap = '';
-    public ?string $nik = '';
     public ?string $email = '';
     public ?string $nomorTeleponNasabah = '';
     public ?int $nasabah = 0;
@@ -67,7 +66,6 @@ new class extends Component {
     {
         $item = $this->userService->getUserById(Auth::user()->id);
         $this->namaLengkap = $item->name;
-        $this->nik = $item->nik;
         $this->email = $item->email;
         $this->nomorTeleponNasabah = $item->nomor_hp;
         $this->fotoProfileLama = $item->avatar;
@@ -100,20 +98,6 @@ new class extends Component {
     {
         $this->validate([
             'namaLengkap' => ['required', 'string', 'max:255'],
-            'nik' => [
-                'required',
-                'digits:16',
-                function ($attribute, $value, $fail) {
-                    $exists = $this->userService
-                        ->userBuilder()
-                        ->where('nik_hash', hash('sha256', $value))
-                        ->where('id', '!=', Auth::user()->id)
-                        ->exists();
-                    if ($exists) {
-                        $fail('NIK sudah terdaftar.');
-                    }
-                },
-            ],
             'email' => ['required', 'string'],
             'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', Rule::unique('users', 'nomor_hp')
             ->ignore(Auth::user()->id)],
@@ -124,10 +108,9 @@ new class extends Component {
             'nama' => $this->namaLengkap,
             'email' => $this->email,
             'nomor_hp' => $this->nomorTeleponNasabah,
-            'nik' => $this->nik,
             'avatar' => $this->fotoProfile
         ]);
-        $this->reset(['namaLengkap', 'email', 'nomorTeleponNasabah', 'nik','fotoProfile']);
+        $this->reset(['namaLengkap', 'email', 'nomorTeleponNasabah','fotoProfile']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }

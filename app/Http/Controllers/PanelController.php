@@ -62,4 +62,8 @@ class PanelController extends Controller
     {
         return view('panel.pages.gudang');
     }
+    public function daftarNasabah()
+    {
+        return view('panel.pages.register');
+    }
 }

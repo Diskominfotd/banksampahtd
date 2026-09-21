@@ -98,9 +98,8 @@ new class extends Component {
                 <label>Kode Unit</label>
                 <div class="d-flex gap-2">
                     <input class="f-input" type="text" wire:model="kode" x-model="kode" maxlength="6"
-                         placeholder="ABC-123" style="text-transform: uppercase;"
-                                            @input="kode = $event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')"
-                                            disabled>
+                        placeholder="ABC-123" style="text-transform: uppercase;"
+                        @input="kode = $event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '')" disabled>
                     <button type="button" class="btn btn-success" @click="generateKode()" title="Generate Kode">
                         <i class="bi bi-arrow-clockwise"></i>
                     </button>
@@ -120,6 +119,13 @@ new class extends Component {
                 <label>Nomo Telepon</label>
                 <input class="f-input" type="text" wire:model="telepon" placeholder="ex : 08xxxxxxxxx">
                 @error('telepon')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <div class="f-group">
+                <label>Hari Buka</label>
+                <input class="f-input" type="time" wire:model="hariBuka">
+                @error('hariBuka')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>
@@ -182,33 +188,6 @@ new class extends Component {
                 style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                 <div class="spinner-border text-success"></div>
             </div>
-            {{-- <div class="f-group" x-data="{
-                kodeUnit: @entangle('kodeUnit'),
-                generateKode() {
-                    const huruf = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                    const angka = '0123456789';
-                    let hasil = '';
-                    for (let i = 0; i < 3; i++) {
-                        hasil += huruf.charAt(Math.floor(Math.random() * huruf.length));
-                    }
-                    for (let i = 0; i < 3; i++) {
-                        hasil += angka.charAt(Math.floor(Math.random() * angka.length));
-                    }
-                    this.kodeUnit = hasil;
-                }
-            }">
-                <label>Kode Unit</label>
-                <div class="d-flex gap-2">
-                    <input class="f-input" type="text" wire:model="kodeUnit" x-model="kodeUnit" maxlength="6"
-                        placeholder="ABC123">
-                    <button type="button" class="btn btn-success" @click="generateKode()" title="Generate Kode">
-                        <i class="bi bi-arrow-clockwise"></i>
-                    </button>
-                    @error('kodeUnit')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-            </div> --}}
             <div class="f-group">
                 <label>Nama</label>
                 <input class="f-input" type="text" wire:model="namaUnit" placeholder="ex : Bank Unit Satu">
@@ -220,6 +199,13 @@ new class extends Component {
                 <label>Nomo Telepon</label>
                 <input class="f-input" type="text" wire:model="teleponUnit" placeholder="ex : 08xxxxxxxxx">
                 @error('teleponUnit')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
+            <div class="f-group">
+                <label>Hari Buka</label>
+                <input class="f-input" type="time" wire:model="hariBukaUnit">
+                @error('hariBukaUnit')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
             </div>

@@ -29,18 +29,16 @@ new class extends Component {
 
     // Properti untuk form pendaftaran nasabah
     public ?string $nama = '';
-    public ?string $nik = '';
     public ?string $nomorTelepon = '';
     public ?string $email = '';
     public $jenis = 'perorangan';
     public ?int $organisasi = null;
-    public ?string $password = '';
+    public ?string $password = null;
     public ?int $unit = null;
 
     // Properti detail nasabah
     public int $nasabahId;
     public ?string $namaNasabah = '';
-    public ?string $nikNasabah = '';
     public ?string $nomorTeleponNasabah = '';
     public ?string $emailNasabah = '';
     public $jenisNasabah = 'perorangan';
@@ -65,6 +63,10 @@ new class extends Component {
 
     public $file = '';
 
+    public function generatePassword()
+    {
+        $this->password = Str::random(10);
+    }
     public function logout()
     {
         Auth::logout();
@@ -73,10 +75,19 @@ new class extends Component {
 
         return redirect()->route('login');
     }
+
+    public function resetAttribut()
+    {
+        $this->reset(['nama', 'nomorTelepon', 'email', 'jenis', 'organisasi', 'password']);
+        $this->reset(['namaNasabah', 'nomorTeleponNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'unitNasabah', 'password']);
+        $this->resetErrorBag();
+    }
+
     public function mount()
     {
         $user = Auth::user();
         if ($user->hasRole('admin')) {
+            $this->unitBukuTabungan = $user->bank_sampah_id;
             $this->unitNasabah = $user->bank_sampah_id;
             $this->lock = true;
         }
@@ -139,11 +150,11 @@ new class extends Component {
 
     public function detail(string $id)
     {
+        $this->resetAttribut();
         $id = decrypt($id);
         $user = $this->userService->getUserById($id);
         $this->nasabahId = $user->id;
         $this->namaNasabah = $user->name;
-        $this->nikNasabah = $user->nik;
         $this->nomorTeleponNasabah = $user->nomor_hp;
         $this->emailNasabah = $user->email;
         $this->jenisNasabah = $user->mewakili;
@@ -174,34 +185,25 @@ new class extends Component {
     {
         $rules = [
             'namaNasabah' => 'required|string|max:120',
-            'nikNasabah' => [
-                'required',
-                'digits:16',
-                function ($attribute, $value, $fail) {
-                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->where('id', '!=', $this->nasabahId)->exists();
-                    if ($exists) {
-                        $fail('NIK sudah terdaftar.');
-                    }
-                },
-            ],
             'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', Rule::unique('users', 'nomor_hp')->ignore($this->nasabahId)],
             'emailNasabah' => 'required|email',
             'jenisNasabah' => 'required|in:perorangan,kelompok',
             'organisasiNasabah' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
             'unitNasabah' => 'required|exists:bank_sampahs,id',
+            'password' => 'nullable|string|min:6',
         ];
         $this->validate($rules);
         $this->userService->updateUser($this->nasabahId, [
             'name' => $this->namaNasabah,
-            'nik' => $this->nikNasabah,
             'nomor_hp' => $this->nomorTeleponNasabah,
             'email' => $this->emailNasabah,
             'mewakili' => $this->jenisNasabah,
             'organisasi_id' => $this->organisasiNasabah,
             'bank_sampah_id' => $this->unitNasabah,
             'is_admin' => $this->isAdmin,
+            'password' => $this->password,
         ]);
-        $this->reset(['namaNasabah', 'nikNasabah', 'nomorTeleponNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'unitNasabah']);
+        $this->reset(['namaNasabah', 'nomorTeleponNasabah', 'emailNasabah', 'jenisNasabah', 'organisasiNasabah', 'unitNasabah', 'password']);
         $this->dispatch('close-modal');
         $this->alert();
     }
@@ -212,38 +214,30 @@ new class extends Component {
         $parent = Auth::user()->unit->parent_id;
         $rules = [
             'nama' => 'required',
-            'nik' => [
-                'required',
-                'digits:16',
-                function ($attribute, $value, $fail) {
-                    $exists = $this->userService->userBuilder()->where('nik_hash', hash('sha256', $value))->exists();
-                    if ($exists) {
-                        $fail('NIK sudah terdaftar.');
-                    }
-                },
-            ],
             'nomorTelepon' => 'required|regex:/^08\d{8,}$/|unique:users,nomor_hp',
             'email' => 'required|email',
             'jenis' => 'required|in:perorangan,kelompok',
             'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
-            'password' => 'required|min:6',
+            'password' => 'required|string|min:6',
             'unit' => 'required|exists:bank_sampahs,id',
         ];
         if ($parent) {
             $this->unit = $unit;
         }
         $this->validate($rules);
-        $this->userService->register([
-            'name' => $this->nama,
-            'nik' => $this->nik,
-            'nomor_hp' => $this->nomorTelepon,
-            'email' => $this->email,
-            'mewakili' => $this->jenis,
-            'organisasi_id' => $this->organisasi,
-            'password' => $this->password,
-            'bank_sampah_id' => $this->unit,
-        ]);
-        $this->reset(['nama', 'nik', 'nomorTelepon', 'email', 'jenis', 'organisasi', 'password']);
+        $this->userService->register(
+            [
+                'name' => $this->nama,
+                'nomor_hp' => $this->nomorTelepon,
+                'email' => $this->email,
+                'mewakili' => $this->jenis,
+                'organisasi_id' => $this->organisasi,
+                'password' => $this->password,
+                'bank_sampah_id' => $this->unit,
+            ],
+            $unit,
+        );
+        $this->reset(['nama', 'nomorTelepon', 'email', 'jenis', 'organisasi', 'password']);
         $this->dispatch('close-modal');
         $this->alert();
     }
@@ -285,7 +279,6 @@ new class extends Component {
         if ($this->keyword) {
             $nasabahQuery->where(function ($q) {
                 $q->where('name', 'like', "%{$this->keyword}%")
-                    ->orWhere('nik_hash', hash('sha256', $this->keyword))
                     ->orWhereHas('unit', function ($q2) {
                         $q2->where('nama', 'like', "%{$this->keyword}%");
                     })

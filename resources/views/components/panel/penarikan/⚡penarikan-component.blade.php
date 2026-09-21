@@ -8,6 +8,7 @@ use App\Livewire\TraitComponent;
 use Illuminate\Support\Facades\Auth;
 new class extends Component {
     use WithPagination;
+    use TraitComponent;
     protected TransaksiService $transaksiService;
     public ?string $keyword = '';
     public ?int $perPage = 10;
@@ -79,7 +80,13 @@ new class extends Component {
         ]);
         $this->dispatch('close-modal');
     }
-
+    #[On('doDelete')]
+    public function delete(string $trxId)
+    {
+        $trxId = decrypt($trxId);
+        $this->transaksiService->deleteTrx($trxId);
+        $this->alert();
+    }
     public function getData()
     {
         $builder = $this->transaksiService->getTransaksis();
@@ -428,13 +435,52 @@ new class extends Component {
                                             <td style="font-size:10px;color:var(--muted)">
                                                 {{ $trx->admin->name ?? '-' }}
                                             </td>
-                                            <td style="font-size:10px;color:var(--muted)">
-                                                <button wire:click="editTrxDetail('{{ encrypt($trx->id) }}')"
-                                                    class="w-btn w-btn-ghost" style="font-size:10px;padding:4px 10px"
-                                                    data-bs-toggle="modal" data-bs-target="#wm-edit-trx">
-                                                    <i class="bi bi-pencil-square"></i>
-                                                </button>
-                                            </td>
+                                            @if (Auth::user()->hasRole('admin'))
+                                                <td style="font-size:10px;color:var(--muted)">
+                                                    <button wire:click="editTrxDetail('{{ encrypt($trx->id) }}')"
+                                                        class="w-btn w-btn-ghost"
+                                                        style="font-size:10px;padding:4px 10px" data-bs-toggle="modal"
+                                                        data-bs-target="#wm-edit-trx">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </button>
+
+                                                    <button type="button"
+                                                        x-on:click="Swal.fire({
+                                                    title: 'Hapus Data Penarikan ?',
+                                                    html: '<span style=\'color:#6b7280;font-size:14px\'>Data yang dihapus <b>tidak bisa dikembalikan</b>. Pastikan Anda yakin sebelum melanjutkan.</span>',
+                                                    icon: 'warning',
+                                                    iconColor: '#d33',
+                                                    showCancelButton: true,
+                                                    confirmButtonText: '<i class=\'bi bi-trash3 me-1\'></i> Ya, Hapus',
+                                                    cancelButtonText: 'Batal',
+                                                    confirmButtonColor: '#d33',
+                                                    cancelButtonColor: '#6b7280',
+                                                    reverseButtons: true,
+                                                    focusCancel: true,
+                                                    buttonsStyling: true,
+                                                    customClass: {
+                                                    popup: 'rounded-4 shadow-lg',
+                                                    title: 'fw-bold fs-5',
+                                                    confirmButton: 'px-4 py-2 rounded-3',
+                                                    cancelButton: 'px-4 py-2 rounded-3'
+                                                    },
+                                                    showClass: {
+                                                    popup: 'animate__animated animate__zoomIn animate__faster'
+                                                    },
+                                                    hideClass: {
+                                                    popup: 'animate__animated animate__zoomOut animate__faster'
+                                                    }
+                                                    }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                    Livewire.dispatch('doDelete', { trxId: '{{ encrypt($trx->id) }}' })
+                                                    }
+                                                    })"
+                                                        class="w-btn w-btn-ghost"
+                                                        style="font-size:10px;padding:4px 10px">
+                                                        <i class="bi bi-trash3"></i>
+                                                    </button>
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                 @else

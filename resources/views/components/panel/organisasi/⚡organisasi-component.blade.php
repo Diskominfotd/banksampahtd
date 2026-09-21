@@ -67,6 +67,15 @@ new class extends Component {
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
+
+    #[On('doDelete')]
+    public function doDelete(string $id)
+    {
+        $id = decrypt($id);
+        $this->userService->deleteOrganisasi($id);
+        $this->alertPopUp();
+    }
+
     public function getData()
     {
         $builder = $this->userService->organisasiBuilder();

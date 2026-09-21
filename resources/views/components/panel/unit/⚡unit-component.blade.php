@@ -20,6 +20,7 @@ new class extends Component {
     public ?string $jamBuka = '08:00';
     public ?string $jamTutup = '16:00';
     public ?string $telepon = '';
+    public ?string $hariBuka = '';
 
     //update porperties
     public ?string $namaUnit = '';
@@ -28,6 +29,7 @@ new class extends Component {
     public ?string $jamBukaUnit = '';
     public ?string $jamTutupUnit = '';
     public ?string $teleponUnit = '';
+    public ?string $hariBukaUnit = '';
     public $unitId;
 
     public function logout()
@@ -54,6 +56,7 @@ new class extends Component {
             'alamat' => ['required', 'string', 'max:255'],
             'jamBuka' => ['required'],
             'jamTutup' => ['required'],
+            'hariBuka' => ['required','string','max:40'],
             'telepon' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
         ]);
         $this->userService->createUnit([
@@ -64,7 +67,7 @@ new class extends Component {
             'jam_tutup' => $this->jamTutup,
             'telepon' => $this->telepon,
         ]);
-        $this->reset(['nama', 'kode', 'alamat', 'jamBuka', 'jamTutup', 'telepon']);
+        $this->reset(['nama', 'kode', 'alamat', 'jamBuka', 'jamTutup', 'telepon','hariBuka']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
@@ -80,6 +83,7 @@ new class extends Component {
         $this->jamBukaUnit = $item->jam_buka;
         $this->jamTutupUnit = $item->jam_tutup;
         $this->teleponUnit = $item->telepon;
+        $this->hariBukaUnit = $item->hari_buka;
     }
 
     public function editUnit()
@@ -91,6 +95,7 @@ new class extends Component {
             'alamatUnit' => ['required', 'string', 'max:255'],
             'jamBukaUnit' => ['required'],
             'jamTutupUnit' => ['required'],
+            'hariBukaUnit' => ['required','string','max:40'],
             'teleponUnit' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
         ]);
         $this->userService->updateUnit($this->unitId,[
@@ -101,7 +106,7 @@ new class extends Component {
             'jam_tutup' => $this->jamTutupUnit,
             'telepon' => $this->teleponUnit,
         ]);
-        $this->reset(['namaUnit', 'kodeUnit', 'alamatUnit', 'jamBukaUnit', 'jamTutupUnit', 'teleponUnit']);
+        $this->reset(['namaUnit', 'kodeUnit', 'alamatUnit', 'jamBukaUnit', 'jamTutupUnit', 'teleponUnit','hariBukaUnit']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }

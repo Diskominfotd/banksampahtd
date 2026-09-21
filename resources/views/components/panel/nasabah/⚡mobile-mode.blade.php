@@ -16,7 +16,7 @@ new class extends Component {
             </div>
             <div class="ph-title">Data Nasabah</div>
             <div class="ms-auto">
-                <div class="m-gear"
+                <div wire:click="resetAttribut" class="m-gear"
                     style="font-size:14px;background:var(--cyan-10);border:1px solid var(--border);color:var(--cyan)"
                     @click="$store.sheet.show('tambah-nasabah')">
                     <i class="bi bi-plus-lg"></i>
@@ -52,7 +52,8 @@ new class extends Component {
                                     wire:click="detail('{{ encrypt($nasabah->id) }}')" class="btn-tx">
                                     <i class="bi bi-pencil-fill"></i>
                                 </button>
-                                <button  x-on:click="Swal.fire({
+                                <button
+                                    x-on:click="Swal.fire({
                                         title: 'Hapus Data Nasabah?',
                                         html: '<span style=\'color:#6b7280;font-size:14px\'>Data yang dihapus <b>tidak bisa dikembalikan</b>. Pastikan Anda yakin sebelum melanjutkan.</span>',
                                         icon: 'warning',
@@ -81,7 +82,8 @@ new class extends Component {
                                         if (result.isConfirmed) {
                                         Livewire.dispatch('doDelete', { userId: '{{ encrypt($nasabah->id) }}' })
                                         }
-                                        })" class="btn-tx">
+                                        })"
+                                    class="btn-tx">
                                     <i class="bi bi-trash-fill"></i>
                                 </button>
                                 <button @click="$store.sheet.show('rekening-nasabah')"
@@ -136,15 +138,6 @@ new class extends Component {
                     <label>Nama Lengkap / Nama Usaha</label>
                     <input class="f-input" type="text" wire:model="nama" placeholder="Nama nasabah atau badan usaha">
                     @error('nama')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
-                <div class="f-group">
-                    <label>NIK</label>
-                    <input class="f-input" type="text" wire:model="nik" placeholder="16 digit NIK KTP"
-                        maxlength="16">
-                    @error('nik')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
@@ -286,11 +279,11 @@ new class extends Component {
                         </small>
                     @enderror
                 </div>
-                <div class="f-group" x-data="{ show: false }">
+                <div class="f-group" x-data="{ show: false, copied: false }">
                     <label>Password</label>
                     <div style="position:relative">
                         <input class="f-input" :type="show ? 'text' : 'password'" wire:model="password"
-                            placeholder="Password nasabah" style="padding-right:40px">
+                            placeholder="Password nasabah" x-ref="passwordInput" style="padding-right:40px">
                         <button type="button" @click="show = !show"
                             style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted)">
                             <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
@@ -299,6 +292,25 @@ new class extends Component {
                     @error('password')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="button" wire:click="generatePassword" class="btn btn-sm"
+                            style="background:transparent; color:var(--primary,#6366f1); border:1px solid var(--primary,#6366f1); padding:6px 14px; border-radius:6px; font-size:13px;">
+                            <i class="bi bi-magic me-1"></i> Generate Password
+                        </button>
+
+                        <button type="button"
+                            @click="
+                            navigator.clipboard.writeText($refs.passwordInput.value).then(() => {
+                            copied = true;
+                            setTimeout(() => copied = false, 1500);
+                            });
+                            "
+                            class="btn btn-sm"
+                            style="background:transparent; color:var(--muted); border:1px solid var(--muted); padding:6px 14px; border-radius:6px; font-size:13px;">
+                            <i :class="copied ? 'bi bi-check2' : 'bi bi-clipboard'" class="me-1"></i>
+                            <span x-text="copied ? 'Tersalin!' : 'Copy'"></span>
+                        </button>
+                    </div>
                 </div>
                 <div class="d-flex gap-2 mt-2">
                     <button type="button" class="btn-outline w-100" style="width:100%"
@@ -354,15 +366,9 @@ new class extends Component {
                     @enderror
                 </div>
                 <div class="f-group">
-                    <label>Nik</label>
-                    <input class="f-input" type="text" wire:model="nikNasabah">
-                    @error('nikNasabah')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-                <div class="f-group">
                     <label>No. HP</label>
-                    <input class="f-input" type="tel" wire:model="nomorTeleponNasabah" placeholder="08xx-xxxx-xxxx">
+                    <input class="f-input" type="tel" wire:model="nomorTeleponNasabah"
+                        placeholder="08xx-xxxx-xxxx">
                     @error('nomorTeleponNasabah')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
@@ -501,6 +507,46 @@ new class extends Component {
                                 <span x-text="$wire.isAdmin ? 'Ya' : 'Tidak'"></span>
                             </label>
                         </div>
+                    </div>
+                </div>
+                <div class="f-group" x-data="{ show: false, copied: false }">
+                    <label class="w-form-label d-flex justify-content-between align-items-center"
+                        style="margin-bottom:6px;">
+                        <span style="font-weight:600;"><i class="bi bi-shield-lock me-1"
+                                style="color:var(--primary,#6366f1)">
+                        </i>Ubah Password
+                    </span>   
+                    </label>
+                     <small class="text-muted fw-normal" style="font-size:11px">Kosongkan jika tidak diubah</small>
+                    <div style="position:relative">
+                        <input class="f-input" :type="show ? 'text' : 'password'" wire:model="password"
+                            placeholder="Password nasabah" x-ref="passwordInput" style="padding-right:40px">
+                        <button type="button" @click="show = !show"
+                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted)">
+                            <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="button" wire:click="generatePassword" class="btn btn-sm"
+                            style="background:transparent; color:var(--primary,#6366f1); border:1px solid var(--primary,#6366f1); padding:6px 14px; border-radius:6px; font-size:13px;">
+                            <i class="bi bi-magic me-1"></i> Generate Password
+                        </button>
+
+                        <button type="button"
+                            @click="
+                            navigator.clipboard.writeText($refs.passwordInput.value).then(() => {
+                            copied = true;
+                            setTimeout(() => copied = false, 1500);
+                            });
+                            "
+                            class="btn btn-sm"
+                            style="background:transparent; color:var(--muted); border:1px solid var(--muted); padding:6px 14px; border-radius:6px; font-size:13px;">
+                            <i :class="copied ? 'bi bi-check2' : 'bi bi-clipboard'" class="me-1"></i>
+                            <span x-text="copied ? 'Tersalin!' : 'Copy'"></span>
+                        </button>
                     </div>
                 </div>
                 <div class="d-flex gap-2 mt-2">

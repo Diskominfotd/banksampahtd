@@ -33,9 +33,8 @@ new class extends Component {
                                 Import
                             </button>
                         @endif
-
-                        <button class="w-btn w-btn-primary" style="font-size:11px" data-bs-toggle="modal"
-                            data-bs-target="#wm-tambah-nasabah">
+                        <button wire:click="resetAttribut" class="w-btn w-btn-primary" style="font-size:11px"
+                            data-bs-toggle="modal" data-bs-target="#wm-tambah-nasabah">
                             <i class="bi bi-person-plus me-1"></i>Tambah Nasabah
                         </button>
                     </div>
@@ -194,16 +193,6 @@ new class extends Component {
                                     @enderror
                                 </div>
                                 <div class="col-6">
-                                    <label class="w-form-label">NIK</label>
-                                    <input class="w-form-input" type="text" wire:model="nik"
-                                        placeholder="16 digit NIK KTP" maxlength="16">
-                                    @error('nik')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-6">
                                     <label class="w-form-label">No. HP</label>
                                     <input class="w-form-input" type="tel" wire:model="nomorTelepon"
                                         placeholder="08xx-xxxx-xxxx">
@@ -211,6 +200,8 @@ new class extends Component {
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
+                            </div>
+                            <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">Email</label>
                                     <input class="w-form-input" type="email" wire:model="email"
@@ -219,8 +210,6 @@ new class extends Component {
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
-                            </div>
-                            <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">Jenis Nasabah</label>
                                     <select class="w-form-input" wire:model.live="jenis">
@@ -231,6 +220,8 @@ new class extends Component {
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
+                            </div>
+                            <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">Organisasi</label>
                                     <select class="w-form-input" wire:model.live="organisasi"
@@ -244,8 +235,6 @@ new class extends Component {
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
-                            </div>
-                            <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">Unit</label>
                                     <div wire:key="unit-select-{{ $unitNasabah }}" x-data="{
@@ -354,12 +343,14 @@ new class extends Component {
                                         </small>
                                     @enderror
                                 </div>
-                                <div class="col-6" x-data="{ show: false }">
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6" x-data="{ show: false, copied: false }">
                                     <label class="w-form-label">Password</label>
                                     <div style="position:relative">
                                         <input class="w-form-input" :type="show ? 'text' : 'password'"
                                             wire:model="password" placeholder="Password nasabah"
-                                            style="padding-right:40px">
+                                            x-ref="passwordInputOne" style="padding-right:40px">
                                         <button type="button" @click="show = !show"
                                             style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted)">
                                             <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
@@ -368,6 +359,26 @@ new class extends Component {
                                     @error('password')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button type="button" wire:click="generatePassword" class="btn btn-sm"
+                                            style="background:transparent; color:var(--primary,#6366f1); border:1px solid var(--primary,#6366f1); padding:6px 14px; border-radius:6px; font-size:13px;">
+                                            <i class="bi bi-magic me-1"></i> Generate Password
+                                        </button>
+
+                                        <button type="button"
+                                            @click="
+                                            navigator.clipboard.writeText($refs.passwordInputOne.value).then(() => {
+                                            copied = true;
+                                            setTimeout(() => copied = false, 1500);
+                                            });
+                                            "
+                                            class="btn btn-sm"
+                                            style="background:transparent; color:var(--muted); border:1px solid var(--muted); padding:6px 14px; border-radius:6px; font-size:13px;">
+                                            <i :class="copied ? 'bi bi-check2' : 'bi bi-clipboard'"
+                                                class="me-1"></i>
+                                            <span x-text="copied ? 'Tersalin!' : 'Copy'"></span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -391,7 +402,7 @@ new class extends Component {
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
-                    <div class="w-modal-title">Edit Nasabah {{ $nasabahId }}</div>
+                    <div class="w-modal-title">Edit Nasabah</div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <form wire:submit="editNasabah">
@@ -410,28 +421,27 @@ new class extends Component {
                                     @enderror
                                 </div>
                                 <div class="col-6">
-                                    <label class="w-form-label">NIK</label>
-                                    <input class="w-form-input" type="text" wire:model="nikNasabah"
-                                        placeholder="16 digit NIK KTP" maxlength="16">
-                                    @error('nikNasabah')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="row g-3">
-                                <div class="col-6">
                                     <label class="w-form-label">Email</label>
                                     <input class="w-form-input" type="email" wire:model="emailNasabah">
                                     @error('emailNasabah')
                                         <small class="text-danger" style="font-size:10px">{{ $message }}</small>
                                     @enderror
                                 </div>
+                            </div>
+                            <div class="row g-3">
                                 <div class="col-6">
                                     <label class="w-form-label">Jenis Nasabah</label>
                                     <select class="w-form-input" wire:model.live="jenisNasabah">
                                         <option value="perorangan">Perorangan</option>
                                         <option value="kelompok">Kelompok</option>
                                     </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">No. HP</label>
+                                    <input class="w-form-input" type="tel" wire:model="nomorTeleponNasabah">
+                                    @error('nomorTeleponNasabah')
+                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="row g-3">
@@ -564,13 +574,6 @@ new class extends Component {
                             </div>
                             <div class="row g-3">
                                 <div class="col-6">
-                                    <label class="w-form-label">No. HP</label>
-                                    <input class="w-form-input" type="tel" wire:model="nomorTeleponNasabah">
-                                    @error('nomorTeleponNasabah')
-                                        <small class="text-danger" style="font-size:10px">{{ $message }}</small>
-                                    @enderror
-                                </div>
-                                <div class="col-6">
                                     <label class="w-form-label">Jadikan Admin</label>
                                     <div class="d-flex align-items-center" style="height: 42px;">
                                         <div class="form-check form-switch">
@@ -581,6 +584,49 @@ new class extends Component {
                                                 <span x-text="$wire.isAdmin ? 'Ya' : 'Tidak'"></span>
                                             </label>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6" x-data="{ show: false, copied: false }">
+                                    <label class="w-form-label d-flex justify-content-between align-items-center"
+                                        style="margin-bottom:6px;">
+                                        <span style="font-weight:600;"><i class="bi bi-shield-lock me-1"
+                                                style="color:var(--primary,#6366f1)"></i> Ubah Password</span>
+                                        <small class="text-muted fw-normal" style="font-size:11px">Kosongkan jika
+                                            tidak diubah</small>
+                                    </label>
+                                    <div style="position:relative">
+                                        <input class="w-form-input" :type="show ? 'text' : 'password'"
+                                            wire:model="password" placeholder="Password nasabah"
+                                            x-ref="passwordInput" style="padding-right:40px">
+                                        <button type="button" @click="show = !show"
+                                            style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted)">
+                                            <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+                                        </button>
+                                    </div>
+                                    @error('password')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                    <div class="d-flex gap-2 mt-2">
+                                        <button type="button" wire:click="generatePassword" class="btn btn-sm"
+                                            style="background:transparent; color:var(--primary,#6366f1); border:1px solid var(--primary,#6366f1); padding:6px 14px; border-radius:6px; font-size:13px;">
+                                            <i class="bi bi-magic me-1"></i> Generate Password
+                                        </button>
+
+                                        <button type="button"
+                                            @click="
+                                            navigator.clipboard.writeText($refs.passwordInput.value).then(() => {
+                                            copied = true;
+                                            setTimeout(() => copied = false, 1500);
+                                            });
+                                            "
+                                            class="btn btn-sm"
+                                            style="background:transparent; color:var(--muted); border:1px solid var(--muted); padding:6px 14px; border-radius:6px; font-size:13px;">
+                                            <i :class="copied ? 'bi bi-check2' : 'bi bi-clipboard'"
+                                                class="me-1"></i>
+                                            <span x-text="copied ? 'Tersalin!' : 'Copy'"></span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -615,7 +661,7 @@ new class extends Component {
                         <div class="avatar" style="width:52px;height:52px;font-size:18px">SR</div>
                         <div>
                             <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700">
-                                {{ ucfirst($this->namaNasabah) }} - {{ $this->nikNasabah }}</div>
+                                {{ ucfirst($this->namaNasabah) }}</div>
                             <div style="font-size:11px;color:var(--muted)">Unit - {{ $this->unitNasabah }}
                             </div>
                         </div>
@@ -683,7 +729,6 @@ new class extends Component {
             </div>
         </div>
     </div>
-
     {{-- ======= MODAL DESKTOP: REKENING NASABAH ======= --}}
     <div wire:ignore.self class="modal fade" id="wm-rekening-nasabah" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-m">
@@ -698,7 +743,8 @@ new class extends Component {
                             <div class="row g-3">
                                 <div class="col-12">
                                     <label class="w-form-label">Unit</label>
-                                    <select class="w-form-input" wire:model="unitBukuTabungan">
+                                    <select class="w-form-input" wire:model="unitBukuTabungan"
+                                        @if (Auth::user()->hasRole(['admin'])) disabled @endif>
                                         <option value="">Pilih Unit</option>
                                         @foreach ($data['banksampah'] as $bank)
                                             <option value="{{ $bank->id }}">{{ $bank->nama }}</option>
@@ -717,7 +763,6 @@ new class extends Component {
                         </div>
                     </form>
                     @if (!empty($bukuTabungan))
-                        {{-- {{ dd($bukuTabungan) }} --}}
                         <div class="mt-3">
                             <label class="w-form-label mb-2">Daftar Buku Tabungan</label>
                             <div class="d-flex flex-column gap-2">

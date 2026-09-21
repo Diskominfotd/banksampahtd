@@ -11,6 +11,7 @@ use App\Services\UserServices;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 use Illuminate\Support\Str;
@@ -75,14 +76,11 @@ class UserServicesImpl implements UserServices
         return redirect()->route('home');
     }
 
-    public function register(array $data)
+    public function register(array $data, int $unitId)
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $unitId) {
             try {
-                $hashedNik = hash('sha256', $data['nik']);
                 $user = User::create([
-                    'nik' => $data['nik'],
-                    'nik_hash' => $hashedNik,
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'nomor_hp' => $data['nomor_hp'],
@@ -92,9 +90,11 @@ class UserServicesImpl implements UserServices
                     'password' => Hash::make($data['password']),
                 ]);
                 $user->assignRole('nasabah');
+                $this->createBukuTabungan($user->id, $unitId);
                 session()->flash('success', 'Berhasil');
             } catch (Throwable $th) {
                 session()->flash('error', 'Terjadi Kesalahan');
+                Log::error('Register nasabah failed: ' . $th->getMessage());
             }
         });
     }
@@ -104,17 +104,20 @@ class UserServicesImpl implements UserServices
         return DB::transaction(function () use ($id, $data) {
             try {
                 $user = User::findOrFail($id);
-                $hashedNik = hash('sha256', $data['nik']);
-                $user->update([
-                    'nik' => $data['nik'],
-                    'nik_hash' => $hashedNik,
+
+                $updateData = [
                     'name' => $data['name'],
                     'email' => $data['email'],
                     'nomor_hp' => $data['nomor_hp'],
                     'mewakili' => $data['mewakili'],
                     'organisasi_id' => $data['organisasi_id'] ?? null,
                     'bank_sampah_id' => $data['bank_sampah_id'],
-                ]);
+                ];
+                if (!empty($data['password'])) {
+                    $updateData['password'] = bcrypt($data['password']);
+                }
+                $user->update($updateData);
+
                 if ($data['is_admin']) {
                     $user->syncRoles('admin');
                 } else {
@@ -315,7 +318,6 @@ class UserServicesImpl implements UserServices
 
     public function updateProfile(int $id, array $data)
     {
-        $hashedNik = hash('sha256', $data['nik']);
         $user = User::findOrFail($id);
         $avatarPath = $user->avatar;
         $folder = 'image/';
@@ -330,8 +332,6 @@ class UserServicesImpl implements UserServices
             'name' => $data['nama'],
             'email' => $data['email'],
             'nomor_hp' => $data['nomor_hp'],
-            'nik' => $data['nik'],
-            'nik_hash' => $hashedNik,
             'avatar' => $avatarPath,
         ]);
         session()->flash('success', 'Behasil');
@@ -440,5 +440,15 @@ class UserServicesImpl implements UserServices
             'difference' => $today - $yesterday,
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
+    }
+
+    public function deleteOrganisasi(int $id)
+    {
+        $data = Organisasi::findOrFail($id);
+        if (!$data) {
+            return;
+        }
+        $data->delete();
+        session()->flash('success', 'Berhasil dihapus');
     }
 }

@@ -403,4 +403,29 @@ class TransaksiServiceImpl implements TransaksiService
     {
         return BankSampah::with('gudang');
     }
+    public function deleteTrx(int $trxId)
+    {
+        return DB::transaction(function () use ($trxId) {
+            $trx = Transaksi::where('id', $trxId)->lockForUpdate()->first();
+
+            if (!$trx) {
+                session()->flash('error', 'Transaksi Tidak Ditemukan');
+                return;
+            }
+
+            $bukuTabunganId = $trx->buku_tabungan_id;
+            Pengeluaran::where('buku_tabungan_id', $bukuTabunganId)
+                ->where('total_penarikan', $trx->total_penarikan)
+                ->where('admin_id', $trx->admin_id)
+                ->latest()
+                ->limit(1)
+                ->delete();
+
+            $trx->delete();
+
+            $this->recalcBukuTabungan($bukuTabunganId);
+
+            session()->flash('success', 'Transaksi Berhasil Dihapus');
+        });
+    }
 }

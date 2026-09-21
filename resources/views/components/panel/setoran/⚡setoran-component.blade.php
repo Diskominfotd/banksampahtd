@@ -123,12 +123,20 @@ new class extends Component {
         $this->alert();
     }
 
+    public function updated($property)
+    {
+        if (in_array($property, ['keyword', 'date', 'unitNasabah'])) {
+            $this->resetPage();
+        }
+    }
+
     public function getData()
     {
         $total = $this->setoranService->totalSetoranToday();
         $builder = $this->setoranService->getSetoranByUnit();
         $totalTrx = (clone $builder)->sum('total_saldo');
         $units = $this->setoranService->getBankUnit();
+
         if ($this->keyword) {
             $builder->where(function ($q) {
                 $q->whereHas('penyetor.bukutabungans', function ($q) {
@@ -137,20 +145,21 @@ new class extends Component {
                     $q->where('name', 'like', "%{$this->keyword}%");
                 });
             });
-            $this->resetPage();
         }
+
         if (Auth::user()->hasRole('supervisor') && $this->unitNasabah) {
             $builder->whereHas('penyetor.bukutabungans', function ($q) {
                 $q->where('bank_id', $this->unitNasabah);
             });
-
-            $this->resetPage();
         }
+
         if ($this->date) {
             $builder->whereDate('created_at', $this->date);
         }
+
         $setoran = $builder->latest()->paginate($this->perPage);
         $allunit = $units->whereNotNull('parent_id')->latest()->get();
+
         return [
             'setoran' => $setoran,
             'totalTrx' => $totalTrx,
@@ -192,11 +201,12 @@ new class extends Component {
             </div>
         </div>
         <div class="m-body mb-5" style="padding-top:16px">
-            <div class="mt-1 mb-3" style="display:flex; justify-content:space-between; align-items:center; background: #ffffff; border-radius: 20px; padding: 8px 14px; gap: 8px;">
+            <div class="mt-1 mb-3"
+                style="display:flex; justify-content:space-between; align-items:center; background: #ffffff; border-radius: 20px; padding: 8px 14px; gap: 8px;">
                 <div>
                     <div style="font-size: 10px; color: #6c757d;">Total Setoran Nasabah</div>
                     <div style="font-size: 13px; font-weight: 700; color:var(--green);">
-                             Rp {{ number_format($data['totalTrx'] ?? 0, 0, ',', '.') }}
+                        Rp {{ number_format($data['totalTrx'] ?? 0, 0, ',', '.') }}
                     </div>
                 </div>
             </div>
@@ -219,13 +229,9 @@ new class extends Component {
                                     {{ $st->bukutabungan->bank->nama }}
                                 </div>
                                 <div class="d-flex gap-1 mt-2">
-                                    <span class="bs bs-green flex-shrink-0">
-                                        Rp {{ number_format($st->total_saldo, 0, ',', '.') }}
+                                    <span class="bs bs-green flex-shrink-0" style="font-size: 13px;">
+                                        Saldo Terakir - Rp {{ number_format($st->total_saldo, 0, ',', '.') }}
                                     </span>
-                                    <span class="bs bs-green flex-shrink-0">
-                                        Petugas - {{ ucfirst($st->admin->name) }}
-                                    </span>
-
                                 </div>
                                 <div class="d-flex gap-1 mt-2">
                                     <button @click="$store.sheet.show('detail-setoran')"
@@ -473,7 +479,8 @@ new class extends Component {
                         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700">Daftar Transaksi
                             Penyetoran Sampah
                         </div>
-                        <div style="font-size:11px;color:var(--muted)">{{ $data['total']['berat'] }} kg masuk hari ini — {{ $data['total']['total'] }} setoran </div>
+                        <div style="font-size:11px;color:var(--muted)">{{ $data['total']['berat'] }} kg masuk hari ini
+                            — {{ $data['total']['total'] }} setoran </div>
                     </div>
                     <div class="d-flex gap-2">
                         @if (Auth::user()->hasRole(['admin']))
@@ -576,7 +583,6 @@ new class extends Component {
                                                         data-bs-target="#wm-edit-setoran">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
-
                                                     <button type="button"
                                                         x-on:click="Swal.fire({
                                                     title: 'Hapus Data Setoran?',

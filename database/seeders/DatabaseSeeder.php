@@ -47,6 +47,7 @@ class DatabaseSeeder extends Seeder
             'kode_bank' => 'IDK-001',
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
+            'hari_buka' => 'Senin - Jumat',
         ]);
         Gudang::create([
             'kode' => $this->generateGudangKode(),
@@ -62,27 +63,12 @@ class DatabaseSeeder extends Seeder
             'kode_bank' => 'DRI-001',
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
+            'hari_buka' => 'Senin - Jumat',
         ]);
         Gudang::create([
             'kode' => $this->generateGudangKode(),
             'bank_id' => $bk2->id,
         ]);
-
-        // $bk3 = BankSampah::create([
-        //     'nama' => 'Bank Sampah Unit Panam',
-        //     'jenis' => 'unit',
-        //     'parent_id' => $induk->id,
-        //     'alamat' => 'Jl. Panam',
-        //     'telepon' => '082222222222',
-        //     'kode_bank' => 'ABE',
-        //     'jam_buka' => '08:00',
-        //     'jam_tutup' => '16:00',
-        // ]);
-        // Gudang::create([
-        //     'kode' => $this->generateGudangKode(),
-        //     'bank_id' => $bk3->id,
-        // ]);
-
         $org = Organisasi::create([
             'nama' => 'Organisasi 1',
         ]);

@@ -4,7 +4,7 @@ namespace App\Services;
 interface UserServices
 {
     public function doLogin(array $data);
-    public function register(array $data);
+    public function register(array $data, int $unitId);
     public function getUserById(int $id);
     public function doLogout();
     public function userBuilder();
@@ -35,4 +35,5 @@ interface UserServices
     public function organisasiBuilder();
     public function unitBuilder();
     public function totalUnitActive();
+    public function deleteOrganisasi(int $id);
 }

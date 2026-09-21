@@ -47,13 +47,15 @@ new class extends Component {
         $unit = Auth::user();
         $builder = $this->userService->getUserByUnitAndBook();
         if ($this->searchNasabah) {
-            $builder->where(function ($q) use ($unit) {
-                $q->whereHas('bukutabungans', function ($q) use ($unit) {
-                    $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%");
-                    if ($unit->unit->parent_id) {
-                        $q->where('bank_id', $unit->unit->id);
-                    }
+            $builder->whereHas('bukutabungans', function ($q) use ($unit) {
+                $q->where(function ($q) {
+                    $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%")
+                    ->orWhere('nama', 'like', "%{$this->searchNasabah}%");
                 });
+
+                if ($unit->unit->parent_id) {
+                    $q->where('bank_id', $unit->unit->id);
+                }
             });
         }
         $data = $builder->latest()->paginate($this->pageNasabah);

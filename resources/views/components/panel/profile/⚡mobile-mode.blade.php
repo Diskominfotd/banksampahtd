@@ -140,12 +140,6 @@ new class extends Component {
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-                <div class="f-group"><label>Nik</label>
-                    <input class="f-input" type="tel" wire:model="nik">
-                    @error('nik')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
                 <div class="f-group"><label>Email</label>
                     <input class="f-input" type="email" wire:model="email">
                     @error('email')

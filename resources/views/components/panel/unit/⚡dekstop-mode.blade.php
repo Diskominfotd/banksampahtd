@@ -141,6 +141,14 @@ new class extends Component {
                                     @enderror
                                 </div>
                                 <div class="col-6">
+                                    <label class="w-form-label">Hari Buka</label>
+                                    <input class="w-form-input" type="text" wire:model="hariBuka"
+                                        placeholder="ex: Senin - Jumat">
+                                    @error('hariBuka')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
                                     <label class="w-form-label">Jam Buka</label>
                                     <input class="w-form-input" type="time" wire:model="jamBuka">
                                     @error('jamBuka')
@@ -175,7 +183,7 @@ new class extends Component {
         <div class="modal-dialog modal-dialog-centered modal-m">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
-                    <div class="w-modal-title">Ubah Organisasi</div>
+                    <div class="w-modal-title"> Edit Bank/Unit</div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <form wire:submit="editUnit">
@@ -186,36 +194,6 @@ new class extends Component {
                     <div class="w-modal-body">
                         <div class="d-flex flex-column gap-3">
                             <div class="row g-3">
-                                {{-- <div class="col-12" x-data="{
-                                    kodeUnit: @entangle('kodeUnit'),
-                                    generateKode() {
-                                        const huruf = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                                        const angka = '0123456789';
-                                        let hasil = '';
-                                        for (let i = 0; i < 3; i++) {
-                                            hasil += huruf.charAt(Math.floor(Math.random() * huruf.length));
-                                        }
-                                        for (let i = 0; i < 3; i++) {
-                                            hasil += angka.charAt(Math.floor(Math.random() * angka.length));
-                                        }
-                                        this.kodeUnit = hasil;
-                                    }
-                                }">
-                                    <label class="w-form-label">Kode Unit</label>
-                                    <div class="d-flex gap-2">
-                                        <input class="w-form-input" type="text" x-model="kodeUnit" maxlength="6"
-                                            placeholder="ABC123" style="text-transform: uppercase;"
-                                            @input="kodeUnit = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
-                                            disabled>
-                                        <button type="button" class="btn-tx" @click="generateKode()"
-                                            title="Generate Kode">
-                                            <i class="bi bi-arrow-clockwise"></i>
-                                        </button>
-                                    </div>
-                                    @error('kodeUnit')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div> --}}
                                 <div class="col-6">
                                     <label class="w-form-label">Nama</label>
                                     <input class="w-form-input" type="text" wire:model="namaUnit"
@@ -236,6 +214,14 @@ new class extends Component {
                                     <label class="w-form-label">Alamat</label>
                                     <textarea class="w-form-input" wire:model="alamatUnit" cols="30" rows="5"></textarea>
                                     @error('alamatUnit')
+                                        <small class="text-danger">{{ $message }}</small>
+                                    @enderror
+                                </div>
+                                <div class="col-6">
+                                    <label class="w-form-label">Hari Buka</label>
+                                    <input class="w-form-input" type="text" wire:model="hariBukaUnit"
+                                        placeholder="ex: Senin - Jumat">
+                                    @error('hariBukaUnit')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror
                                 </div>
