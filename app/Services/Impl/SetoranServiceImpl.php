@@ -5,6 +5,7 @@ use App\Models\BankSampah;
 use App\Models\BukuTabungan;
 use App\Models\Gudang;
 use App\Models\Pengeluaran;
+use App\Models\Price;
 use App\Models\Setoran;
 use App\Models\Transaksi;
 use App\Models\TransaksiBongkarGudang;
@@ -332,8 +333,11 @@ class SetoranServiceImpl implements SetoranService
             'persentase' => $this->hitungPersentase($today, $yesterday),
         ];
     }
+
     public function editSetoran(int $setoranId, array $data)
     {
+        // Log::info('=== editSetoran DIPANGGIL ===', ['setoranId' => $setoranId, 'data' => $data]);
+
         return DB::transaction(function () use ($setoranId, $data) {
             $setoran = Setoran::with(['items.trash'])
                 ->where('id', $setoranId)
@@ -345,24 +349,46 @@ class SetoranServiceImpl implements SetoranService
             }
 
             foreach ($data['items'] as $itemInput) {
-                if (!isset($itemInput['id'], $itemInput['berat'])) {
-                    continue;
-                }
-
-                $item = $setoran->items->firstWhere('id', $itemInput['id']);
-                if (!$item) {
-                    continue;
-                }
-
-                $berat = (float) $itemInput['berat'];
+                $berat = (float) ($itemInput['berat'] ?? 0);
                 if ($berat <= 0) {
                     continue;
                 }
 
-                $item->update([
-                    'berat' => $berat,
-                    'sub_total' => $berat * $item->harga,
-                ]);
+                // ===== Item lama: update =====
+                if (!empty($itemInput['id'])) {
+                    $item = $setoran->items->firstWhere('id', $itemInput['id']);
+                    if (!$item) {
+                        continue;
+                    }
+
+                    $item->update([
+                        'berat' => $berat,
+                        'sub_total' => $berat * $item->harga,
+                    ]);
+                    continue;
+                }
+
+                // ===== Item baru: insert =====
+                if (!empty($itemInput['price_id'])) {
+                    $price = Price::with('trash')->find($itemInput['price_id']);
+                    if (!$price) {
+                        // Log::warning('Price gak ketemu', ['price_id' => $itemInput['price_id']]);
+                        continue;
+                    }
+
+                    $harga = $price->harga ?? 0;
+
+                    $newItem = $setoran->items()->create([
+                        'trash_id' => $price->trash_id,
+                        'price_id' => $price->id,
+                        'harga' => $harga,
+                        'berat' => $berat,
+                        'sub_total' => $berat * $harga,
+                        'type' => $price->type ?? null,
+                    ]);
+
+                    // Log::info('Item baru berhasil diinsert', $newItem->toArray());
+                }
             }
 
             $setoran->refresh();
@@ -503,7 +529,7 @@ class SetoranServiceImpl implements SetoranService
         $total = $totalKeuntunganKas['total'] + $estimasiSisaStokGudang['total'];
         $today = $totalKeuntunganKas['today'] + $estimasiSisaStokGudang['today'];
         $yesterday = $totalKeuntunganKas['yesterday'] + $estimasiSisaStokGudang['yesterday'];
-        
+
         $selisih = $today - $yesterday;
 
         return [

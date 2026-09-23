@@ -5,21 +5,25 @@ use App\Services\SetoranService;
 use Livewire\WithPagination;
 use App\Livewire\TraitComponent;
 use Livewire\Attributes\On;
-
+use Illuminate\Support\Facades\Auth;
+use App\Models\Price;
+use App\Models\BankSampah;
 new class extends Component {
     use WithPagination;
     use TraitComponent;
     protected SetoranService $setoranService;
 
+    public ?int $pageSampah = 10;
+    public ?string $searchJenis = '';
     public ?string $keyword = '';
     public ?string $date = '';
     public array $detailItems = [];
     public $perPage = 10;
     public array $editItems = [];
-
+    public $items = [];
     public int $setoranId;
     public int $unitNasabah = 0;
-
+    public array $cart = [];
     public function loadPerpage()
     {
         $this->perPage += 10;
@@ -98,23 +102,31 @@ new class extends Component {
 
     public function editSetoran()
     {
-        $this->validate([
-            'detailItems.items.*.berat' => ['required', 'numeric', 'min:0.1'],
-        ]);
+        $this->validate(
+            [
+                'detailItems.items.*.berat' => ['required', 'numeric', 'min:0.1'],
+            ],
+            [
+                'detailItems.items.*.berat.required' => 'Berat wajib diisi.',
+                'detailItems.items.*.berat.numeric' => 'Berat harus berupa angka.',
+                'detailItems.items.*.berat.min' => 'Berat minimal 0.1 KG.',
+            ],
+        );
 
         $items = collect($this->detailItems['items'])
             ->map(
                 fn($item) => [
-                    'id' => $item['id'],
+                    'id' => $item['id'] ?? null,
+                    'price_id' => $item['price_id'] ?? null,
                     'berat' => $item['berat'],
                 ],
             )
             ->toArray();
+
         $this->setoranService->editSetoran($this->setoranId, ['items' => $items]);
         $this->alertPopUp();
         $this->dispatch('close-modal');
     }
-
     #[On('doDelete')]
     public function delete(string $setoranId)
     {
@@ -130,6 +142,73 @@ new class extends Component {
         }
     }
 
+    public function priceAndTrashList()
+    {
+        $bank = Auth::user()->unit;
+        $induk = BankSampah::whereNull('parent_id')->first();
+        $query = Price::with(['bank', 'trash'])->where('bank_id', $induk->id);
+        if ($this->searchJenis) {
+            $query->whereHas('trash', function ($q) {
+                $q->where('nama', 'like', "%{$this->searchJenis}%");
+            });
+        }
+        $prices = $query->paginate($this->pageSampah)->getCollection();
+
+        if ($bank->use_parent_price) {
+            return $prices;
+        }
+
+        return $prices->map(function ($price) use ($bank) {
+            $unitPrice = Price::where('trash_id', $price->trash_id)->where('bank_id', $bank->id)->first();
+
+            return $unitPrice ? $unitPrice->load(['bank', 'trash']) : $price;
+        });
+    }
+    public function getJenisSampah()
+    {
+        $this->items = $this->priceAndTrashList();
+    }
+    public function pilihJenisSampah($priceId)
+    {
+        $item = collect($this->items)->firstWhere('id', $priceId);
+        if (!$item) {
+            return;
+        }
+
+        $existing = collect($this->detailItems['items'] ?? [])->search(fn($d) => ($d['price_id'] ?? null) == $priceId);
+
+        if ($existing !== false) {
+            return;
+        }
+
+        $this->detailItems['items'][] = [
+            'id' => null,
+            'price_id' => $item->id,
+            'trash' => ['nama' => $item->trash->nama],
+            'harga' => $item->harga ?? 0,
+            'berat' => 0,
+            'sub_total' => 0,
+        ];
+
+        $this->recalcTotal();
+    }
+    private function recalcTotal(): void
+    {
+        $this->detailItems['total_berat'] = collect($this->detailItems['items'])->sum('berat');
+        $this->detailItems['total_saldo'] = collect($this->detailItems['items'])->sum('sub_total');
+    }
+
+    public function updatedSearchJenis()
+    {
+        $this->pageSampah = 10;
+        $this->getJenisSampah();
+    }
+
+    public function loadMoreItemSampah()
+    {
+        $this->pageSampah += 10;
+        $this->items = $this->priceAndTrashList();
+    }
     public function getData()
     {
         $total = $this->setoranService->totalSetoranToday();
@@ -707,83 +786,133 @@ new class extends Component {
         </div>
     </div>
     {{-- ======= MODAL DESKTOP: FORM EDIT Setoran ======= --}}
-    <div wire:ignore.self class="modal fade" id="wm-edit-setoran" tabindex="-1">
+    <div wire:ignore.self class="modal fade" id="wm-edit-setoran" tabindex="-1" x-data="{ pilihJenis: false }">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content w-modal">
                 <div class="w-modal-header">
-                    <div class="w-modal-title">Edit Setoran - {{ $detailItems['kode'] ?? 'STR-XXX-XXX-XXX' }}</div>
+                    <div class="w-modal-title" x-show="!pilihJenis">
+                        Edit Setoran - {{ $detailItems['kode'] ?? 'STR-XXX-XXX-XXX' }}
+                    </div>
+                    <div class="w-modal-title" x-show="pilihJenis" x-cloak>
+                        <i class="bi bi-arrow-left" @click="pilihJenis = false"
+                            style="cursor:pointer;margin-right:6px"></i>
+                        Pilih Jenis Sampah
+                    </div>
                     <div class="w-modal-close" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></div>
                 </div>
+
                 <div class="w-modal-body" style="position:relative">
-                    <div wire:loading.flex wire:target="detailEdit,hitungSubtotal,editSetoran"
+                    <div wire:loading.flex wire:target="detailEdit,hitungSubtotal,editSetoran,pilihJenisSampah"
                         class="justify-content-center align-items-center"
                         style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                         <div class="spinner-border text-success"></div>
                     </div>
 
-                    <form wire:submit.prevent="simpanSetoran">
-                        <table class="w-tbl">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Jenis Sampah</th>
-                                    <th>Harga</th>
-                                    <th style="width:130px">Berat</th>
-                                    <th>Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($detailItems['items'] ?? [] as $index => $di)
-                                    <tr wire:key="setoran-item-{{ $index }}">
-                                        <td>{{ $index + 1 }}</td>
-                                        <td style="font-size:11px;font-weight:600">
-                                            {{ $di['trash']['nama'] }}
-                                        </td>
-                                        <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
-                                        <td>
-                                            <div class="input-group input-group-sm">
-                                                <input type="number" step="0.1" min="0"
-                                                    class="form-control @error("detailItems.items.$index.berat") is-invalid @enderror"
-                                                    wire:model.live.debounce.400ms="detailItems.items.{{ $index }}.berat"
-                                                    wire:change="hitungSubtotal({{ $index }})">
-                                                <span class="input-group-text">KG</span>
+                    {{-- ===== VIEW: TABEL EDIT (default) ===== --}}
+                    <div x-show="!pilihJenis">
+                        <form wire:submit.prevent="simpanSetoran">
+                            <table class="w-tbl">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Jenis Sampah</th>
+                                        <th>Harga</th>
+                                        <th style="width:130px">Berat</th>
+                                        <th>
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span>Subtotal</span>
+                                                <div wire:click='getJenisSampah' class="w-modal-close"
+                                                    @click="pilihJenis = true">
+                                                    <i class="bi bi-patch-plus"></i>
+                                                </div>
                                             </div>
-                                            @error("detailItems.items.$index.berat")
-                                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                            @enderror
-                                        </td>
-                                        <td>
-                                            Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($detailItems['items'] ?? [] as $index => $di)
+                                        <tr wire:key="setoran-item-{{ $index }}">
+                                            <td>{{ $index + 1 }}</td>
+                                            <td style="font-size:11px;font-weight:600">{{ $di['trash']['nama'] }}</td>
+                                            <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
+                                            <td>
+                                                <div class="input-group input-group-sm">
+                                                    <input type="number" step="0.1" min="0"
+                                                        class="form-control @error("detailItems.items.$index.berat") is-invalid @enderror"
+                                                        wire:model.live.debounce.400ms="detailItems.items.{{ $index }}.berat"
+                                                        wire:change="hitungSubtotal({{ $index }})">
+                                                    <span class="input-group-text">KG</span>
+                                                </div>
+                                                @error("detailItems.items.$index.berat")
+                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                                @enderror
+                                            </td>
+                                            <td>Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3"><strong>Total</strong></td>
+                                        <td><strong>{{ number_format($detailItems['total_berat'] ?? 0, 1, ',', '.') }}
+                                                KG</strong></td>
+                                        <td><strong>Rp.
+                                                {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}</strong>
                                         </td>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="3"><strong>Total</strong></td>
-                                    <td>
-                                        <strong>
-                                            {{ number_format($detailItems['total_berat'] ?? 0, 1, ',', '.') }}
-                                            KG
-                                        </strong>
-                                    </td>
-                                    <td>
-                                        <strong>
-                                            Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}
-                                        </strong>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="5">
-                                        Petugas -
-                                        <strong>{{ ucfirst(data_get($detailItems, 'admin.name', '-')) }}</strong>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </form>
+                                    <tr>
+                                        <td colspan="5">
+                                            Petugas -
+                                            <strong>{{ ucfirst(data_get($detailItems, 'admin.name', '-')) }}</strong>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </form>
+                    </div>
+
+                    {{-- ===== VIEW: PILIH JENIS SAMPAH ===== --}}
+                    <div x-show="pilihJenis" x-cloak>
+                        <div class="pb-2">
+                            <input type="text" wire:model.live="searchJenis" class="form-control form-control-sm"
+                                placeholder="Cari nama jenis sampah..." />
+                        </div>
+                        <div class="d-flex flex-column gap-2" style="overflow-y:auto; max-height:50vh;">
+                            @forelse ($this->items as $item)
+                                <div class="w-row" wire:click="pilihJenisSampah({{ $item->id }})"
+                                    @click="pilihJenis = false">
+                                    <div class="w-row-ico ic1"><i class="bi bi-recycle" style="font-size:13px"></i>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="w-row-title">
+                                            {{ $item->trash->nama }} - Rp
+                                            {{ number_format($item->harga ?? 0, 0, ',', '.') }}/KG
+                                        </div>
+                                        <div class="w-row-meta">Tipe Harga - {{ $item->type }}</div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="item-empty">
+                                    <i class="bi bi-inbox"></i>
+                                    Tidak Ada Data
+                                </div>
+                            @endforelse
+                        </div>
+                        @if (count($this->items) >= 10)
+                            <button type="button" wire:click="loadMoreItemSampah"
+                                style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                                <span wire:loading.remove wire:target="loadMoreItemSampah">Tampilkan lebih
+                                    banyak</span>
+                                <span wire:loading wire:target="loadMoreItemSampah">
+                                    <span class="spinner-border spinner-border-sm"
+                                        style="width:12px;height:12px;border-width:1.5px;"></span>
+                                </span>
+                            </button>
+                        @endif
+                    </div>
                 </div>
-                <div class="w-modal-footer">
+
+                <div class="w-modal-footer" x-show="!pilihJenis">
                     <button type="button" class="w-btn w-btn-ghost" data-bs-dismiss="modal"
                         wire:loading.attr="disabled" wire:target="editSetoran">Batal</button>
 
