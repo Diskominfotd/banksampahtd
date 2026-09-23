@@ -187,8 +187,8 @@ new class extends Component {
                     <div x-data="{
                         search: '',
                         open: false,
-                        selected: {{ Js::from($unitNasabah ?? '') }},
-                        selectedLabel: {{ Js::from(collect($data['banksampah'])->firstWhere('id', $unitNasabah)['nama'] ?? 'Pilih Unit') }},
+                        selected: {{ Js::from($unit ?? '') }},
+                        selectedLabel: {{ Js::from(collect($data['banksampah'])->firstWhere('id', $unit)['nama'] ?? 'Pilih Unit') }},
                         all: {{ Js::from($data['banksampah']) }},
                         locked: {{ Js::from($lock ?? false) }},
                         get filtered() {
@@ -514,10 +514,10 @@ new class extends Component {
                         style="margin-bottom:6px;">
                         <span style="font-weight:600;"><i class="bi bi-shield-lock me-1"
                                 style="color:var(--primary,#6366f1)">
-                        </i>Ubah Password
-                    </span>   
+                            </i>Ubah Password
+                        </span>
                     </label>
-                     <small class="text-muted fw-normal" style="font-size:11px">Kosongkan jika tidak diubah</small>
+                    <small class="text-muted fw-normal" style="font-size:11px">Kosongkan jika tidak diubah</small>
                     <div style="position:relative">
                         <input class="f-input" :type="show ? 'text' : 'password'" wire:model="password"
                             placeholder="Password nasabah" x-ref="passwordInput" style="padding-right:40px">

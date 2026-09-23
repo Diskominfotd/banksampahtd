@@ -89,6 +89,7 @@ new class extends Component {
         if ($user->hasRole('admin')) {
             $this->unitBukuTabungan = $user->bank_sampah_id;
             $this->unitNasabah = $user->bank_sampah_id;
+            $this->unit = $user->bank_sampah_id;
             $this->lock = true;
         }
     }

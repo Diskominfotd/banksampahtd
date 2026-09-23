@@ -237,11 +237,11 @@ new class extends Component {
                                 </div>
                                 <div class="col-6">
                                     <label class="w-form-label">Unit</label>
-                                    <div wire:key="unit-select-{{ $unitNasabah }}" x-data="{
+                                    <div wire:key="unit-select-{{ $unit }}" x-data="{
                                         search: '',
                                         open: false,
-                                        selected: {{ Js::from($unitNasabah ?? '') }},
-                                        selectedLabel: {{ Js::from(collect($data['banksampah'])->firstWhere('id', $unitNasabah)['nama'] ?? 'Pilih Unit') }},
+                                        selected: {{ Js::from($unit ?? '') }},
+                                        selectedLabel: {{ Js::from(collect($data['banksampah'])->firstWhere('id', $unit)['nama'] ?? 'Pilih Unit') }},
                                         all: {{ Js::from($data['banksampah']) }},
                                         locked: {{ Js::from($lock ?? false) }},
                                         get filtered() {
