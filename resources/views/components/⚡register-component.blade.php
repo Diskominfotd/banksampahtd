@@ -21,6 +21,7 @@ new class extends Component {
     public ?string $password = null;
     public ?int $unit = null;
     public string $password_confirmation = '';
+    public ?string $captchaToken = null;
 
     public function boot(UserServices $userService)
     {
@@ -37,19 +38,12 @@ new class extends Component {
             'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
             'password' => 'required|string|min:6|confirmed',
             'unit' => 'required|exists:bank_sampahs,id',
+            'captchaToken' => ['required', new CaptchaRule()],
         ];
-        $this->validate($rules);
 
-        // Captcha divalidasi terpisah karena tokennya bukan property Livewire
-        Validator::make(
-            request()->all(),
-            [
-                'g-recaptcha-response' => ['required', new CaptchaRule()],
-            ],
-            [
-                'g-recaptcha-response.required' => 'Silakan verifikasi captcha terlebih dahulu.',
-            ],
-        )->validate();
+        $this->validate($rules, [
+            'captchaToken.required' => 'Silakan verifikasi captcha terlebih dahulu.',
+        ]);
 
         $this->userService->register(
             [
@@ -64,13 +58,13 @@ new class extends Component {
             $this->unit,
         );
 
-        $this->reset(['nama', 'nomorTelepon', 'email', 'jenis', 'organisasi', 'password', 'password_confirmation', 'unit']);
+        $this->reset(['nama', 'nomorTelepon', 'email', 'jenis', 'organisasi', 'password', 'password_confirmation', 'unit', 'captchaToken']);
         $this->alertPopUp();
     }
 
     public function getData()
     {
-        $unitBankSampah = BankSampah::get();
+        $unitBankSampah = BankSampah::whereNot('nama', 'Bank Sampah Induk')->get();
         $nasabah = User::where('status', 'active')
             ->whereHas('roles', function ($q) {
                 $q->where('name', 'nasabah');
@@ -78,12 +72,14 @@ new class extends Component {
             ->count();
         $unit = BankSampah::count();
         $setoran = Setoran::sum('total_berat');
+        $unitinfo = $this->userService->getInfoUnit();
 
         return [
             'nasabah' => $nasabah,
             'unit' => $unit,
             'setoran' => $setoran,
             'unitBankSampah' => $unitBankSampah,
+            'unitinfo' => $unitinfo,
         ];
     }
 };
@@ -369,11 +365,7 @@ new class extends Component {
             </div>
 
             <div class="unit-slideshow mb-2" x-data="{
-                slides: [
-                    { nama: 'Bank Sampah Batusangkar', nasabah: 32, sampah: '1,8 ton' },
-                    { nama: 'Bank Sampah Lima Kaum', nasabah: 27, sampah: '2,1 ton' },
-                    { nama: 'Bank Sampah Rambatan', nasabah: 19, sampah: '1,3 ton' },
-                ],
+                slides: {{ Js::from($data['unitinfo']) }},
                 current: 0,
                 startX: 0,
                 endX: 0,
@@ -433,7 +425,11 @@ new class extends Component {
                     <span>{{ session('error') }}</span>
                 </div>
             @endif
-            <form wire:submit.prevent="registerNasabah" class="form-area" id="form-area">
+            <form wire:submit.prevent="registerNasabah" class="form-area" id="form-area" x-data
+                @submit.prevent="
+        $wire.set('captchaToken', document.querySelector('[name=\'g-recaptcha-response\']')?.value ?? '')
+            .then(() => $wire.registerNasabah());
+    ">
                 <div class="row g-2 mb-2">
                     <div class="col-md-6">
                         <label for="nama" class="form-label">Nama Lengkap</label>
@@ -597,7 +593,7 @@ new class extends Component {
                         <div wire:ignore>
                             <x-captcha />
                         </div>
-                        @error('g-recaptcha-response')
+                        @error('captchaToken')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
