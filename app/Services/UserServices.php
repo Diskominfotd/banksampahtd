@@ -36,4 +36,5 @@ interface UserServices
     public function unitBuilder();
     public function totalUnitActive();
     public function deleteOrganisasi(int $id);
+    public function getInfoUnit();
 }

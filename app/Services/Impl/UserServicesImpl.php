@@ -6,6 +6,7 @@ use App\Models\BukuTabungan;
 use App\Models\Category;
 use App\Models\Gudang;
 use App\Models\Organisasi;
+use App\Models\Setoran;
 use App\Models\User;
 use App\Services\UserServices;
 use Illuminate\Support\Facades\Auth;
@@ -450,5 +451,24 @@ class UserServicesImpl implements UserServices
         }
         $data->delete();
         session()->flash('success', 'Berhasil dihapus');
+    }
+
+    public function getInfoUnit()
+    {
+        $units = BankSampah::query()->whereNot('nama', 'Bank Sampah Induk')->get();
+
+        $result = $units->map(function ($unit) {
+            $baseQuery = fn() => Setoran::whereHas('bukutabungan', function ($q) use ($unit) {
+                $q->where('bank_id', $unit->id);
+            });
+
+            return [
+                'id' => $unit->id,
+                'nama' => $unit->nama,
+                'berat' => convertBeratToString($baseQuery()->sum('total_berat')),
+                'nasabah' => $baseQuery()->count(),
+            ];
+        });
+        return $result;
     }
 }

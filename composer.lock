@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8693a6d9819e236637e38cc3f342a925",
+    "content-hash": "2be2bb96e3535ff823da7a0b03d114f7",
     "packages": [
         {
             "name": "brick/math",
@@ -7172,6 +7172,75 @@
                 }
             ],
             "time": "2026-04-26T05:33:54+00:00"
+        },
+        {
+            "name": "zhang-mason/laravel-captcha-kit",
+            "version": "v1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Zhang-mason/laravel-captcha-kit.git",
+                "reference": "760bec2eab4d56c849bb66d3102ecd39d8b52eb5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Zhang-mason/laravel-captcha-kit/zipball/760bec2eab4d56c849bb66d3102ecd39d8b52eb5",
+                "reference": "760bec2eab4d56c849bb66d3102ecd39d8b52eb5",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/contracts": "^12.0|^13.0",
+                "illuminate/http": "^12.0|^13.0",
+                "illuminate/support": "^12.0|^13.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "google/cloud-recaptcha-enterprise": "^2.0",
+                "laravel/pint": "^1.13",
+                "orchestra/testbench": "^10.0|^11.0",
+                "pestphp/pest": "^2.34|^3.0|^4.0"
+            },
+            "suggest": {
+                "google/cloud-recaptcha-enterprise": "Required to use the recaptcha_enterprise driver (^2.0)."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Captcha": "Mason\\Captcha\\Facades\\Captcha"
+                    },
+                    "providers": [
+                        "Mason\\Captcha\\CaptchaServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Mason\\Captcha\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mason",
+                    "email": "mason0983838065@gmail.com"
+                }
+            ],
+            "description": "Unified captcha verification for Laravel — Google reCAPTCHA v2/v3, hCaptcha, and Cloudflare Turnstile behind one Manager-based API.",
+            "keywords": [
+                "captcha",
+                "hcaptcha",
+                "laravel",
+                "recaptcha",
+                "turnstile"
+            ],
+            "support": {
+                "issues": "https://github.com/Zhang-mason/laravel-captcha-kit/issues",
+                "source": "https://github.com/Zhang-mason/laravel-captcha-kit/tree/v1.0.3"
+            },
+            "time": "2026-08-03T15:09:02+00:00"
         }
     ],
     "packages-dev": [

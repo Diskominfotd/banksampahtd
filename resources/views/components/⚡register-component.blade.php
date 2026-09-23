@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Models\BankSampah;
 use App\Models\Setoran;
 use App\Livewire\TraitComponent;
+use Illuminate\Support\Facades\Validator;
+use Mason\Captcha\Rules\CaptchaRule;
+
 new class extends Component {
     use TraitComponent;
     protected UserServices $userService;
@@ -36,6 +39,18 @@ new class extends Component {
             'unit' => 'required|exists:bank_sampahs,id',
         ];
         $this->validate($rules);
+
+        // Captcha divalidasi terpisah karena tokennya bukan property Livewire
+        Validator::make(
+            request()->all(),
+            [
+                'g-recaptcha-response' => ['required', new CaptchaRule()],
+            ],
+            [
+                'g-recaptcha-response.required' => 'Silakan verifikasi captcha terlebih dahulu.',
+            ],
+        )->validate();
+
         $this->userService->register(
             [
                 'name' => $this->nama,
@@ -575,6 +590,12 @@ new class extends Component {
                                 @click="show = !show">
                                 <i :class="show ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
                             </button>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="capcha" class="form-label">Capcha</label>
+                        <div wire:ignore>
+                            <x-captcha />
                         </div>
                     </div>
                 </div>

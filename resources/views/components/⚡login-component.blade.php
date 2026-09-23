@@ -36,11 +36,12 @@ new class extends Component {
             ->count();
         $unit = BankSampah::count();
         $setoran = Setoran::sum('total_berat');
-
+        $unitinfo = $this->userService->getInfoUnit();
         return [
             'nasabah' => $nasabah,
             'unit' => $unit,
             'setoran' => $setoran,
+            'unitinfo' => $unitinfo,
         ];
     }
 };
@@ -286,11 +287,7 @@ new class extends Component {
             </div>
 
             <div class="unit-slideshow mb-2" x-data="{
-                slides: [
-                    { nama: 'Bank Sampah Batusangkar', nasabah: 32, sampah: '1,8 ton' },
-                    { nama: 'Bank Sampah Lima Kaum', nasabah: 27, sampah: '2,1 ton' },
-                    { nama: 'Bank Sampah Rambatan', nasabah: 19, sampah: '1,3 ton' },
-                ],
+                slides: {{ Js::from($data['unitinfo']) }},
                 current: 0,
                 startX: 0,
                 endX: 0,
@@ -318,7 +315,7 @@ new class extends Component {
                             <div class="unit-slide-meta">
                                 <span><i class="bi bi-people-fill"></i> <span x-text="slide.nasabah"></span>
                                     Nasabah</span>
-                                <span><i class="bi bi-recycle"></i> <span x-text="slide.sampah"></span></span>
+                                <span><i class="bi bi-recycle"></i> <span x-text="slide.berat"></span></span>
                             </div>
                         </div>
                     </div>
@@ -404,7 +401,8 @@ new class extends Component {
                     <i class="bi bi-arrow-right-short fs-5" wire:loading.remove wire:target="doLogin"></i>
                 </button>
                 <div class="text-center mt-3" style="font-size:14px;">
-                    Belum punya akun? <a href="{{ route('daftar') }}" class="fw-semibold text-decoration-none">Silahkan bergabung
+                    Belum punya akun? <a href="{{ route('daftar') }}"
+                        class="fw-semibold text-decoration-none">Silahkan bergabung
                         disini</a>
                 </div>
             </form>

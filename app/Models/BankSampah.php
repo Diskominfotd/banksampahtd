@@ -5,7 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['nama', 'parent_id', 'alamat', 'telepon', 'use_parent_price', 'kode_bank', 'jam_buka', 'jam_tutup', 'hari_buka'])]
+#[Fillable([
+    'nama', 'parent_id', 'alamat', 'telepon', 'use_parent_price', 
+    'kode_bank', 'jam_buka', 'jam_tutup', 'hari_buka'
+])]
 class BankSampah extends Model
 {
     protected $table = 'bank_sampahs';
