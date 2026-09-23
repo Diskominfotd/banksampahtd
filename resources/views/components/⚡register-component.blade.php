@@ -593,10 +593,13 @@ new class extends Component {
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <label for="capcha" class="form-label">Capcha</label>
+                        <label for="capcha" class="form-label">Captcha</label>
                         <div wire:ignore>
                             <x-captcha />
                         </div>
+                        @error('g-recaptcha-response')
+                            <span class="text-danger">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
                 <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
