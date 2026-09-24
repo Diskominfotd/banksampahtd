@@ -4,6 +4,7 @@ use Livewire\Component;
 use App\Services\UserServices;
 use App\Models\User;
 use App\Models\BankSampah;
+use App\Models\Organisasi;
 use App\Models\Setoran;
 use App\Livewire\TraitComponent;
 use Illuminate\Support\Facades\Validator;
@@ -80,6 +81,7 @@ new class extends Component {
             'setoran' => $setoran,
             'unitBankSampah' => $unitBankSampah,
             'unitinfo' => $unitinfo,
+            'organisasi' => Organisasi::query()->get(),
         ];
     }
 };
@@ -501,8 +503,11 @@ new class extends Component {
                                 <span class="input-group-text"><i class="bi bi-people-fill"></i></span>
                                 <select id="organisasi" wire:model="organisasi"
                                     class="form-select @error('organisasi') is-invalid @enderror">
+                                    @disabled($jenis === 'perorangan')>
                                     <option value="">-- Pilih organisasi --</option>
-                                    {{-- TODO: ganti dengan Organisasi::get() beneran, ikuti pola $data['unitBankSampah'] --}}
+                                    @foreach ($data['organisasi'] as $org)
+                                        <option value="{{ $org->id }}">{{ $org->nama }}</option>
+                                    @endforeach
                                 </select>
                                 @error('organisasi')
                                     <div class="invalid-feedback">{{ $message }}</div>
