@@ -76,8 +76,10 @@ new class extends Component {
         $this->setoranId = $setoranId;
         $this->detailItems = $item->toArray();
     }
+
     public function detailEdit(string $setoranId)
     {
+        $this->resetErrorBag();
         $setoranId = decrypt($setoranId);
         $setoran = $this->setoranService->getSetoranByIdNasabah($setoranId);
         $this->setoranId = $setoranId;
@@ -99,9 +101,22 @@ new class extends Component {
             'admin' => optional($setoran->admin)->only('name'),
         ];
     }
+    public function removeCart(int $index): void
+    {
+        if (!isset($this->detailItems['items'][$index])) {
+            return;
+        }
 
+        unset($this->detailItems['items'][$index]);
+        $this->detailItems['items'] = array_values($this->detailItems['items']);
+        $this->recalcTotal();
+    }
     public function editSetoran()
     {
+        if (empty($this->detailItems['items'])) {
+            $this->addError('detailItems.items', 'Minimal harus ada 1 jenis sampah.');
+            return;
+        }
         $this->validate(
             [
                 'detailItems.items.*.berat' => ['required', 'numeric', 'min:0.1'],
@@ -471,77 +486,151 @@ new class extends Component {
         x-transition:leave-end="opacity-0" @click="$store.sheet.hide()"
         style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998" x-cloak>
     </div>
-    <div x-show="$store.sheet.is('edit-setoran')" x-transition:enter="transition ease-out duration-300"
+    <div x-data="{ pilihJenis: false }" x-effect="if (!$store.sheet.is('edit-setoran')) pilihJenis = false"
+        x-show="$store.sheet.is('edit-setoran')" x-transition:enter="transition ease-out duration-300"
         x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
         x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0"
         x-transition:leave-end="translate-y-full" class="sheet-pilih-sampah" style="display:none" x-cloak>
+
+        {{-- HEADER --}}
         <div style="flex-shrink:0;padding:16px 20px 12px;border-radius:20px 20px 0 0;background:var(--bg-card,#fff)">
             <div class="sheet-handle"></div>
-            <div
+
+            {{-- Judul mode edit --}}
+            <div x-show="!pilihJenis"
                 style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main)">
                 Edit - {{ $detailItems['kode'] ?? 'STR-XXX-XXX-XXX' }}
             </div>
+
+            {{-- Judul mode pilih jenis + search --}}
+            <div x-show="pilihJenis" x-cloak>
+                <div
+                    style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-top:10px;color:var(--text-main);display:flex;align-items:center;gap:8px">
+                    <i class="bi bi-arrow-left" @click="pilihJenis = false"
+                        style="cursor:pointer;font-size:18px"></i>
+                    Pilih Jenis Sampah
+                </div>
+                <div class="m-search mb-3">
+                    <i class="bi bi-search si"></i>
+                    <input type="text" wire:model.live="searchJenis" placeholder="Cari nama jenis sampah...">
+                </div>
+            </div>
         </div>
+
+        {{-- LOADING OVERLAY --}}
+        <div wire:loading.flex wire:target="detailEdit,hitungSubtotal,editSetoran,getJenisSampah,pilihJenisSampah"
+            class="justify-content-center align-items-center"
+            style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
+            <div class="spinner-border text-success"></div>
+        </div>
+
+        {{-- BODY --}}
         <div style="flex:1;overflow-y:auto;padding:0 20px 20px;-webkit-overflow-scrolling:touch">
-            <div wire:loading.flex wire:target="detailEdit,hitungSubtotal,editSetoran"
-                class="justify-content-center align-items-center"
-                style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
-                <div class="spinner-border text-success"></div>
-            </div>
-            <div class="d-flex flex-column gap-2">
-                @foreach ($detailItems['items'] ?? [] as $index => $di)
-                    <div class="list-item fade-up" wire:key="setoran-item-mobile-{{ $index }}">
-                        <span class="list-num">{{ $index + 1 }}</span>
-                        <div class="list-ico ic1"><i class="bi bi-recycle" style="font-size:12px"></i></div>
 
-                        <div class="list-main">
-                            <div class="list-name">{{ $di['trash']['nama'] }}</div>
-                            <div class="list-sub">Rp. {{ number_format($di['harga'], 0, ',', '.') }} / KG</div>
-                        </div>
+            {{-- ===== VIEW: EDIT (default) ===== --}}
+            <div x-show="!pilihJenis">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span style="font-size:12px;color:var(--text-muted,#888)">Daftar Sampah</span>
+                    <button type="button" wire:click="getJenisSampah" @click="pilihJenis = true"
+                        class="btn btn-sm btn-outline-success d-flex align-items-center gap-1" style="font-size:11px">
+                        <i class="bi bi-patch-plus"></i> Tambah
+                    </button>
+                </div>
 
-                        <div style="width:100px">
-                            <div class="input-group input-group-sm">
-                                <input type="number" step="0.1" min="0"
-                                    class="form-control @error("detailItems.items.$index.berat") is-invalid @enderror"
-                                    style="font-size:12px"
-                                    wire:model.live.debounce.400ms="detailItems.items.{{ $index }}.berat"
-                                    wire:change="hitungSubtotal({{ $index }})">
-                                <span class="input-group-text" style="font-size:11px">KG</span>
-                            </div>
-                            @error("detailItems.items.$index.berat")
-                                <div class="invalid-feedback d-block" style="font-size:10px">{{ $message }}
+                <div class="d-flex flex-column gap-1">
+                    @foreach ($detailItems['items'] ?? [] as $index => $di)
+                        <div class="list-item fade-up" style="padding:6px 10px;gap:8px"
+                            wire:key="setoran-item-mobile-{{ $di['id'] ?? 'new-' . ($di['price_id'] ?? $index) }}">
+                            <span class="list-num">{{ $index + 1 }}</span>
+
+                            <div class="list-main" style="min-width:0">
+                                <div class="list-name text-truncate" style="font-size:12px">
+                                    {{ $di['trash']['nama'] }}</div>
+                                <div class="list-sub" style="font-size:10px">
+                                    Rp {{ number_format($di['harga'], 0, ',', '.') }}/KG ·
+                                    <b style="color:#198754">Rp {{ number_format($di['sub_total'], 0, ',', '.') }}</b>
                                 </div>
-                            @enderror
+                            </div>
+
+                            <div style="width:88px">
+                                <div class="input-group input-group-sm">
+                                    <input type="number" step="0.1" min="0"
+                                        class="form-control @error("detailItems.items.$index.berat") is-invalid @enderror"
+                                        style="font-size:12px"
+                                        wire:model.live.debounce.400ms="detailItems.items.{{ $index }}.berat"
+                                        wire:change="hitungSubtotal({{ $index }})">
+                                    <span class="input-group-text" style="font-size:11px">KG</span>
+                                </div>
+                                @error("detailItems.items.$index.berat")
+                                    <div class="invalid-feedback d-block" style="font-size:10px">{{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <button type="button" wire:click="removeCart({{ $index }})"
+                                class="btn btn-sm p-0 border-0 text-danger" style="line-height:1">
+                             <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span style="font-size:12px;color:var(--text-muted,#888)">
+                        Total {{ number_format($detailItems['total_berat'] ?? 0, 1, ',', '.') }} KG
+                    </span>
+                    <b>Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}</b>
+                </div>
+
+                <div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px">
+                    Petugas - <strong>{{ ucfirst(data_get($detailItems, 'admin.name', '-')) }}</strong>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="button" class="btn-outline w-100" style="width:100%"
+                        @click="$store.sheet.hide()">
+                        Batal
+                    </button>
+                    <button type="button" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
+                        wire:click="editSetoran" wire:target="editSetoran">
+                        <span wire:loading.remove wire:target="editSetoran">Simpan Perubahan</span>
+                        <span wire:loading wire:target="editSetoran">Loading...</span>
+                    </button>
+                </div>
+            </div>
+
+            {{-- ===== VIEW: PILIH JENIS SAMPAH ===== --}}
+            <div x-show="pilihJenis" x-cloak>
+                @forelse ($this->items as $item)
+                    <div class="list-item fade-up mb-1" wire:key="jenis-item-mobile-{{ $item->id }}"
+                        wire:click="pilihJenisSampah({{ $item->id }})" @click="pilihJenis = false"
+                        style="cursor:pointer">
+                        <div class="list-ico ic1">
+                            <div class="w-row-ico ic1"><i class="bi bi-recycle" style="font-size:13px"></i></div>
+                        </div>
+                        <div class="list-main">
+                            <div class="list-name">{{ $item->trash->nama }} - Rp
+                                {{ number_format($item->harga ?? 0, 0, ',', '.') }}/KG</div>
+                            <div class="list-sub">Tipe Harga - {{ $item->type }}</div>
                         </div>
                     </div>
-
-                    <div class="d-flex justify-content-end" style="margin-top:-6px;margin-bottom:4px">
-                        <span class="bs bs-green">Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</span>
+                @empty
+                    <div class="item-empty">
+                        <i class="bi bi-inbox"></i>
+                        Belum ada data
                     </div>
-                @endforeach
-            </div>
+                @endforelse
 
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <span style="font-size:12px;color:var(--text-muted,#888)">
-                    Total {{ number_format($detailItems['total_berat'] ?? 0, 1, ',', '.') }} KG
-                </span>
-                <b>Rp. {{ number_format($detailItems['total_saldo'] ?? 0, 0, ',', '.') }}</b>
-            </div>
-
-            <div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px">
-                Petugas - <strong>{{ ucfirst(data_get($detailItems, 'admin.name', '-')) }}</strong>
-            </div>
-            <div class="d-flex gap-2 mt-4">
-                <button type="button" class="btn-outline w-100" style="width:100%" @click="$store.sheet.hide()">
-                    Batal
-                </button>
-                <button type="button" class="btn-primary w-100" style="width:100%" wire:loading.attr="disabled"
-                    wire:click="editSetoran" wire:target="editSetoran">
-                    <span wire:loading.remove wire:target="editSetoran">
-                        Simpan Perubahan
-                    </span>
-                    <span wire:loading wire:target="editSetoran">Loading...</span>
-                </button>
+                @if (count($this->items) >= 10)
+                    <button type="button" wire:click="loadMoreItemSampah"
+                        style="width:100%;padding:8px;border:0.5px solid #e0e0e0;border-radius:10px;background:none;font-size:13px;color:#198754;margin-top:8px;">
+                        <span wire:loading.remove wire:target="loadMoreItemSampah">Tampilkan lebih banyak</span>
+                        <span wire:loading wire:target="loadMoreItemSampah">
+                            <span class="spinner-border spinner-border-sm"
+                                style="width:12px;height:12px;border-width:1.5px;"></span>
+                        </span>
+                    </button>
+                @endif
             </div>
         </div>
     </div>
@@ -792,6 +881,9 @@ new class extends Component {
                 <div class="w-modal-header">
                     <div class="w-modal-title" x-show="!pilihJenis">
                         Edit Setoran - {{ $detailItems['kode'] ?? 'STR-XXX-XXX-XXX' }}
+                        @error('detailItems.items')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="w-modal-title" x-show="pilihJenis" x-cloak>
                         <i class="bi bi-arrow-left" @click="pilihJenis = false"
@@ -807,8 +899,6 @@ new class extends Component {
                         style="position:absolute;inset:0;background:rgba(255,255,255,0.6);z-index:10;border-radius:inherit">
                         <div class="spinner-border text-success"></div>
                     </div>
-
-                    {{-- ===== VIEW: TABEL EDIT (default) ===== --}}
                     <div x-show="!pilihJenis">
                         <form wire:submit.prevent="simpanSetoran">
                             <table class="w-tbl">
@@ -831,7 +921,8 @@ new class extends Component {
                                 </thead>
                                 <tbody>
                                     @foreach ($detailItems['items'] ?? [] as $index => $di)
-                                        <tr wire:key="setoran-item-{{ $index }}">
+                                        <tr
+                                            wire:key="setoran-item-{{ $di['id'] ?? 'new-' . ($di['price_id'] ?? $index) }}">
                                             <td>{{ $index + 1 }}</td>
                                             <td style="font-size:11px;font-weight:600">{{ $di['trash']['nama'] }}</td>
                                             <td>Rp. {{ number_format($di['harga'], 0, ',', '.') }}</td>
@@ -848,6 +939,11 @@ new class extends Component {
                                                 @enderror
                                             </td>
                                             <td>Rp. {{ number_format($di['sub_total'], 0, ',', '.') }}</td>
+                                            <td> <button type="button" wire:click="removeCart({{ $index }})"
+                                                    class="btn btn-sm btn-link text-danger p-0">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

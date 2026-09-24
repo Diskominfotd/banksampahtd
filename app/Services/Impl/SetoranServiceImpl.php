@@ -347,28 +347,29 @@ class SetoranServiceImpl implements SetoranService
             if (!$setoran) {
                 throw new \Exception('Data setoran tidak ditemukan.');
             }
+            $keepIds = collect($data['items'])->pluck('id')->filter()->values()->all();
 
+            if (empty($data['items'])) {
+                throw new \Exception('Minimal harus ada 1 item setoran.');
+            }
+
+            $setoran->items()->whereNotIn('id', $keepIds)->delete();
             foreach ($data['items'] as $itemInput) {
                 $berat = (float) ($itemInput['berat'] ?? 0);
                 if ($berat <= 0) {
                     continue;
                 }
-
-                // ===== Item lama: update =====
                 if (!empty($itemInput['id'])) {
                     $item = $setoran->items->firstWhere('id', $itemInput['id']);
                     if (!$item) {
                         continue;
                     }
-
                     $item->update([
                         'berat' => $berat,
                         'sub_total' => $berat * $item->harga,
                     ]);
                     continue;
                 }
-
-                // ===== Item baru: insert =====
                 if (!empty($itemInput['price_id'])) {
                     $price = Price::with('trash')->find($itemInput['price_id']);
                     if (!$price) {
