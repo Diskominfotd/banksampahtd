@@ -14,6 +14,8 @@ use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\NasabahImportSheets;
 use App\Exports\NasabahExport;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 new class extends Component {
     use WithPagination;
     use TraitComponent;
@@ -189,7 +191,7 @@ new class extends Component {
             'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', Rule::unique('users', 'nomor_hp')->ignore($this->nasabahId)],
             'emailNasabah' => ['required', 'email', Rule::unique('users', 'email')->ignore($this->nasabahId)],
             'jenisNasabah' => 'required|in:perorangan,kelompok',
-            'organisasiNasabah' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
+            'organisasiNasabah' => $this->jenisNasabah == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
             'unitNasabah' => 'required|exists:bank_sampahs,id',
             'password' => 'nullable|string|min:6',
         ];
@@ -216,7 +218,7 @@ new class extends Component {
         $rules = [
             'nama' => 'required',
             'nomorTelepon' => 'required|regex:/^08\d{8,}$/|unique:users,nomor_hp',
-            'email' => 'required|email|unique|users,email',
+            'email' => 'required|email|unique:users,email',
             'jenis' => 'required|in:perorangan,kelompok',
             'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
             'password' => 'required|string|min:6',
