@@ -34,7 +34,7 @@ new class extends Component {
         $rules = [
             'nama' => 'required',
             'nomorTelepon' => 'required|regex:/^08\d{8,}$/|unique:users,nomor_hp',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'jenis' => 'required|in:perorangan,kelompok',
             'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
             'password' => 'required|string|min:6|confirmed',

@@ -187,7 +187,7 @@ new class extends Component {
         $rules = [
             'namaNasabah' => 'required|string|max:120',
             'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', Rule::unique('users', 'nomor_hp')->ignore($this->nasabahId)],
-            'emailNasabah' => 'required|email',
+            'emailNasabah' => ['required', 'email', Rule::unique('users', 'email')->ignore($this->nasabahId)],
             'jenisNasabah' => 'required|in:perorangan,kelompok',
             'organisasiNasabah' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
             'unitNasabah' => 'required|exists:bank_sampahs,id',
@@ -216,7 +216,7 @@ new class extends Component {
         $rules = [
             'nama' => 'required',
             'nomorTelepon' => 'required|regex:/^08\d{8,}$/|unique:users,nomor_hp',
-            'email' => 'required|email',
+            'email' => 'required|email|unique|users,email',
             'jenis' => 'required|in:perorangan,kelompok',
             'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
             'password' => 'required|string|min:6',
