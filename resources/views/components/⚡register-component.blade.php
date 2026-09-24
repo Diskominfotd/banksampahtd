@@ -427,11 +427,12 @@ new class extends Component {
                     <span>{{ session('error') }}</span>
                 </div>
             @endif
-            <form wire:submit.prevent="registerNasabah" class="form-area" id="form-area" x-data
+            <form x-data
                 @submit.prevent="
-        $wire.set('captchaToken', document.querySelector('[name=\'g-recaptcha-response\']')?.value ?? '')
-            .then(() => $wire.registerNasabah());
-    ">
+                $wire.set('captchaToken', document.querySelector('[name=\'g-recaptcha-response\']')?.value ?? '')
+                    .then(() => $wire.registerNasabah());
+                 "
+                class="form-area" id="form-area">
                 <div class="row g-2 mb-2">
                     <div class="col-md-6">
                         <label for="nama" class="form-label">Nama Lengkap</label>
