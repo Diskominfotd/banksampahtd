@@ -644,9 +644,15 @@ new class extends Component {
     @script
         <script>
             Livewire.hook('request', ({
-                fail
+                fail,
+                succeed
             }) => {
                 fail(() => {
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset();
+                    }
+                });
+                succeed(() => {
                     if (typeof grecaptcha !== 'undefined') {
                         grecaptcha.reset();
                     }
