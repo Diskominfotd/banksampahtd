@@ -72,9 +72,6 @@ new class extends Component {
                             </div>
                         </div>
                     </div>
-                    {{-- <div class="m-gear" onclick="mNav('m-notifikasi')"><i class="bi bi-bell-fill"></i><span
-                            style="position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:var(--red);border:2px solid rgba(255,255,255,.4);font-size:7px;display:flex;align-items:center;justify-content:center;font-weight:700">3</span>
-                    </div> --}}
                 </div>
                 <div class="m-summary fade-up">
                     <div class="m-summary-lbl">Total Berat Sampah</div>
@@ -441,7 +438,13 @@ new class extends Component {
             <div class="m-header">
                 <div class="m-topbar">
                     <div class="d-flex align-items-center gap-2" style="position:relative;z-index:2">
-                        <div class="avatar avatar-md" wire:click="movePage('profile')">{{ Auth::user()->initials() }}
+                        <div class="avatar avatar-md" wire:click="movePage('profile')">
+                            @if (Auth::user()->avatar)
+                                <img src="{{ Storage::url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}"
+                                    style="width:100%;height:100%;object-fit:cover;border-radius:inherit">
+                            @else
+                                {{ strtoupper(Auth::user()->initials()) }}
+                            @endif
                         </div>
                         <div>
                             <div style="font-size:10px;color:rgba(255,255,255,.70);margin-bottom:1px">Selamat datang

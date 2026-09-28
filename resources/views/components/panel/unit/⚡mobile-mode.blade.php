@@ -124,7 +124,7 @@ new class extends Component {
             </div>
             <div class="f-group">
                 <label>Hari Buka</label>
-                <input class="f-input" type="time" wire:model="hariBuka">
+                <input class="f-input" type="text" wire:model="hariBuka" placeholder="ex : Senin-Jumat">
                 @error('hariBuka')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
@@ -204,7 +204,7 @@ new class extends Component {
             </div>
             <div class="f-group">
                 <label>Hari Buka</label>
-                <input class="f-input" type="time" wire:model="hariBukaUnit">
+                <input class="f-input" type="text" wire:model="hariBukaUnit" placeholder="ex : Senin-Jumat">
                 @error('hariBukaUnit')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror

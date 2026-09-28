@@ -12,11 +12,12 @@ new class extends Component {
     use WithFileUploads;
     protected UserServices $userService;
     use TraitComponent;
-    public $fotoProfile; 
+    public $fotoProfile;
     public $fotoProfileLama;
-    
+
     //unit properties
     public ?string $namaBank = '';
+    public ?string $hariBuka = '';
     public ?string $kodeBank = '';
     public ?string $alamatBank = '';
     public ?string $jamBuka = '';
@@ -60,6 +61,7 @@ new class extends Component {
         $this->jamTutup = $unit->jam_tutup;
         $this->nomorTelepon = $unit->telepon;
         $this->nasabah = $this->userService->nasabahAktifByBook(Auth::user()->bank_sampah_id);
+        $this->hariBuka = $unit->hari_buka;
     }
 
     public function profileDetail()
@@ -75,21 +77,23 @@ new class extends Component {
     {
         $this->validate([
             'namaBank' => ['required', 'string', 'max:255'],
-            'kodeBank' => ['required', 'string', 'max:20', Rule::unique('bank_sampahs', 'kode_bank')
-            ->ignore(Auth::user()->unit->id)],
-            'alamatBank' => ['required', 'string','max:255'],
-            'jamBuka' => ['required'],
-            'jamTutup' => ['required'],
-            'nomorTeleponNasabah' => ['nullable', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
+            'alamatBank' => ['required', 'string', 'max:255'],
+            'nomorTelepon' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
+            'hariBuka' => ['required', 'string'],
+            'jamBuka' => ['required', 'date_format:H:i,H:i:s'],
+            'jamTutup' => ['required', 'date_format:H:i,H:i:s', 'after:jamBuka'],
         ]);
+
         $this->userService->updateBankSampah(Auth::user()->unit->id, [
             'nama' => $this->namaBank,
-            'kode_bank' => $this->kodeBank,
             'alamat' => $this->alamatBank,
             'jam_buka' => $this->jamBuka,
             'jam_tutup' => $this->jamTutup,
             'telepon' => $this->nomorTelepon,
+            'hari_buka' => $this->hariBuka,
+            'kode_bank' => $this->kodeBank,
         ]);
+
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
@@ -99,18 +103,17 @@ new class extends Component {
         $this->validate([
             'namaLengkap' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string'],
-            'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', Rule::unique('users', 'nomor_hp')
-            ->ignore(Auth::user()->id)],
-            'fotoProfile' => ['nullable', 'image','max:2048'],
+            'nomorTeleponNasabah' => ['required', 'regex:/^08\d{8,}$/', Rule::unique('users', 'nomor_hp')->ignore(Auth::user()->id)],
+            'fotoProfile' => ['nullable', 'image', 'max:2048'],
         ]);
 
         $this->userService->updateProfile(Auth::user()->id, [
             'nama' => $this->namaLengkap,
             'email' => $this->email,
             'nomor_hp' => $this->nomorTeleponNasabah,
-            'avatar' => $this->fotoProfile
+            'avatar' => $this->fotoProfile,
         ]);
-        $this->reset(['namaLengkap', 'email', 'nomorTeleponNasabah','fotoProfile']);
+        $this->reset(['namaLengkap', 'email', 'nomorTeleponNasabah', 'fotoProfile']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }

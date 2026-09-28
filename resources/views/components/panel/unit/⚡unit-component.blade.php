@@ -56,7 +56,7 @@ new class extends Component {
             'alamat' => ['required', 'string', 'max:255'],
             'jamBuka' => ['required'],
             'jamTutup' => ['required'],
-            'hariBuka' => ['required','string','max:40'],
+            'hariBuka' => ['required', 'string', 'max:40'],
             'telepon' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
         ]);
         $this->userService->createUnit([
@@ -66,8 +66,9 @@ new class extends Component {
             'jam_buka' => $this->jamBuka,
             'jam_tutup' => $this->jamTutup,
             'telepon' => $this->telepon,
+            'hari_buka' => $this->hariBuka,
         ]);
-        $this->reset(['nama', 'kode', 'alamat', 'jamBuka', 'jamTutup', 'telepon','hariBuka']);
+        $this->reset(['nama', 'kode', 'alamat', 'jamBuka', 'jamTutup', 'telepon', 'hariBuka']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
@@ -90,23 +91,23 @@ new class extends Component {
     {
         $this->validate([
             'namaUnit' => ['required', 'string', 'max:255'],
-            'kodeUnit' => ['string', 'max:20', Rule::unique('bank_sampahs', 'kode_bank')
-            ->ignore($this->unitId)],
+            'kodeUnit' => ['string', 'max:20', Rule::unique('bank_sampahs', 'kode_bank')->ignore($this->unitId)],
             'alamatUnit' => ['required', 'string', 'max:255'],
             'jamBukaUnit' => ['required'],
             'jamTutupUnit' => ['required'],
-            'hariBukaUnit' => ['required','string','max:40'],
+            'hariBukaUnit' => ['required', 'string', 'max:40'],
             'teleponUnit' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
         ]);
-        $this->userService->updateUnit($this->unitId,[
+        $this->userService->updateUnit($this->unitId, [
             'nama' => $this->namaUnit,
             'kode_bank' => $this->kodeUnit,
             'alamat' => $this->alamatUnit,
             'jam_buka' => $this->jamBukaUnit,
             'jam_tutup' => $this->jamTutupUnit,
             'telepon' => $this->teleponUnit,
+            'hari_buka' => $this->hariBukaUnit,
         ]);
-        $this->reset(['namaUnit', 'kodeUnit', 'alamatUnit', 'jamBukaUnit', 'jamTutupUnit', 'teleponUnit','hariBukaUnit']);
+        $this->reset(['namaUnit', 'kodeUnit', 'alamatUnit', 'jamBukaUnit', 'jamTutupUnit', 'teleponUnit', 'hariBukaUnit']);
         $this->dispatch('close-modal');
         $this->alertPopUp();
     }
@@ -126,13 +127,13 @@ new class extends Component {
 ?>
 
 <div x-data x-init="if (!Alpine.store('sheet')) {
-        Alpine.store('sheet', {
-            active: null,
-            show(name) { this.active = name },
-            hide() { this.active = null },
-            is(name) { return this.active === name },
-        })
-    }">
+    Alpine.store('sheet', {
+        active: null,
+        show(name) { this.active = name },
+        hide() { this.active = null },
+        is(name) { return this.active === name },
+    })
+}">
     {{-- Always remember that you are absolutely unique. Just like everyone else. - Margaret Mead --}}
     @php
         $data = $this->getData();

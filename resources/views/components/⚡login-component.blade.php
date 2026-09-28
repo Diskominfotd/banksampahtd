@@ -258,7 +258,7 @@ new class extends Component {
                 <div>
                     <div class="stat-chips">
                         <div class="brand-logo">
-                            <img src="{{ asset('logotanahdatar.png') }}" alt="Logo" width="40" height="40">
+                            <img src="{{ asset('logotanahdatar.png') }}" alt="Logo" width="50" height="50">
                         </div>
                     </div>
                     <div class="brand-name">B-STAR</div>
@@ -303,7 +303,6 @@ new class extends Component {
             }" x-init="startAuto()"
                 @touchstart="startX = $event.touches[0].clientX; stopAuto()"
                 @touchend="endX = $event.changedTouches[0].clientX; handleSwipe(); startAuto()">
-
                 <template x-for="(slide, index) in slides" :key="index">
                     <div x-show="current === index" x-transition:enter="transition ease-out duration-300"
                         x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="unit-slide">
@@ -313,9 +312,13 @@ new class extends Component {
                         <div class="unit-slide-text">
                             <div class="unit-slide-nama" x-text="slide.nama"></div>
                             <div class="unit-slide-meta">
-                                <span><i class="bi bi-people-fill"></i> <span x-text="slide.nasabah"></span>
-                                    Nasabah</span>
-                                <span><i class="bi bi-recycle"></i> <span x-text="slide.berat"></span></span>
+                                <span><i class="bi bi-people-fill"></i>
+                                    <span x-text="slide.nasabah"></span>
+                                    Nasabah
+                                </span>
+                                <span><i class="bi bi-recycle"></i>
+                                    <span x-text="slide.berat"></span>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -380,15 +383,6 @@ new class extends Component {
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    {{-- <div class="form-check mb-0">
-                        <input class="form-check-input" type="checkbox" id="rememberMe">
-                        <label class="form-check-label" for="rememberMe" style="font-size:12px;">
-                            Ingat saya
-                        </label>
-                    </div>
-                    <a class="forgot-link" onclick="showForgot()">Lupa kata sandi?</a> --}}
                 </div>
                 <button class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
                     id="btn-login" type="submit" style="padding:12px; border-radius:12px;"

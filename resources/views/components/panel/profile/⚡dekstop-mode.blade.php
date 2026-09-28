@@ -59,7 +59,7 @@ new class extends Component {};
                             </div>
                         </div>
                     </div>
-                    @if (Auth::user()->hasRole(['supervisor']))
+                    @if (Auth::user()->hasRole(['supervisor', 'admin']))
                         <div class="col-8">
                             <div class="w-panel">
                                 <div class="w-panel-title">Informasi Bank Sampah</div>
@@ -71,7 +71,7 @@ new class extends Component {};
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        <div class="col-6" x-data="{
+                                        {{-- <div class="col-6" x-data="{
                                             kodeBank: @entangle('kodeBank'),
                                             generateKode() {
                                                 const huruf = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -101,12 +101,18 @@ new class extends Component {};
                                             @error('kodeBank')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
+                                        </div> --}}
+                                        <div class="col-6"><label class="w-form-label">Provinsi</label><input
+                                                class="w-form-input" type="text" value="Sumatera Barat" disabled>
                                         </div>
                                         <div class="col-6"><label class="w-form-label">Kota / Kabupaten</label><input
                                                 class="w-form-input" type="text" value="Tanah Datar" disabled>
                                         </div>
-                                        <div class="col-6"><label class="w-form-label">Provinsi</label><input
-                                                class="w-form-input" type="text" value="Sumatera Barat" disabled>
+                                        <div class="col-6"><label class="w-form-label">Nomor Telepon</label><input
+                                                class="w-form-input" type="text" wire:model="nomorTelepon">
+                                            @error('nomorTelepon')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
                                         </div>
                                         <div class="col-12"><label class="w-form-label">Alamat Lengkap</label>
                                             <textarea class="w-form-input" rows="2" wire:model="alamatBank"></textarea>
@@ -114,9 +120,9 @@ new class extends Component {};
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        <div class="col-6"><label class="w-form-label">Nomor Telepon</label><input
-                                                class="w-form-input" type="text" wire:model="nomorTelepon">
-                                            @error('nomorTelepon')
+                                        <div class="col-6"><label class="w-form-label">Hari Buka</label><input
+                                                class="w-form-input" type="text" wire:model="hariBuka">
+                                            @error('hariBuka')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
@@ -131,6 +137,11 @@ new class extends Component {};
                                             @error('jamTutup')
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="w-form-label">Kode Unit</label>
+                                            <input class="w-form-input" type="text" value="{{ $kodeBank }}"
+                                                readonly disabled>
                                         </div>
                                         <div class="col-12">
                                             <div class="d-flex justify-content-end gap-2">

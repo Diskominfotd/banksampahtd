@@ -339,7 +339,7 @@ new class extends Component {
                 <div>
                     <div class="stat-chips">
                         <div class="brand-logo">
-                            <img src="{{ asset('logotanahdatar.png') }}" alt="Logo" width="40" height="40">
+                            <img src="{{ asset('logotanahdatar.png') }}" alt="Logo" width="50" height="50">
                         </div>
                     </div>
                     <div class="brand-name">B-STAR</div>
@@ -348,7 +348,6 @@ new class extends Component {
                         dampak lingkungan Anda secara real-time.
                     </p>
                 </div>
-                {{-- Ilustrasi versi desktop, otomatis disembunyikan di mobile lewat CSS --}}
                 <img src="{{ asset('bup.png') }}" alt="Ilustrasi" class="brand-illustration">
             </div>
             <div class="stat-chips" style="margin-bottom:10px;">
@@ -380,7 +379,7 @@ new class extends Component {
                 },
                 startAuto() { this.interval = setInterval(() => this.next(), 4000); },
                 stopAuto() { clearInterval(this.interval); }
-            }" x-init="startAuto()"
+                }" x-init="startAuto()"
                 @touchstart="startX = $event.touches[0].clientX; stopAuto()"
                 @touchend="endX = $event.changedTouches[0].clientX; handleSwipe(); startAuto()">
 

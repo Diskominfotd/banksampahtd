@@ -40,16 +40,18 @@ new class extends Component {
                 <button class="btn-tx" @click="$store.sheet.show('edit-password')">
                     Password</button>
             </div>
-            @if (Auth::user()->hasRole(['supervisor']))
+            @if (Auth::user()->hasRole(['supervisor', 'admin']))
                 <div class="d-flex align-items-center justify-content-between">
                     <div class="sec-lbl">Informasi Unit</div>
                     <button class="btn-tx" @click="$store.sheet.show('edit-bank-sampah')">Edit</button>
                 </div>
                 <div class="d-flex flex-column gap-2 mb-3">
                     <div class="detail-field"><span class="df-key">Nama Bank Sampah</span><span
-                            class="df-val">{{ $namaBank }}</span></div>
+                            class="df-val">{{ $namaBank }}</span>
+                    </div>
                     <div class="detail-field"><span class="df-key">Kode Unit</span><span
-                            class="df-val">{{ $kodeBank }}</span>
+                            class="df-val">{{ $kodeBank }}
+                    </span>
                     </div>
                     <div class="detail-field"><span class="df-key">Lokasi</span>
                         <span class="df-val">
@@ -132,8 +134,6 @@ new class extends Component {
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-                {{-- END FOTO PROFILE --}}
-
                 <div class="f-group"><label>Nama Lengkap</label>
                     <input class="f-input" type="text" wire:model="namaLengkap">
                     @error('namaLengkap')
@@ -235,7 +235,7 @@ new class extends Component {
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-                <div class="f-group" x-data="{
+                {{-- <div class="f-group" x-data="{
                     kodeBank: @entangle('kodeBank'),
                     generateKode() {
                         const huruf = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -262,13 +262,12 @@ new class extends Component {
                             <small class="text-danger">{{ $message }}</small>
                         @enderror
                     </div>
-                </div>
-
-                <div class="f-group"><label>Kota / Kabupaten</label>
-                    <input class="f-input" type="text" value="Tanah Datar" disabled>
-                </div>
+                </div> --}}
                 <div class="f-group"><label>Provinsi</label>
                     <input class="f-input" type="text" value="Sumatera Barat" disabled>
+                </div>
+                <div class="f-group"><label>Kota / Kabupaten</label>
+                    <input class="f-input" type="text" value="Tanah Datar" disabled>
                 </div>
                 <div class="f-group"><label>Alamat Lengkap</label>
                     <textarea class="f-input" wire:model="alamatBank" id="" cols="30" rows="2"></textarea>
@@ -276,9 +275,18 @@ new class extends Component {
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
+                <div class="f-group"><label>Kota / Kabupaten</label>
+                    <input class="f-input" type="text" value="Tanah Datar" disabled>
+                </div>
                 <div class="f-group"><label>Nomor Telepon</label>
                     <input class="f-input" type="text" wire:model="nomorTelepon">
                     @error('nomorTelepon')
+                        <small class="text-danger">{{ $message }}</small>
+                    @enderror
+                </div>
+                <div class="f-group"><label>Hari Buka</label>
+                    <input class="f-input" type="text" wire:model="hariBuka">
+                    @error('hariBuka')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>

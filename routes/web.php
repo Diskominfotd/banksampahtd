@@ -33,6 +33,6 @@ Route::middleware([Authenticate::class, 'throttle:100,1'])->group(function (): v
             Route::get('/setoran/pencatatan', [PanelController::class, 'catatSetoran'])->name('setoran.catat');
             Route::get('/penarikan/buat-penarikan', [PanelController::class, 'buatPenarikan'])->name('buat.penarikan.saldo');
         });
-        Route::get('/profile', [PanelController::class, 'profile'])->name('profile');
     });
+    Route::get('/profile', [PanelController::class, 'profile'])->name('profile');
 });

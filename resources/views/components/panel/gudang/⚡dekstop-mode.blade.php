@@ -223,7 +223,7 @@ new class extends Component {
                                                 style="font-size:13px"></i>
                                         </div>
                                         <div class="flex-grow-1 overflow-hidden">
-                                            <div class="w-row-title">{{ $tb->kode ?? '-' }}</div>
+                                            <div class="w-row-title">{{ $tb->keterangan ?? '-' }}</div>
                                             <div class="w-row-meta"><b>{{ ucfirst($tb->admin->name) }}</b> ·
                                                 {{ $tb->created_at?->diffForHumans() }}
                                             </div>
@@ -270,7 +270,7 @@ new class extends Component {
                                                 <i class="bi bi-dash-circle" style="font-size:13px;"></i>
                                             </div>
                                             <div class="flex-grow-1 overflow-hidden">
-                                                <div class="w-row-title">{{ $pg->kode ?? '-' }}</div>
+                                                <div class="w-row-title">{{ $pg->keterangan ?? '-' }}</div>
                                                 <div class="w-row-meta"><b>{{ ucfirst($pg->admin->name) }}</b> ·
                                                     {{ $pg->created_at?->diffForHumans() }}
                                                 </div>

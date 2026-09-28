@@ -313,6 +313,7 @@ class UserServicesImpl implements UserServices
             'jam_buka' => $data['jam_buka'],
             'jam_tutup' => $data['jam_tutup'],
             'telepon' => $data['telepon'],
+            'hari_buka' => $data['hari_buka'],
         ]);
         session()->flash('success', 'Behasil');
     }
@@ -372,6 +373,7 @@ class UserServicesImpl implements UserServices
                 'kode_bank' => $data['kode_bank'],
                 'jam_buka' => $data['jam_buka'],
                 'jam_tutup' => $data['jam_tutup'],
+                'hari_buka' => $data['hari_buka'],
             ]);
             Gudang::create([
                 'kode' => $this->generateGudangKode(),
@@ -391,6 +393,7 @@ class UserServicesImpl implements UserServices
                 'jam_buka' => $data['jam_buka'],
                 'jam_tutup' => $data['jam_tutup'],
                 'kode_bank' => $data['kode_bank'],
+                'hari_buka' => $data['hari_buka'],
             ]);
             session()->flash('success', 'Behasil');
         });
