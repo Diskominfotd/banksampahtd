@@ -145,7 +145,7 @@ new class extends Component {
                                     <i class="bi bi-box-fill" style="font-size:14px"></i>
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
-                                    <div class="tx-name text-truncate">{{ ucfirst($trx->kode) }} —
+                                    <div class="tx-name text-truncate">{{ ucfirst($trx->keterangan ?? '-') }} —
                                         {{ number_format($trx->total_berat, 0, ',', '.') }} Kg</div>
                                     <div class="tx-date">
                                         <i class="bi bi-clock me-1"></i>
@@ -188,7 +188,7 @@ new class extends Component {
                                     <i class="bi bi-dash-circle" style="font-size:14px"></i>
                                 </div>
                                 <div class="flex-grow-1 overflow-hidden">
-                                    <div class="tx-name text-truncate">{{ $pg->kode ?? '-' }}</div>
+                                    <div class="tx-name text-truncate">{{ $pg->keterangan ?? '-' }}</div>
                                     <div class="tx-date">
                                         <i class="bi bi-clock me-1"></i>
                                         {{ $pg->created_at->timezone('Asia/Jakarta')->diffForHumans() }} ·
