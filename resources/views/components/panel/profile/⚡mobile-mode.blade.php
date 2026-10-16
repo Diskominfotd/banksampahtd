@@ -51,7 +51,7 @@ new class extends Component {
                     </div>
                     <div class="detail-field"><span class="df-key">Kode Unit</span><span
                             class="df-val">{{ $kodeBank }}
-                    </span>
+                        </span>
                     </div>
                     <div class="detail-field"><span class="df-key">Lokasi</span>
                         <span class="df-val">
@@ -296,9 +296,26 @@ new class extends Component {
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>
-                <div class="f-group"><label>Jam Tutup</label>
-                    <input class="f-input" type="time" wire:model="jamTutup">
-                    @error('jamTutup')
+                <div class="f-group">
+                    <label>Limit Penarikan</label>
+
+                    <div x-data="{
+                        display: '',
+                        format(val) {
+                            val = String(val ?? '').replace(/\D/g, '');
+                            return val ? 'Rp ' + new Intl.NumberFormat('id-ID').format(val) : '';
+                        },
+                        update(e) {
+                            const raw = e.target.value.replace(/\D/g, '');
+                            this.display = this.format(raw);
+                            $wire.set('limitPenarikan', raw ? parseInt(raw) : null);
+                        }
+                    }" x-init="display = format($wire.limitPenarikan)">
+                        <input class="f-input" type="text" inputmode="numeric" placeholder="Rp 0"
+                            x-model="display" x-on:input="update($event)" />
+                    </div>
+
+                    @error('limitPenarikan')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
                 </div>

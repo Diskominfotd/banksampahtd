@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
     'nama', 'parent_id', 'alamat', 'telepon', 'use_parent_price', 
-    'kode_bank', 'jam_buka', 'jam_tutup', 'hari_buka'
+    'kode_bank', 'jam_buka', 'jam_tutup', 'hari_buka','limit_penarikan'
 ])]
 class BankSampah extends Model
 {

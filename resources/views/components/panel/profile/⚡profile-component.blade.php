@@ -23,6 +23,7 @@ new class extends Component {
     public ?string $jamBuka = '';
     public ?string $jamTutup = '';
     public ?string $nomorTelepon = '';
+    public ?int $limitPenarikan = null;
 
     //unit properties
     public ?string $namaLengkap = '';
@@ -62,6 +63,7 @@ new class extends Component {
         $this->nomorTelepon = $unit->telepon;
         $this->nasabah = $this->userService->nasabahAktifByBook(Auth::user()->bank_sampah_id);
         $this->hariBuka = $unit->hari_buka;
+        $this->limitPenarikan = $unit->limit_penarikan;
     }
 
     public function profileDetail()
@@ -75,14 +77,22 @@ new class extends Component {
 
     public function editBankSampah()
     {
-        $this->validate([
-            'namaBank' => ['required', 'string', 'max:255'],
-            'alamatBank' => ['required', 'string', 'max:255'],
-            'nomorTelepon' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
-            'hariBuka' => ['required', 'string'],
-            'jamBuka' => ['required', 'date_format:H:i,H:i:s'],
-            'jamTutup' => ['required', 'date_format:H:i,H:i:s', 'after:jamBuka'],
-        ]);
+        $this->validate(
+            [
+                'namaBank' => ['required', 'string', 'max:255'],
+                'alamatBank' => ['required', 'string', 'max:255'],
+                'nomorTelepon' => ['required', 'string', 'max:20', 'regex:/^08[0-9]+$/'],
+                'hariBuka' => ['required', 'string'],
+                'jamBuka' => ['required', 'date_format:H:i,H:i:s'],
+                'jamTutup' => ['required', 'date_format:H:i,H:i:s', 'after:jamBuka'],
+                'limitPenarikan' => ['required', 'integer', 'min:5000'],
+            ],
+            [
+                'limitPenarikan.required' => 'Batas minimum penarikan wajib diisi.',
+                'limitPenarikan.integer' => 'Batas minimum penarikan harus berupa angka.',
+                'limitPenarikan.min' => 'Batas minimum penarikan tidak boleh kurang dari Rp 5.000.',
+            ],
+        );
 
         $this->userService->updateBankSampah(Auth::user()->unit->id, [
             'nama' => $this->namaBank,
@@ -92,6 +102,7 @@ new class extends Component {
             'telepon' => $this->nomorTelepon,
             'hari_buka' => $this->hariBuka,
             'kode_bank' => $this->kodeBank,
+            'limit_penarikan' => $this->limitPenarikan,
         ]);
 
         $this->dispatch('close-modal');

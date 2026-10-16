@@ -71,37 +71,6 @@ new class extends Component {};
                                                 <small class="text-danger">{{ $message }}</small>
                                             @enderror
                                         </div>
-                                        {{-- <div class="col-6" x-data="{
-                                            kodeBank: @entangle('kodeBank'),
-                                            generateKode() {
-                                                const huruf = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                                                const angka = '0123456789';
-                                                let hasil = '';
-                                                for (let i = 0; i < 3; i++) {
-                                                    hasil += huruf.charAt(Math.floor(Math.random() * huruf.length));
-                                                }
-                                                for (let i = 0; i < 3; i++) {
-                                                    hasil += angka.charAt(Math.floor(Math.random() * angka.length));
-                                                }
-                                                this.kodeBank = hasil;
-                                            }
-                                        }">
-                                            <label class="w-form-label">Kode Unit</label>
-                                            <div class="d-flex gap-2">
-                                                <input class="w-form-input" type="text" x-model="kodeBank"
-                                                    maxlength="6" placeholder="ABC123"
-                                                    style="text-transform: uppercase;"
-                                                    @input="kodeBank = $event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '')"
-                                                    disabled>
-                                                <button type="button" class="btn-tx" @click="generateKode()"
-                                                    title="Generate Kode">
-                                                    <i class="bi bi-arrow-clockwise"></i>
-                                                </button>
-                                            </div>
-                                            @error('kodeBank')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
-                                        </div> --}}
                                         <div class="col-6"><label class="w-form-label">Provinsi</label><input
                                                 class="w-form-input" type="text" value="Sumatera Barat" disabled>
                                         </div>
@@ -143,11 +112,34 @@ new class extends Component {};
                                             <input class="w-form-input" type="text" value="{{ $kodeBank }}"
                                                 readonly disabled>
                                         </div>
+                                        <div class="col-6">
+                                            <label class="w-form-label">Batas Minimum Penarikan</label>
+
+                                            <div x-data="{
+                                                display: '',
+                                                format(val) {
+                                                    val = String(val ?? '').replace(/\D/g, '');
+                                                    return val ? 'Rp ' + new Intl.NumberFormat('id-ID').format(val) : '';
+                                                },
+                                                update(e) {
+                                                    const raw = e.target.value.replace(/\D/g, '');
+                                                    this.display = this.format(raw);
+                                                    $wire.set('limitPenarikan', raw ? parseInt(raw) : null);
+                                                }
+                                            }" x-init="display = format($wire.limitPenarikan)">
+                                                <input class="w-form-input" type="text" inputmode="numeric"
+                                                    placeholder="Rp 0" x-model="display" x-on:input="update($event)" />
+                                            </div>
+                                            @error('limitPenarikan')
+                                                <small class="text-danger">{{ $message }}</small>
+                                            @enderror
+                                        </div>
                                         <div class="col-12">
                                             <div class="d-flex justify-content-end gap-2">
                                                 <button type="submit" class="w-btn w-btn-primary"
                                                     wire:loading.attr="disabled" wire:target="editBankSampah">
-                                                    <span wire:loading.remove wire:target="editBankSampah">Simpan</span>
+                                                    <span wire:loading.remove
+                                                        wire:target="editBankSampah">Simpan</span>
                                                     <span wire:loading wire:target="editBankSampah">
                                                         <span class="spinner-border spinner-border-sm me-1"
                                                             role="status"></span>

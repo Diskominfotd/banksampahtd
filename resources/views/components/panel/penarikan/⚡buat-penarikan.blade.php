@@ -18,6 +18,12 @@ new class extends Component {
 
     public ?int $pageNasabah = 10;
     public ?string $searchNasabah = '';
+    public ?int $limit = 0;
+
+    public function mount()
+    {
+        $this->limit = Auth::user()->unit->limit_penarikan;
+    }
 
     public function logout()
     {
@@ -49,8 +55,7 @@ new class extends Component {
         if ($this->searchNasabah) {
             $builder->whereHas('bukutabungans', function ($q) use ($unit) {
                 $q->where(function ($q) {
-                    $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%")
-                    ->orWhere('nama', 'like', "%{$this->searchNasabah}%");
+                    $q->where('nomor_rekening', 'like', "%{$this->searchNasabah}%")->orWhere('nama', 'like', "%{$this->searchNasabah}%");
                 });
 
                 if ($unit->unit->parent_id) {
@@ -96,10 +101,12 @@ new class extends Component {
         }
         $this->validate(
             [
-                'selectedNasabah.*.jumlah' => 'required|numeric|min:50000',
+                'selectedNasabah.*.jumlah' => 'required|numeric|min:' . $this->limit,
             ],
             [
-                'selectedNasabah.*.jumlah.min' => 'minimal Rp 50.000.',
+                'selectedNasabah.*.jumlah.required' => 'Jumlah penarikan wajib diisi.',
+                'selectedNasabah.*.jumlah.numeric' => 'Jumlah penarikan harus berupa angka.',
+                'selectedNasabah.*.jumlah.min' => 'Minimal penarikan Rp ' . number_format($this->limit, 0, ',', '.') . '.',
             ],
         );
         foreach ($this->selectedNasabah as $i => $item) {
@@ -129,14 +136,14 @@ new class extends Component {
 };
 ?>
 
-<div x-data x-init="if (!Alpine.store('sheet')) {
-    Alpine.store('sheet', {
-        active: null,
-        show(name) { this.active = name },
-        hide() { this.active = null },
-        is(name) { return this.active === name },
-    })
-}">
+    <div x-data x-init="if (!Alpine.store('sheet')) {
+        Alpine.store('sheet', {
+            active: null,
+            show(name) { this.active = name },
+            hide() { this.active = null },
+            is(name) { return this.active === name },
+        })
+    }">
 
     @include('components.panel.penarikan.⚡mobile-mode')
     @include('components.panel.penarikan.⚡dekstop-mode')

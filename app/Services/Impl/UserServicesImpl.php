@@ -314,6 +314,7 @@ class UserServicesImpl implements UserServices
             'jam_tutup' => $data['jam_tutup'],
             'telepon' => $data['telepon'],
             'hari_buka' => $data['hari_buka'],
+            'limit_penarikan' => $data['limit_penarikan'],
         ]);
         session()->flash('success', 'Behasil');
     }

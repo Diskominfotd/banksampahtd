@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
             'hari_buka' => 'Senin - Jumat',
+            'limit_penarikan' => 50000,
         ]);
         Gudang::create([
             'kode' => $this->generateGudangKode(),
@@ -64,6 +65,7 @@ class DatabaseSeeder extends Seeder
             'jam_buka' => '08:00',
             'jam_tutup' => '16:00',
             'hari_buka' => 'Senin - Jumat',
+             'limit_penarikan' => 50000,
         ]);
         Gudang::create([
             'kode' => $this->generateGudangKode(),
