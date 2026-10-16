@@ -34,7 +34,7 @@ new class extends Component {
         $rules = [
             'nama' => 'required',
             'nomorTelepon' => 'required|regex:/^08\d{8,}$/|unique:users,nomor_hp',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'nullable|email|unique:users,email',
             'jenis' => 'required|in:perorangan,kelompok',
             'organisasi' => $this->jenis == 'perorangan' ? 'nullable' : 'required|exists:organisasis,id',
             'password' => 'required|string|min:6|confirmed',
@@ -379,7 +379,7 @@ new class extends Component {
                 },
                 startAuto() { this.interval = setInterval(() => this.next(), 4000); },
                 stopAuto() { clearInterval(this.interval); }
-                }" x-init="startAuto()"
+            }" x-init="startAuto()"
                 @touchstart="startX = $event.touches[0].clientX; stopAuto()"
                 @touchend="endX = $event.changedTouches[0].clientX; handleSwipe(); startAuto()">
 
@@ -446,16 +446,20 @@ new class extends Component {
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <label for="email" class="form-label">Email</label>
+                        <label for="email" class="form-label">
+                            Email <span class="text-muted fw-normal">(opsional)</span>
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
                             <input type="email" id="email" wire:model="email"
                                 class="form-control @error('email') is-invalid @enderror" placeholder="nama@email.com"
                                 autocomplete="email">
+
                             @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+                        <div class="form-text">Boleh dikosongkan.</div>
                     </div>
                 </div>
                 <div class="row g-3 mb-3">

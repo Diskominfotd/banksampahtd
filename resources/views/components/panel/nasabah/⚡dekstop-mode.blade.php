@@ -206,6 +206,7 @@ new class extends Component {
                                     <label class="w-form-label">Email</label>
                                     <input class="w-form-input" type="email" wire:model="email"
                                         placeholder="email@gmail.com">
+                                    <div class="form-text">Boleh dikosongkan.</div>
                                     @error('email')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror

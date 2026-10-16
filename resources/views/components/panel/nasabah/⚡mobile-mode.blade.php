@@ -153,6 +153,7 @@ new class extends Component {
                 <div class="f-group">
                     <label>Email</label>
                     <input class="f-input" type="email" wire:model="email" placeholder="email@gmail.com">
+                    <div class="form-text">Boleh dikosongkan.</div>
                     @error('email')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
